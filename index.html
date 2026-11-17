@@ -7,6 +7,7 @@
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
 
@@ -62,7 +63,7 @@
     }
   </style>
 </head>
-<body class="bg-[#F8F9FC] text-[#1A1A2E] min-h-screen flex flex-col antialiased">
+<body class="bg-[#F8F9FC] text-[#1A1A2E] min-h-screen w-full overflow-x-hidden flex flex-col antialiased">
 
   <!-- ==========================================================================
        1. ÉCRAN DE CONNEXION OFFICIEL YASSIR
@@ -301,7 +302,7 @@
 
     <!-- En-tête officiel Yassir -->
     <header class="yassir-header-gradient text-white sticky top-0 z-30 shadow-lg shadow-[#6C2BD9]/20">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      <div class="w-full px-3 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
         <div class="flex items-center gap-3.5">
           <div class="shrink-0 flex items-center">
             <svg class="h-9 w-auto" viewBox="0 0 250 74" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Yassir">
@@ -340,6 +341,11 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
+          <button id="btnSyncSheetsNow" type="button" onclick="window.yassirSyncAllFromGoogleSheets(true)" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-white/15 text-white hover:bg-white/25 border border-white/25 transition cursor-pointer" title="Synchroniser en direct avec Google Sheets (Portefeuilles AM & Commissions)">
+            <i id="iconSyncSheets" class="fa-solid fa-arrows-rotate text-[#00BFA5]"></i>
+            <span id="labelSyncSheets">Sync Sheets Live</span>
+          </button>
+
           <button id="btnResetAll" type="button" onclick="window.yassirResetAll()" class="hidden inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-white/15 text-white hover:bg-white/25 border border-white/25 transition cursor-pointer">
             <i class="fa-solid fa-rotate-left"></i>
             <span>Réinitialiser</span>
@@ -360,7 +366,7 @@
 
     <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4 sm:px-0"></div>
 
-    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+    <main class="flex-1 w-full px-3 sm:px-6 lg:px-8 py-6 space-y-6">
 
       <!-- ========================================================================
            ZONES D'IMPORTATION (1 : DATA EXP | 2 : COMMISSIONS RESTAURANT PAR FACTURE)
@@ -452,10 +458,16 @@
               <p id="amBarHintText" class="text-[11px] text-slate-500">Vue Globale affichée par défaut • Cliquez sur un portefeuille pour isoler ses résultats et ses % de contribution au global</p>
             </div>
           </div>
-          <span id="activeAmStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#6C2BD9] text-white self-start sm:self-auto">
-            <i class="fa-solid fa-globe"></i>
-            <span>Vue Globale (Tous)</span>
-          </span>
+          <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+            <button type="button" onclick="window.yassirSwitchTab('resto_analytics')" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-extrabold bg-[#FF2A6D] hover:bg-rose-600 text-white shadow-sm transition cursor-pointer">
+              <i class="fa-solid fa-chart-line"></i>
+              <span>Analyse Restaurant (Top Items & Courbe Lun-Dim)</span>
+            </button>
+            <span id="activeAmStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-extrabold bg-[#6C2BD9] text-white">
+              <i class="fa-solid fa-globe"></i>
+              <span>Vue Globale (Tous)</span>
+            </span>
+          </div>
         </div>
 
         <div id="amQuickFilterPills" class="flex flex-wrap items-center gap-2 pt-1"></div>
@@ -542,6 +554,12 @@
               <i class="fa-solid fa-chart-column text-[#00897B]"></i>
               <span>Stat Restaurants</span>
               <span id="tabCountStat" class="px-1.5 py-0.5 text-[11px] rounded-full bg-[#E0F7F4] text-[#00897B]">0</span>
+            </button>
+
+            <button type="button" data-tab="resto_analytics" onclick="window.yassirSwitchTab('resto_analytics')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
+              <i class="fa-solid fa-store text-[#FF2A6D]"></i>
+              <span>Analyse Restaurant</span>
+              <span id="tabBadgeRestoAnalytics" class="px-1.5 py-0.5 text-[11px] rounded-full bg-pink-100 text-[#FF2A6D]">Top Items & Courbe</span>
             </button>
 
             <button type="button" data-tab="portefeuilles" onclick="window.yassirSwitchTab('portefeuilles')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
@@ -640,6 +658,145 @@
               <button id="btnPrevPage" type="button" onclick="window.yassirPrevPage()" class="px-3.5 py-1.5 rounded-full border border-purple-200 bg-white text-[#6C2BD9] font-semibold hover:bg-[#F3EBFF] disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">Précédent</button>
               <span id="pageIndicator" class="font-bold text-[#1A1A2E]">Page 1 / 1</span>
               <button id="btnNextPage" type="button" onclick="window.yassirNextPage()" class="px-3.5 py-1.5 rounded-full border border-purple-200 bg-white text-[#6C2BD9] font-semibold hover:bg-[#F3EBFF] disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">Suivant</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================================
+             VUE 1B : ONGLET ANALYSE RESTAURANT (TOP ITEMS VENDUS + COURBE LUNDI-DIMANCHE)
+             ====================================================================== -->
+        <div id="panelRestoAnalytics" class="hidden p-4 sm:p-5 space-y-6">
+          <!-- Sélecteur de restaurant + Filtre statut + KPIs du restaurant -->
+          <div class="bg-[#F8F9FC] p-4 sm:p-5 rounded-2xl border border-purple-100 space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+              <div class="flex-1 max-w-xl">
+                <label for="selectRestoAnalytics" class="block text-xs font-extrabold uppercase tracking-wider text-[#6C2BD9] mb-1.5">
+                  <i class="fa-solid fa-utensils mr-1.5 text-[#FF2A6D]"></i> Sélectionner un restaurant (Portefeuille autorisé)
+                </label>
+                <div class="flex flex-col sm:flex-row gap-2">
+                  <input id="searchRestoSelectInput" type="text" oninput="window.yassirFilterRestoDropdown(this.value)" placeholder="Filtrer la liste des restaurants..." class="sm:w-56 px-3.5 py-2.5 text-xs bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6C2BD9]" />
+                  <select id="selectRestoAnalytics" onchange="window.yassirOnSelectRestoAnalytics(this.value)" class="flex-1 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-[#1A1A2E] bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6C2BD9]">
+                    <option value="">-- Choisissez un restaurant --</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2">
+                <span id="restoAnalyticsAmBadge" class="hidden px-3 py-1.5 rounded-full text-xs font-bold bg-[#F3EBFF] text-[#6C2BD9]">AM : -</span>
+                <button type="button" onclick="window.yassirExportSelectedRestoItemsCsv()" id="btnExportRestoItemsCsv" disabled class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#6C2BD9] hover:bg-[#5521B5] disabled:bg-slate-200 disabled:text-slate-400 text-white shadow-sm transition cursor-pointer disabled:cursor-not-allowed">
+                  <i class="fa-solid fa-download"></i>
+                  <span>Exporter Top Items (.csv)</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- 4 Mini-KPIs du restaurant sélectionné -->
+            <div id="restoAnalyticsKpis" class="hidden grid grid-cols-2 lg:grid-cols-4 gap-3 pt-2 border-t border-purple-100">
+              <div class="bg-white rounded-xl p-3.5 border border-purple-100">
+                <p class="text-[10px] font-bold uppercase text-slate-400">Commandes Livrées</p>
+                <p id="raKpiDelivered" class="text-xl font-extrabold text-[#00897B] mt-0.5">0</p>
+                <p id="raKpiRequested" class="text-[11px] text-slate-500">sur 0 reçues</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-purple-100">
+                <p class="text-[10px] font-bold uppercase text-slate-400">GMV Livrées (Total Food VF)</p>
+                <p id="raKpiGmv" class="text-xl font-extrabold text-[#6C2BD9] mt-0.5">0.00 TND</p>
+                <p id="raKpiAov" class="text-[11px] text-slate-500">Panier moyen : 0.00 TND</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-purple-100">
+                <p class="text-[10px] font-bold uppercase text-slate-400">Articles vendus (Qté)</p>
+                <p id="raKpiTotalItemsQty" class="text-xl font-extrabold text-[#1A1A2E] mt-0.5">0</p>
+                <p id="raKpiUniqueItems" class="text-[11px] text-slate-500">0 articles distincts</p>
+              </div>
+              <div class="bg-white rounded-xl p-3.5 border border-purple-100">
+                <p class="text-[10px] font-bold uppercase text-slate-400">Meilleur Jour (Livrées)</p>
+                <p id="raKpiBestDay" class="text-xl font-extrabold text-[#FF2A6D] mt-0.5">-</p>
+                <p id="raKpiBestDaySub" class="text-[11px] text-slate-500">0 cmd • 0.00 TND</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- État vide si aucun restaurant ou aucune donnée -->
+          <div id="restoAnalyticsEmptyState" class="py-14 px-4 text-center border border-purple-100 rounded-2xl">
+            <div class="w-14 h-14 rounded-2xl bg-[#F3EBFF] text-[#6C2BD9] flex items-center justify-center mx-auto mb-3">
+              <i class="fa-solid fa-chart-area text-2xl"></i>
+            </div>
+            <h3 class="text-base font-bold text-[#1A1A2E]">Sélectionnez un restaurant pour analyser ses ventes</h3>
+            <p class="text-sm text-slate-500 max-w-md mx-auto mt-1">
+              Importez d'abord votre fichier <strong>Data exp</strong>, puis choisissez un restaurant dans la liste ci-dessus pour afficher le classement des articles vendus (du top au moins vendu) et la courbe hebdomadaire du lundi au dimanche.
+            </p>
+          </div>
+
+          <!-- Contenu principal : Courbe Lundi -> Dimanche + Classement Top Items -->
+          <div id="restoAnalyticsContent" class="hidden grid grid-cols-1 xl:grid-cols-12 gap-6">
+            <!-- Colonne Gauche (7/12) : Courbe des ventes du Lundi au Dimanche -->
+            <div class="xl:col-span-7 bg-white rounded-2xl border border-purple-100 p-4 sm:p-5 shadow-sm flex flex-col justify-between space-y-4">
+              <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                <div>
+                  <h3 class="text-sm font-extrabold text-[#1A1A2E]">
+                    <i class="fa-solid fa-chart-line text-[#6C2BD9] mr-1.5"></i> Courbe des ventes du Lundi au Dimanche
+                  </h3>
+                  <p class="text-xs text-slate-500">Évolution journalière des <strong>Commandes Livrées</strong> et du <strong>GMV (TND)</strong></p>
+                </div>
+                <div class="flex items-center gap-3 text-[11px] font-bold">
+                  <span class="inline-flex items-center gap-1.5 text-[#00897B]"><span class="w-3 h-3 rounded-full bg-[#00BFA5]"></span> Commandes livrées</span>
+                  <span class="inline-flex items-center gap-1.5 text-[#6C2BD9]"><span class="w-3 h-3 rounded-full bg-[#6C2BD9]"></span> GMV (TND)</span>
+                </div>
+              </div>
+
+              <div class="relative w-full h-72 sm:h-80">
+                <canvas id="restoWeeklyChartCanvas"></canvas>
+              </div>
+
+              <!-- Récapitulatif tabulaire Lundi -> Dimanche -->
+              <div class="border border-purple-100 rounded-xl overflow-x-auto">
+                <table class="min-w-full divide-y divide-purple-100 text-xs">
+                  <thead class="bg-[#F3EBFF] text-[#6C2BD9] font-extrabold">
+                    <tr>
+                      <th class="px-3 py-2 text-left">Jour</th>
+                      <th class="px-3 py-2 text-right">Lundi</th>
+                      <th class="px-3 py-2 text-right">Mardi</th>
+                      <th class="px-3 py-2 text-right">Mercredi</th>
+                      <th class="px-3 py-2 text-right">Jeudi</th>
+                      <th class="px-3 py-2 text-right">Vendredi</th>
+                      <th class="px-3 py-2 text-right">Samedi</th>
+                      <th class="px-3 py-2 text-right">Dimanche</th>
+                    </tr>
+                  </thead>
+                  <tbody id="restoWeeklyMiniTableBody" class="divide-y divide-slate-100 bg-white font-mono"></tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Colonne Droite (5/12) : Items vendus du Top au Moins vendu -->
+            <div class="xl:col-span-5 bg-white rounded-2xl border border-purple-100 p-4 sm:p-5 shadow-sm flex flex-col space-y-3">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="text-sm font-extrabold text-[#1A1A2E]">
+                    <i class="fa-solid fa-ranking-star text-[#FF2A6D] mr-1.5"></i> Articles vendus (Top au Moins)
+                  </h3>
+                  <p class="text-xs text-slate-500">Classement sur commandes livrées (colonne <code>Food Item</code>)</p>
+                </div>
+                <span id="restoItemsCountBadge" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F3EBFF] text-[#6C2BD9]">0 items</span>
+              </div>
+
+              <div class="relative">
+                <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-[#6C2BD9]/60 text-xs"></i>
+                <input id="searchRestoItemInput" type="text" oninput="window.yassirRenderRestoItemsTable()" placeholder="Filtrer un article..." class="w-full pl-9 pr-4 py-1.5 text-xs bg-[#F8F9FC] border border-purple-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#6C2BD9]" />
+              </div>
+
+              <div class="border border-purple-100 rounded-xl overflow-hidden max-h-[420px] overflow-y-auto custom-scrollbar flex-1">
+                <table class="min-w-full divide-y divide-purple-100 text-xs">
+                  <thead class="bg-[#6C2BD9] text-white font-bold uppercase sticky top-0 z-10">
+                    <tr>
+                      <th class="px-3 py-2.5 text-left w-10">Rang</th>
+                      <th class="px-3 py-2.5 text-left">Article (Food Item)</th>
+                      <th class="px-3 py-2.5 text-right">Qté</th>
+                      <th class="px-3 py-2.5 text-right">Part %</th>
+                    </tr>
+                  </thead>
+                  <tbody id="restoTopItemsTableBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>
@@ -2199,12 +2356,20 @@
 
       function afficherTableauDonnees() {
         var panelData = document.getElementById('panelData');
+        var panelRestoAnalytics = document.getElementById('panelRestoAnalytics');
         var panelPortefeuilles = document.getElementById('panelPortefeuilles');
         var panelComm = document.getElementById('panelCommissions');
 
         panelData.classList.add('hidden');
+        if (panelRestoAnalytics) panelRestoAnalytics.classList.add('hidden');
         panelPortefeuilles.classList.add('hidden');
         panelComm.classList.add('hidden');
+
+        if (state.activeTab === 'resto_analytics') {
+          if (panelRestoAnalytics) panelRestoAnalytics.classList.remove('hidden');
+          renderRestoAnalyticsPanel();
+          return;
+        }
 
         if (state.activeTab === 'portefeuilles') {
           panelPortefeuilles.classList.remove('hidden');
@@ -3180,6 +3345,721 @@
         });
       }
 
+      /* ========================================================================
+         O1. SYNCHRONISATION TEMPS RÉEL GOOGLE SHEETS (FETCH + JSONP SANS BLOCAGE CORS)
+         ======================================================================== */
+      var LIVE_SHEETS_CONFIG = {
+        PORTFOLIOS_SHEET_ID: '15vUF7DgXJrNb6s7PJ5aotQet2SrdXiZtSlTp2y87PQo',
+        PORTFOLIOS_TABS: [
+          { tab: 'omar', altTabs: ['Omar', 'Omar Beldi'], gid: '', am: 'Omar Beldi' },
+          { tab: 'Nour', altTabs: ['nour', 'Nour Ali'], gid: '', am: 'Nour Ali' },
+          { tab: 'Aziza', altTabs: ['aziza', 'Aziza Souli'], gid: '', am: 'Aziza Souli' },
+          { tab: 'Khouloud', altTabs: ['khouloud', 'Khouloud Harbaoui'], gid: '', am: 'Khouloud Harbaoui' },
+          { tab: 'Imed', altTabs: ['imed', 'Imed Fourati'], gid: '389661597', am: 'Imed Fourati' },
+          { tab: 'Iheb', altTabs: ['iheb', 'Iheb Dachraoui'], gid: '', am: 'Iheb Dachraoui' },
+          { tab: 'Ilyes', altTabs: ['ilyes', 'Ilyes kammoun', 'Ilyes Kammoun'], gid: '', am: 'Ilyes kammoun' }
+        ],
+        COMMISSIONS_SHEET_ID: '1DT7ZBob6EJOs1ZPhGxF2DFKFxNOc6278',
+        COMMISSIONS_TAB: 'Restaurant par facture',
+        COMMISSIONS_GID: '1205512685'
+      };
+
+      function parseCsvLineSimple(line, sep) {
+        var result = [];
+        var cur = '';
+        var inQuotes = false;
+        for (var i = 0; i < line.length; i++) {
+          var ch = line[i];
+          if (ch === '"') {
+            if (inQuotes && line[i + 1] === '"') {
+              cur += '"';
+              i++;
+            } else {
+              inQuotes = !inQuotes;
+            }
+          } else if (ch === sep && !inQuotes) {
+            result.push(cur);
+            cur = '';
+          } else {
+            cur += ch;
+          }
+        }
+        result.push(cur);
+        return result;
+      }
+
+      function parseCsvTextToRows(csvText) {
+        var clean = String(csvText || '').replace(/^\uFEFF/, '');
+        var lines = clean.split(/\r?\n/).filter(function (l) { return l.trim() !== ''; });
+        if (lines.length === 0) return [];
+        var sep = (lines[0].split(';').length > lines[0].split(',').length) ? ';' : ',';
+        return lines.map(function (l) { return parseCsvLineSimple(l, sep); });
+      }
+
+      // Méthode JSONP officielle Google Visualization (contourne 100% des blocages CORS dans Google Sites / GitHub Pages)
+      function fetchGoogleSheetJsonp(sheetId, sheetNameOrGid, isGid) {
+        return new Promise(function (resolve, reject) {
+          var cbName = 'yassirGvizCb_' + Math.random().toString(36).slice(2) + '_' + Date.now();
+          var script = document.createElement('script');
+          var timer = setTimeout(function () {
+            cleanup();
+            reject(new Error('Timeout JSONP'));
+          }, 9000);
+
+          function cleanup() {
+            clearTimeout(timer);
+            if (script.parentNode) script.parentNode.removeChild(script);
+            try { delete window[cbName]; } catch (e) { window[cbName] = undefined; }
+          }
+
+          window[cbName] = function (response) {
+            cleanup();
+            if (!response || response.status === 'error' || !response.table) {
+              reject(new Error('Erreur réponse Google Sheets'));
+              return;
+            }
+            var rows = [];
+            if (response.table.cols) {
+              var headerRow = response.table.cols.map(function (c) { return c && c.label ? String(c.label).trim() : ''; });
+              if (headerRow.some(function (h) { return h !== ''; })) {
+                rows.push(headerRow);
+              }
+            }
+            if (response.table.rows) {
+              response.table.rows.forEach(function (r) {
+                if (!r || !r.c) return;
+                rows.push(r.c.map(function (cell) {
+                  if (!cell || cell.v === null || cell.v === undefined) return '';
+                  return String(cell.v);
+                }));
+              });
+            }
+            resolve(rows);
+          };
+
+          var param = isGid
+            ? ('gid=' + encodeURIComponent(sheetNameOrGid))
+            : ('sheet=' + encodeURIComponent(sheetNameOrGid));
+
+          script.src = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(sheetId) +
+                       '/gviz/tq?' + param + '&tqx=out:json;responseHandler:' + cbName + '&_t=' + Date.now();
+          script.onerror = function () {
+            cleanup();
+            reject(new Error('Erreur chargement script Google Sheets'));
+          };
+          document.head.appendChild(script);
+        });
+      }
+
+      function fetchGoogleSheetTabSmart(sheetId, primaryTab, altTabs, gid) {
+        // 1. Essayer fetch CSV par nom d'onglet
+        var csvUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(sheetId) +
+                     '/gviz/tq?tqx=out:csv&sheet=' + encodeURIComponent(primaryTab) + '&_t=' + Date.now();
+
+        return fetch(csvUrl, { cache: 'no-store' })
+          .then(function (resp) {
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            return resp.text();
+          })
+          .then(function (txt) {
+            if (txt.trim().toLowerCase().startsWith('<!doctype html') || txt.trim().toLowerCase().startsWith('<html')) {
+              throw new Error('HTML login page');
+            }
+            var rows = parseCsvTextToRows(txt);
+            if (!rows || rows.length === 0) throw new Error('Empty CSV');
+            return rows;
+          })
+          .catch(function () {
+            // 2. Fallback JSONP par nom d'onglet principal
+            return fetchGoogleSheetJsonp(sheetId, primaryTab, false);
+          })
+          .catch(function () {
+            // 3. Fallback par GID si fourni
+            if (gid) {
+              return fetchGoogleSheetJsonp(sheetId, gid, true);
+            }
+            throw new Error('No gid');
+          })
+          .catch(function () {
+            // 4. Fallback variantes de noms d'onglets
+            if (altTabs && altTabs.length > 0) {
+              return fetchGoogleSheetJsonp(sheetId, altTabs[0], false);
+            }
+            throw new Error('All fallbacks failed');
+          });
+      }
+
+      function extraireRestaurantsDepuisLignesSheet(rows, amName, targetMap) {
+        if (!rows || rows.length === 0) return 0;
+        var count = 0;
+        var firstRowLower = rows[0].map(function (c) { return String(c || '').trim().toLowerCase(); });
+        var hasHeader = firstRowLower.indexOf('restaurant name') !== -1 ||
+                        firstRowLower.indexOf('ville') !== -1 ||
+                        firstRowLower.indexOf('segment') !== -1;
+        var startRow = hasHeader ? 1 : 0;
+
+        var idxRest = firstRowLower.indexOf('restaurant name');
+        var idxVille = firstRowLower.indexOf('ville');
+        var idxSeg = firstRowLower.indexOf('segment');
+
+        // Détection intelligente des colonnes si l'en-tête manque (ex: onglet Khouloud ou Aziza)
+        if (idxRest === -1) {
+          if (rows[0].length >= 3) {
+            idxVille = 0;
+            idxSeg = 1;
+            idxRest = 2;
+          } else {
+            idxRest = 0;
+          }
+        }
+
+        for (var r = startRow; r < rows.length; r++) {
+          var row = rows[r];
+          if (!row) continue;
+          var rName = (idxRest < row.length && row[idxRest] !== undefined) ? String(row[idxRest]).trim() : '';
+          var segVal = (idxSeg !== -1 && idxSeg < row.length && row[idxSeg] !== undefined) ? String(row[idxSeg]).trim() : '';
+          var villeVal = (idxVille !== -1 && idxVille < row.length && row[idxVille] !== undefined) ? String(row[idxVille]).trim() : '';
+
+          // Ignorer les lignes vides ou les lignes de sous-totaux
+          if (!rName) continue;
+          var lowerName = rName.toLowerCase();
+          var lowerSeg = segVal.toLowerCase();
+          if (lowerName === 'restaurant name' || lowerSeg.startsWith('sous-total') || lowerSeg.startsWith('total portefeuille')) continue;
+
+          targetMap[lowerName] = {
+            am: amName,
+            displayName: rName,
+            ville: villeVal,
+            segment: segVal
+          };
+          count++;
+        }
+        return count;
+      }
+
+      window.yassirSyncAllFromGoogleSheets = function (manualTrigger) {
+        var icon = document.getElementById('iconSyncSheets');
+        var label = document.getElementById('labelSyncSheets');
+        if (icon) icon.classList.add('fa-spin');
+        if (label) label.textContent = 'Synchronisation...';
+
+        // 1. Synchronisation des 7 onglets du classeur Portefeuilles AM
+        var portfolioPromises = LIVE_SHEETS_CONFIG.PORTFOLIOS_TABS.map(function (entry) {
+          return fetchGoogleSheetTabSmart(LIVE_SHEETS_CONFIG.PORTFOLIOS_SHEET_ID, entry.tab, entry.altTabs, entry.gid)
+            .then(function (rows) {
+              return { am: entry.am, tab: entry.tab, rows: rows, ok: true };
+            })
+            .catch(function () {
+              return { am: entry.am, tab: entry.tab, rows: [], ok: false };
+            });
+        });
+
+        // 2. Synchronisation de l'onglet Commissions "Restaurant par facture"
+        var commPromise = fetchGoogleSheetTabSmart(
+          LIVE_SHEETS_CONFIG.COMMISSIONS_SHEET_ID,
+          LIVE_SHEETS_CONFIG.COMMISSIONS_TAB,
+          ['Sheet1'],
+          LIVE_SHEETS_CONFIG.COMMISSIONS_GID
+        )
+          .then(function (rows) { return { rows: rows, ok: true }; })
+          .catch(function () { return { rows: [], ok: false }; });
+
+        Promise.all([Promise.all(portfolioPromises), commPromise]).then(function (results) {
+          var portfolioResults = results[0];
+          var commResult = results[1];
+
+          var freshMap = Object.assign({}, state.amPortfolios);
+          var anyPortfolioSuccess = false;
+          var syncedTabsDetails = [];
+
+          portfolioResults.forEach(function (res) {
+            if (res.ok && res.rows && res.rows.length > 0) {
+              // Supprimer les anciens restaurants de cet AM avant de réinjecter la liste à jour du Sheet
+              Object.keys(freshMap).forEach(function (k) {
+                if (freshMap[k].am === res.am) delete freshMap[k];
+              });
+              var added = extraireRestaurantsDepuisLignesSheet(res.rows, res.am, freshMap);
+              if (added > 0) {
+                anyPortfolioSuccess = true;
+                syncedTabsDetails.push(res.am + ' (' + added + ')');
+              }
+            }
+          });
+
+          if (anyPortfolioSuccess) {
+            state.amPortfolios = freshMap;
+            savePortfoliosToStore();
+          }
+
+          var updatedCommCount = 0;
+          if (commResult.ok && commResult.rows && commResult.rows.length > 1) {
+            var freshComm = {};
+            for (var c = 1; c < commResult.rows.length; c++) {
+              var cRow = commResult.rows[c];
+              if (cRow && cRow[0] !== undefined && cRow[1] !== undefined && String(cRow[1]).trim() !== '') {
+                var cName = String(cRow[0]).replace(/[\u200e\u200f\u202a-\u202e]/g, '').trim().toLowerCase();
+                var cRate = purgerNombre(String(cRow[1]).replace(/[\u200e\u200f\u202a-\u202e]/g, ''));
+                if (cName && cName !== 'restaurant' && !isNaN(cRate) && cRate > 0) {
+                  freshComm[cName] = cRate;
+                  updatedCommCount++;
+                }
+              }
+            }
+            if (updatedCommCount > 0) {
+              state.customCommissions = freshComm;
+              saveCommissionsToStore();
+            }
+          }
+
+          if (icon) icon.classList.remove('fa-spin');
+          if (label) {
+            var now = new Date();
+            var hh = String(now.getHours()).padStart(2, '0');
+            var mm = String(now.getMinutes()).padStart(2, '0');
+            label.textContent = (anyPortfolioSuccess || updatedCommCount > 0) ? ('Sync OK (' + hh + ':' + mm + ')') : 'Sync Sheets Live';
+          }
+
+          if (state.rawSourceRows && state.rawSourceRows.length > 1) {
+            executerTraitementMetier();
+          } else {
+            mettreAJourInterface();
+          }
+
+          if (manualTrigger) {
+            if (anyPortfolioSuccess || updatedCommCount > 0) {
+              showToast(
+                '<strong>Synchronisation Google Sheets réussie !</strong><br/>' +
+                '• Portefeuilles AM : <strong>' + Object.keys(state.amPortfolios).length + '</strong> restaurants (' + (syncedTabsDetails.join(', ') || 'à jour') + ').<br/>' +
+                '• Commissions : <strong>' + Object.keys(state.customCommissions).length + '</strong> taux TTC à jour.',
+                'success'
+              );
+            } else {
+              showToast(
+                'Accès bloqué par Google Sheets : ouvrez chaque feuille Google Sheets, cliquez sur <strong>Partager</strong> en haut à droite et réglez l\'accès général sur <strong>« Tous les utilisateurs disposant du lien : Lecteur »</strong>.',
+                'error'
+              );
+            }
+          }
+        });
+      };
+
+      /* ========================================================================
+         O2. ONGLET ANALYSE RESTAURANT : TOP ITEMS VENDUS + COURBE LUNDI-DIMANCHE
+         ======================================================================== */
+      var selectedAnalyticsRestoKey = '';
+      var restoWeeklyChartInstance = null;
+      var currentRestoTopItemsList = [];
+
+      function getAvailableRestaurantsForAnalytics() {
+        var allowedAms = getAllowedAmListForCurrentUser();
+        var activeAm = getEffectiveAmFilter();
+        var idxResto = TARGET_HEADERS.indexOf('restaurant name');
+
+        var map = new Map();
+
+        // 1. Restaurants issus des portefeuilles autorisés
+        Object.entries(state.amPortfolios).forEach(function (pair) {
+          var key = pair[0];
+          var info = pair[1];
+          if (!canViewAllPortfolios() && allowedAms.indexOf(info.am) === -1) return;
+          if (activeAm !== 'ALL' && info.am !== activeAm) return;
+          map.set(key, { key: key, name: info.displayName, am: info.am, orderCount: 0 });
+        });
+
+        // 2. Comptage des commandes dans Data exp (et ajout des restos non attribués si Vue Globale)
+        var allRecords = state.marketRows.concat(state.foodRows);
+        allRecords.forEach(function (rec) {
+          if (!canViewAllPortfolios() && allowedAms.indexOf(rec.am) === -1) return;
+          if (activeAm !== 'ALL' && rec.am !== activeAm) return;
+          var rName = String(rec.cells[idxResto] || '').trim();
+          var rKey = rName.toLowerCase();
+          if (!rKey) return;
+          if (!map.has(rKey)) {
+            map.set(rKey, { key: rKey, name: rName, am: rec.am, orderCount: 0 });
+          }
+          map.get(rKey).orderCount++;
+        });
+
+        return Array.from(map.values()).sort(function (a, b) {
+          return (b.orderCount - a.orderCount) || a.name.localeCompare(b.name, 'fr');
+        });
+      }
+
+      window.yassirFilterRestoDropdown = function (filterText) {
+        var select = document.getElementById('selectRestoAnalytics');
+        if (!select) return;
+        var q = String(filterText || '').trim().toLowerCase();
+        var list = getAvailableRestaurantsForAnalytics().filter(function (item) {
+          return !q || item.name.toLowerCase().includes(q) || item.am.toLowerCase().includes(q);
+        });
+
+        var optionsHtml = '<option value="">-- Choisissez un restaurant (' + list.length + ') --</option>';
+        list.forEach(function (item) {
+          var selAttr = (item.key === selectedAnalyticsRestoKey) ? ' selected' : '';
+          var suffix = item.orderCount > 0 ? ' (' + item.orderCount + ' cmd)' : '';
+          optionsHtml += '<option value="' + escapeHtml(item.key) + '"' + selAttr + '>' + escapeHtml(item.name) + ' — ' + escapeHtml(item.am) + suffix + '</option>';
+        });
+        select.innerHTML = optionsHtml;
+      };
+
+      window.yassirOnSelectRestoAnalytics = function (restoKey) {
+        selectedAnalyticsRestoKey = String(restoKey || '').toLowerCase();
+        renderRestoAnalyticsPanel();
+      };
+
+      function getFrenchWeekdayIndexFromOrderDay(orderDayVal) {
+        // Retourne 0 = Lundi, 1 = Mardi, ..., 6 = Dimanche (ou -1 si inconnu)
+        if (!orderDayVal) return -1;
+        var str = String(orderDayVal).trim();
+        if (!str) return -1;
+
+        // 1. Format "Mon Nov 16 2026" ou nom de jour en anglais/français
+        var lower = str.toLowerCase();
+        if (lower.startsWith('mon') || lower.startsWith('lun')) return 0;
+        if (lower.startsWith('tue') || lower.startsWith('mar')) return 1;
+        if (lower.startsWith('wed') || lower.startsWith('mer')) return 2;
+        if (lower.startsWith('thu') || lower.startsWith('jeu')) return 3;
+        if (lower.startsWith('fri') || lower.startsWith('ven')) return 4;
+        if (lower.startsWith('sat') || lower.startsWith('sam')) return 5;
+        if (lower.startsWith('sun') || lower.startsWith('dim')) return 6;
+
+        // 2. Tentative de parsing Date standard (YYYY-MM-DD ou DD/MM/YYYY)
+        var d = null;
+        var slashMatch = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+        if (slashMatch) {
+          d = new Date(parseInt(slashMatch[3], 10), parseInt(slashMatch[2], 10) - 1, parseInt(slashMatch[1], 10));
+        } else {
+          var parsed = Date.parse(str);
+          if (!isNaN(parsed)) d = new Date(parsed);
+        }
+
+        if (d && !isNaN(d.getTime())) {
+          var jsDay = d.getDay(); // 0 = Dimanche, 1 = Lundi ... 6 = Samedi
+          return jsDay === 0 ? 6 : (jsDay - 1);
+        }
+        return -1;
+      }
+
+      function parseFoodItemsFromCell(rawFoodItemCell) {
+        // Parse des formats courants Yassir :
+        // Ex: "2 x Burger Classic, 1 x Frites" ou "Burger Classic (2) | Coca Cola (1)" ou "Pizza Margherita, Tacos Poulet"
+        var str = String(rawFoodItemCell || '').trim();
+        if (!str || str.toLowerCase() === 'n/a') return [];
+
+        var parts = str.split(/[,|\n;]+/);
+        var parsedItems = [];
+
+        parts.forEach(function (part) {
+          var token = part.trim();
+          if (!token) return;
+
+          var qty = 1;
+          var itemName = token;
+
+          // Cas A : "2 x Nom Article" ou "2x Nom Article"
+          var mPrefix = token.match(/^(\d+)\s*[xX×]\s*(.+)$/);
+          if (mPrefix) {
+            qty = parseInt(mPrefix[1], 10) || 1;
+            itemName = mPrefix[2].trim();
+          } else {
+            // Cas B : "Nom Article x2" ou "Nom Article (2)"
+            var mSuffix = token.match(/^(.+?)\s*(?:\(\s*(\d+)\s*\)|[xX×]\s*(\d+))$/);
+            if (mSuffix) {
+              itemName = mSuffix[1].trim();
+              qty = parseInt(mSuffix[2] || mSuffix[3], 10) || 1;
+            }
+          }
+
+          if (itemName) {
+            parsedItems.push({ name: itemName, qty: qty });
+          }
+        });
+
+        return parsedItems;
+      }
+
+      function renderRestoAnalyticsPanel() {
+        var filterInput = document.getElementById('searchRestoSelectInput');
+        window.yassirFilterRestoDropdown(filterInput ? filterInput.value : '');
+
+        var emptyState = document.getElementById('restoAnalyticsEmptyState');
+        var contentBox = document.getElementById('restoAnalyticsContent');
+        var kpisBox = document.getElementById('restoAnalyticsKpis');
+        var amBadge = document.getElementById('restoAnalyticsAmBadge');
+        var btnExport = document.getElementById('btnExportRestoItemsCsv');
+
+        var availList = getAvailableRestaurantsForAnalytics();
+        if (!selectedAnalyticsRestoKey && availList.length > 0) {
+          var firstWithOrders = availList.find(function (x) { return x.orderCount > 0; });
+          if (firstWithOrders) {
+            selectedAnalyticsRestoKey = firstWithOrders.key;
+            var selEl = document.getElementById('selectRestoAnalytics');
+            if (selEl) selEl.value = selectedAnalyticsRestoKey;
+          }
+        }
+
+        if (!selectedAnalyticsRestoKey) {
+          emptyState.classList.remove('hidden');
+          contentBox.classList.add('hidden');
+          kpisBox.classList.add('hidden');
+          amBadge.classList.add('hidden');
+          btnExport.disabled = true;
+          return;
+        }
+
+        var idxResto = TARGET_HEADERS.indexOf('restaurant name');
+        var idxStatus = TARGET_HEADERS.indexOf('status');
+        var idxGmv = TARGET_HEADERS.indexOf('Total Food VF');
+        var idxOrderDay = TARGET_HEADERS.indexOf('order day');
+        var idxFoodItem = TARGET_HEADERS.indexOf('Food Item');
+
+        var allRecords = state.marketRows.concat(state.foodRows);
+        var restoOrders = allRecords.filter(function (rec) {
+          return String(rec.cells[idxResto] || '').trim().toLowerCase() === selectedAnalyticsRestoKey;
+        });
+
+        var cfgInfo = state.amPortfolios[selectedAnalyticsRestoKey];
+        var amLabel = cfgInfo ? cfgInfo.am : (restoOrders[0] ? restoOrders[0].am : 'Non attribué');
+        amBadge.textContent = 'Portefeuille AM : ' + amLabel;
+        amBadge.classList.remove('hidden');
+
+        if (restoOrders.length === 0) {
+          emptyState.classList.remove('hidden');
+          contentBox.classList.add('hidden');
+          kpisBox.classList.add('hidden');
+          btnExport.disabled = true;
+          return;
+        }
+
+        emptyState.classList.add('hidden');
+        contentBox.classList.remove('hidden');
+        kpisBox.classList.remove('hidden');
+
+        var deliveredOrders = restoOrders.filter(function (rec) {
+          return estCommandeLivree(rec.cells[idxStatus]);
+        });
+
+        // 1. Calcul des ventes Lundi (0) -> Dimanche (6)
+        var dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+        var dayDeliveredCounts = [0, 0, 0, 0, 0, 0, 0];
+        var dayGmvSums = [0, 0, 0, 0, 0, 0, 0];
+
+        var totalGmv = 0;
+        var itemsMap = new Map();
+        var totalItemsQty = 0;
+
+        deliveredOrders.forEach(function (rec) {
+          var c = rec.cells;
+          var gmvVal = purgerNombre(c[idxGmv]);
+          totalGmv += gmvVal;
+
+          var dayIdx = getFrenchWeekdayIndexFromOrderDay(c[idxOrderDay]);
+          if (dayIdx >= 0 && dayIdx <= 6) {
+            dayDeliveredCounts[dayIdx] += 1;
+            dayGmvSums[dayIdx] += gmvVal;
+          }
+
+          var rawItems = parseFoodItemsFromCell(c[idxFoodItem]);
+          rawItems.forEach(function (it) {
+            var k = it.name.toLowerCase();
+            if (!itemsMap.has(k)) {
+              itemsMap.set(k, { name: it.name, qty: 0, ordersCount: 0 });
+            }
+            var entry = itemsMap.get(k);
+            entry.qty += it.qty;
+            entry.ordersCount += 1;
+            totalItemsQty += it.qty;
+          });
+        });
+
+        // 2. Mise à jour des 4 KPIs du restaurant
+        var aovVal = deliveredOrders.length > 0 ? (totalGmv / deliveredOrders.length) : 0;
+        document.getElementById('raKpiDelivered').textContent = deliveredOrders.length.toLocaleString('fr-FR');
+        document.getElementById('raKpiRequested').textContent = 'sur ' + restoOrders.length.toLocaleString('fr-FR') + ' reçues';
+        document.getElementById('raKpiGmv').textContent = totalGmv.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TND';
+        document.getElementById('raKpiAov').textContent = 'Panier moyen : ' + aovVal.toFixed(2) + ' TND';
+        document.getElementById('raKpiTotalItemsQty').textContent = totalItemsQty.toLocaleString('fr-FR');
+        document.getElementById('raKpiUniqueItems').textContent = itemsMap.size + ' article(s) distinct(s)';
+
+        var bestDayIdx = 0;
+        for (var d = 1; d < 7; d++) {
+          if (dayDeliveredCounts[d] > dayDeliveredCounts[bestDayIdx] ||
+              (dayDeliveredCounts[d] === dayDeliveredCounts[bestDayIdx] && dayGmvSums[d] > dayGmvSums[bestDayIdx])) {
+            bestDayIdx = d;
+          }
+        }
+        if (deliveredOrders.length > 0) {
+          document.getElementById('raKpiBestDay').textContent = dayNames[bestDayIdx];
+          document.getElementById('raKpiBestDaySub').textContent = dayDeliveredCounts[bestDayIdx] + ' cmd • ' + dayGmvSums[bestDayIdx].toFixed(2) + ' TND';
+        } else {
+          document.getElementById('raKpiBestDay').textContent = '-';
+          document.getElementById('raKpiBestDaySub').textContent = 'Aucune commande livrée';
+        }
+
+        // 3. Mise à jour du mini-tableau Lundi -> Dimanche
+        var miniBody = document.getElementById('restoWeeklyMiniTableBody');
+        if (miniBody) {
+          miniBody.innerHTML =
+            '<tr><td class="px-3 py-2 font-sans font-bold text-[#00897B]">Cmd Livrées</td>' +
+            dayDeliveredCounts.map(function (cnt) { return '<td class="px-3 py-2 text-right font-bold text-[#1A1A2E]">' + cnt + '</td>'; }).join('') +
+            '</tr>' +
+            '<tr class="bg-[#F8F9FC]"><td class="px-3 py-2 font-sans font-bold text-[#6C2BD9]">GMV (TND)</td>' +
+            dayGmvSums.map(function (val) { return '<td class="px-3 py-2 text-right font-semibold text-[#6C2BD9]">' + val.toFixed(2) + '</td>'; }).join('') +
+            '</tr>';
+        }
+
+        // 4. Dessin de la courbe Chart.js (Lundi -> Dimanche, double axe Commandes Livrées & GMV)
+        var canvas = document.getElementById('restoWeeklyChartCanvas');
+        if (canvas && typeof Chart !== 'undefined') {
+          if (restoWeeklyChartInstance) {
+            restoWeeklyChartInstance.destroy();
+          }
+          var ctx = canvas.getContext('2d');
+          restoWeeklyChartInstance = new Chart(ctx, {
+            type: 'line',
+            data: {
+              labels: dayNames,
+              datasets: [
+                {
+                  label: 'Commandes livrées',
+                  data: dayDeliveredCounts,
+                  borderColor: '#00BFA5',
+                  backgroundColor: 'rgba(0, 191, 165, 0.16)',
+                  borderWidth: 3,
+                  pointBackgroundColor: '#00BFA5',
+                  pointRadius: 5,
+                  tension: 0.35,
+                  fill: true,
+                  yAxisID: 'yOrders'
+                },
+                {
+                  label: 'GMV (TND)',
+                  data: dayGmvSums.map(function (v) { return Number(v.toFixed(2)); }),
+                  borderColor: '#6C2BD9',
+                  backgroundColor: 'rgba(108, 43, 217, 0.10)',
+                  borderWidth: 3,
+                  pointBackgroundColor: '#FF2A6D',
+                  pointRadius: 5,
+                  tension: 0.35,
+                  fill: false,
+                  yAxisID: 'yGmv'
+                }
+              ]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              interaction: { mode: 'index', intersect: false },
+              plugins: {
+                legend: { display: false },
+                tooltip: {
+                  backgroundColor: '#1E0B36',
+                  titleFont: { family: 'Plus Jakarta Sans', weight: 'bold' },
+                  bodyFont: { family: 'Plus Jakarta Sans' },
+                  padding: 10,
+                  cornerRadius: 10
+                }
+              },
+              scales: {
+                yOrders: {
+                  type: 'linear',
+                  position: 'left',
+                  beginAtZero: true,
+                  ticks: { precision: 0, color: '#00897B', font: { weight: 'bold', size: 11 } },
+                  grid: { color: '#F3EBFF' },
+                  title: { display: true, text: 'Commandes livrées', color: '#00897B', font: { size: 11, weight: 'bold' } }
+                },
+                yGmv: {
+                  type: 'linear',
+                  position: 'right',
+                  beginAtZero: true,
+                  ticks: { color: '#6C2BD9', font: { weight: 'bold', size: 11 } },
+                  grid: { drawOnChartArea: false },
+                  title: { display: true, text: 'GMV (TND)', color: '#6C2BD9', font: { size: 11, weight: 'bold' } }
+                },
+                x: {
+                  ticks: { color: '#1A1A2E', font: { weight: 'bold', size: 11 } },
+                  grid: { display: false }
+                }
+              }
+            }
+          });
+        }
+
+        // 5. Tri des articles vendus du Top au Moins vendu
+        currentRestoTopItemsList = Array.from(itemsMap.values()).sort(function (a, b) {
+          return (b.qty - a.qty) || (b.ordersCount - a.ordersCount) || a.name.localeCompare(b.name, 'fr');
+        });
+
+        btnExport.disabled = currentRestoTopItemsList.length === 0;
+        window.yassirRenderRestoItemsTable();
+      }
+
+      window.yassirRenderRestoItemsTable = function () {
+        var tbody = document.getElementById('restoTopItemsTableBody');
+        var badge = document.getElementById('restoItemsCountBadge');
+        var searchEl = document.getElementById('searchRestoItemInput');
+        if (!tbody) return;
+
+        var q = searchEl ? searchEl.value.trim().toLowerCase() : '';
+        var totalQtyAll = currentRestoTopItemsList.reduce(function (acc, it) { return acc + it.qty; }, 0);
+
+        var filtered = q
+          ? currentRestoTopItemsList.filter(function (it) { return it.name.toLowerCase().includes(q); })
+          : currentRestoTopItemsList;
+
+        if (badge) {
+          badge.textContent = filtered.length + ' article(s)';
+        }
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="4" class="px-4 py-8 text-center text-slate-400">Aucun article trouvé dans la colonne Food Item pour ce restaurant.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(function (it, idx) {
+          var rank = idx + 1;
+          var pct = totalQtyAll > 0 ? ((it.qty / totalQtyAll) * 100).toFixed(1) : '0.0';
+          var rankBadge = rank === 1
+            ? '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#FF2A6D] text-white font-extrabold text-[11px]">1</span>'
+            : rank === 2
+              ? '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#6C2BD9] text-white font-extrabold text-[11px]">2</span>'
+              : rank === 3
+                ? '<span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#00BFA5] text-[#1A1A2E] font-extrabold text-[11px]">3</span>'
+                : '<span class="text-slate-400 font-mono font-bold">' + rank + '</span>';
+
+          return '<tr class="hover:bg-[#F3EBFF]/40 transition-colors">' +
+            '<td class="px-3 py-2 text-center">' + rankBadge + '</td>' +
+            '<td class="px-3 py-2 font-semibold text-[#1A1A2E]">' + escapeHtml(it.name) + '</td>' +
+            '<td class="px-3 py-2 text-right font-mono font-extrabold text-[#6C2BD9]">' + it.qty + '</td>' +
+            '<td class="px-3 py-2 text-right font-mono text-slate-500">' + pct + '%</td>' +
+          '</tr>';
+        }).join('');
+      };
+
+      window.yassirExportSelectedRestoItemsCsv = function () {
+        if (!selectedAnalyticsRestoKey || currentRestoTopItemsList.length === 0) return;
+        var totalQtyAll = currentRestoTopItemsList.reduce(function (acc, it) { return acc + it.qty; }, 0);
+        var aoa = [['Rang', 'Restaurant', 'Article (Food Item)', 'Quantité vendue', 'Part (%)']];
+        currentRestoTopItemsList.forEach(function (it, idx) {
+          var pct = totalQtyAll > 0 ? Number(((it.qty / totalQtyAll) * 100).toFixed(2)) : 0;
+          aoa.push([idx + 1, selectedAnalyticsRestoKey, it.name, it.qty, pct]);
+        });
+
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+        var csvContent = XLSX.utils.sheet_to_csv(ws, { FS: ';' });
+        var blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'Top_Items_' + selectedAnalyticsRestoKey.replace(/\s+/g, '_') + '.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Classement Top Items exporté en CSV.', 'success');
+      };
+
       function initApp() {
         getAccounts();
 
@@ -3197,6 +4077,9 @@
 
         setupDropZone('dropZoneMain', chargerFichierPrincipal);
         setupDropZone('dropZoneComm', chargerFichierCommissions);
+
+        // Synchronisation automatique en direct avec Google Sheets au démarrage
+        window.yassirSyncAllFromGoogleSheets(false);
       }
 
       if (document.readyState === 'loading') {
