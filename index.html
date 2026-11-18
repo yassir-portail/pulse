@@ -543,23 +543,19 @@
           </div>
         </div>
 
-        <!-- Encart LR/LG & Budget dans le profil AM / Utilisateur -->
-        <div id="lmdProfileBudgetCard" class="lmd-nav-label rounded-xl bg-white/10 border border-white/15 p-2.5 text-[11px] space-y-1">
+        <!-- Encart LR/LG & Budget AM dans le profil AM (sans aucun calcul Global) -->
+        <div id="lmdProfileBudgetCard" class="hidden lmd-nav-label rounded-xl bg-white/10 border border-white/15 p-2.5 text-[11px] space-y-1">
           <div class="flex items-center justify-between">
             <span class="text-purple-200">LR & LG :</span>
             <strong id="profileLrLgTnd" class="text-white font-mono">0.00 TND</strong>
           </div>
-          <div class="flex items-center justify-between">
-            <span class="text-purple-200">% LR/LG Global :</span>
-            <strong id="profileLrLgSharePct" class="text-[#00BFA5] font-mono">0.0%</strong>
-          </div>
           <div class="flex items-center justify-between pt-1 border-t border-white/10">
-            <span class="text-purple-200">Budget :</span>
+            <span class="text-purple-200">Budget AM :</span>
             <strong id="profileBudgetTnd" class="text-white font-mono">0.00 TND</strong>
           </div>
           <div class="flex items-center justify-between">
-            <span class="text-purple-200">% LR/LG / Budget Global :</span>
-            <strong id="profileLrLgVsBudgetGlobalPct" class="text-[#FF2A6D] bg-white px-1.5 py-0.2 rounded-full font-extrabold font-mono text-[10px]">0.0%</strong>
+            <span class="text-purple-200">% LR & LG / Budget AM :</span>
+            <strong id="profileLrLgVsBudgetAmPct" class="text-[#FF2A6D] bg-white px-1.5 py-0.2 rounded-full font-extrabold font-mono text-[10px]">0.0%</strong>
           </div>
         </div>
 
@@ -624,7 +620,7 @@
               </div>
             </div>
             <p class="text-[11px] text-slate-500 leading-snug">
-              Importez 1 ou plusieurs fichiers (3 ou 6 mois). Chaque fichier ajouté est <strong>fusionné sans doublon</strong> et <strong>sauvegardé automatiquement</strong>.
+              Importez un volume illimité de fichiers (<strong>Unlimited Data</strong>). Chaque fichier ajouté est <strong>fusionné sans doublon</strong> et <strong>sauvegardé automatiquement</strong>.
             </p>
           </div>
 
@@ -635,7 +631,7 @@
             </div>
             <div class="min-w-0 flex-1 text-left">
               <p id="mainFileName" class="text-xs font-semibold text-[#1A1A2E] truncate" title="Glissez-déposez 1 ou plusieurs fichiers Data exp ici">Ajouter 1 ou plusieurs fichiers Data exp (cumul auto)</p>
-              <p id="mainFileSub" class="text-[11px] text-slate-400 truncate mt-0.5">Sélection multiple autorisée • Stockage persistant</p>
+              <p id="mainFileSub" class="text-[11px] text-slate-400 truncate mt-0.5">Unlimited Data • Filtre strict Order ID commençant par YAF-</p>
             </div>
             <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-[#6C2BD9] text-white shrink-0">+ Ajouter</span>
           </label>
@@ -1527,9 +1523,6 @@
                 <p id="amSynthSubtitle" class="text-xs text-slate-500">Cliquez sur une carte pour filtrer toute l'application et exporter les Stats de ce portefeuille</p>
               </div>
               <div class="flex flex-wrap items-center gap-2 self-start sm:self-auto">
-                <span id="portefeuillesGlobalBudgetPill" class="px-3 py-1.5 rounded-full text-xs font-extrabold bg-[#E0F7F4] text-[#00897B]">
-                  Budget Global : 0.00 TND
-                </span>
                 <button id="btnSyncBudgetPortfolioCard" type="button" onclick="window.yassirSyncBudgetSheet(true)" class="hidden px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#00BFA5] hover:bg-teal-400 text-[#1A1A2E] shadow-sm transition cursor-pointer">
                   <i class="fa-solid fa-coins mr-1"></i> Sync Budget
                 </button>
@@ -1623,7 +1616,7 @@
           <div id="ownerBudgetEditorSection" class="hidden bg-[#F8F9FC] p-4 sm:p-5 rounded-2xl border border-teal-200 space-y-3">
             <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
               <div class="flex items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#00BFA5] text-[#1A1A2E]">Budget AM & Global (Propriétaire Admin)</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#00BFA5] text-[#1A1A2E]">Budget AM (Propriétaire Admin)</span>
                 <h4 class="text-xs font-extrabold uppercase tracking-wider text-[#1A1A2E]">Configuration des Budgets TND (Synchronisés ou manuels)</h4>
               </div>
               <button type="button" onclick="window.yassirSyncBudgetSheet(true)" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#6C2BD9] hover:bg-[#5521B5] text-white shadow-sm transition cursor-pointer self-start sm:self-auto">
@@ -2523,6 +2516,12 @@
       state.budgetGlobal = Number(_initBudget.global || 0);
       state.growthDropReasons = loadInitialReasons();
 
+      function estOrderIdYaf(val) {
+        if (val === null || val === undefined) return false;
+        var s = String(val).trim();
+        return /^yaf/i.test(s);
+      }
+
       function matchAgentFromText(rawText) {
         var norm = normalizeText(rawText);
         if (!norm) return '';
@@ -3050,6 +3049,7 @@
         var idxResto = headers.indexOf('restaurant name');
         var idxStatus = headers.indexOf('status');
         var idxServices = headers.indexOf('services');
+        var idxOidCheck = headers.indexOf('order id');
         var idxOrderDay = headers.indexOf('order day') !== -1 ? headers.indexOf('order day') : headers.indexOf('delivered day');
 
         if (idxResto === -1 || idxStatus === -1) return prevDelivMap;
@@ -3057,6 +3057,7 @@
         for (var r = 1; r < aoa.length; r++) {
           var row = aoa[r];
           if (!row) continue;
+          if (typeof idxOidCheck !== 'undefined' && idxOidCheck !== -1 && !estOrderIdYaf(row[idxOidCheck])) continue;
 
           if ((dStart || dEnd) && idxOrderDay !== -1) {
             var iso = parseOrderDayToIsoDate(row[idxOrderDay]);
@@ -3454,6 +3455,7 @@
         var idxFoodItem = headers.indexOf('food item');
         var idxProvider = headers.indexOf('discount type provider') !== -1 ? headers.indexOf('discount type provider') : 90;
         var idxCommercial = headers.indexOf('commercial');
+        var idxOrderIdOff = headers.indexOf('order id');
 
         var regexBowlsSuperPromo = /(Bowls Be-Crousty|super promo)/i;
         var regexPercentage = /percentage/i;
@@ -3466,6 +3468,7 @@
         for (var r = 1; r < sourceData.length; r++) {
           var row = sourceData[r];
           if (!row || row.length === 0) continue;
+          if (idxOrderIdOff !== -1 && !estOrderIdYaf(row[idxOrderIdOff])) continue;
 
           var valStatus = (idxStatus < row.length && row[idxStatus] !== null && row[idxStatus] !== undefined)
             ? String(row[idxStatus])
@@ -3675,6 +3678,7 @@
         for (var r = 1; r < aoa.length; r++) {
           var row = aoa[r];
           if (!row) continue;
+          if (typeof idxOidCheck !== 'undefined' && idxOidCheck !== -1 && !estOrderIdYaf(row[idxOidCheck])) continue;
           var iso = parseOrderDayToIsoDate(row[idxOrderDay]);
           if (!iso) continue;
           if (!minIso || iso < minIso) minIso = iso;
@@ -3700,6 +3704,7 @@
         for (var r = 1; r < aoa.length; r++) {
           var row = aoa[r];
           if (!row) continue;
+          if (typeof idxOidCheck !== 'undefined' && idxOidCheck !== -1 && !estOrderIdYaf(row[idxOidCheck])) continue;
           var iso = parseOrderDayToIsoDate(row[idxOrderDay]);
           if (!iso) continue;
           if (dStart && iso < dStart) continue;
@@ -3957,10 +3962,13 @@
 
           if (idxNewOrderId !== -1) {
             var newOid = String(sRow[idxNewOrderId] || '').trim();
-            if (newOid && existingOrderIds.has(newOid)) {
+            if (!estOrderIdYaf(newOid)) {
+              continue; // Filtrer strictement les commandes dont l'ID commence par YAF (ex: YAF-1794959781238)
+            }
+            if (existingOrderIds.has(newOid)) {
               continue; // Éviter les doublons si deux fichiers se chevauchent
             }
-            if (newOid) existingOrderIds.add(newOid);
+            existingOrderIds.add(newOid);
           }
 
           var alignedRow = new Array(baseHeaders.length).fill('');
@@ -4084,9 +4092,16 @@
         var marketRows = [];
         var foodRows = [];
 
+        var idxOrderIdSrc = colMapping['order id'] !== -1
+          ? colMapping['order id']
+          : sourceHeaders.findIndex(function (h) { return h.toLowerCase() === 'order id'; });
+
         for (var r = 1; r < sourceData.length; r++) {
           var sourceRow = sourceData[r];
           if (!sourceRow || sourceRow.every(function (cell) { return cell === null || cell === undefined || String(cell).trim() === ''; })) {
+            continue;
+          }
+          if (idxOrderIdSrc !== -1 && !estOrderIdYaf(sourceRow[idxOrderIdSrc])) {
             continue;
           }
 
@@ -4425,23 +4440,29 @@
         document.getElementById('kpiTotalCa').textContent = currentStats.caLivrees.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TND';
         document.getElementById('kpiCaBreakdown').textContent = 'Total reçues : ' + currentStats.caRecues.toFixed(2) + ' TND';
 
-        // Mise à jour de l'encart Profil AM (LR/LG & Budget Global) dans le menu latéral
+        // Mise à jour de l'encart Profil AM (LR/LG & Budget du AM uniquement, sans Global)
         var profileScopeAm = (currentUser && currentUser.role === 'am' && currentUser.amName)
           ? currentUser.amName
           : activeFilter;
-        var profStats = profileScopeAm === 'ALL' ? globalStats : calculerStatsPourAm(profileScopeAm);
-        var bGlobal = Number(state.budgetGlobal || 0);
-        var pctLrGlobal = globalStats.lrLgTnd > 0 ? ((profStats.lrLgTnd / globalStats.lrLgTnd) * 100).toFixed(1) : '0.0';
-        var pctLrVsBudgetGlobal = bGlobal > 0 ? ((profStats.lrLgTnd / bGlobal) * 100).toFixed(1) : '0.0';
+        var profCardEl = document.getElementById('lmdProfileBudgetCard');
+        if (profCardEl) {
+          if (profileScopeAm && profileScopeAm !== 'ALL') {
+            profCardEl.classList.remove('hidden');
+            var profStats = calculerStatsPourAm(profileScopeAm);
+            var pctLrVsBudgetAm = profStats.budgetTnd > 0
+              ? ((profStats.lrLgTnd / profStats.budgetTnd) * 100).toFixed(1)
+              : '0.0';
 
-        var elProfLr = document.getElementById('profileLrLgTnd');
-        var elProfLrShare = document.getElementById('profileLrLgSharePct');
-        var elProfBud = document.getElementById('profileBudgetTnd');
-        var elProfBudPct = document.getElementById('profileLrLgVsBudgetGlobalPct');
-        if (elProfLr) elProfLr.textContent = profStats.lrLgTnd.toFixed(2) + ' TND';
-        if (elProfLrShare) elProfLrShare.textContent = pctLrGlobal + '%';
-        if (elProfBud) elProfBud.textContent = (profileScopeAm === 'ALL' ? bGlobal : profStats.budgetTnd).toFixed(2) + ' TND';
-        if (elProfBudPct) elProfBudPct.textContent = pctLrVsBudgetGlobal + '%';
+            var elProfLr = document.getElementById('profileLrLgTnd');
+            var elProfBud = document.getElementById('profileBudgetTnd');
+            var elProfBudPct = document.getElementById('profileLrLgVsBudgetAmPct');
+            if (elProfLr) elProfLr.textContent = profStats.lrLgTnd.toFixed(2) + ' TND';
+            if (elProfBud) elProfBud.textContent = profStats.budgetTnd.toFixed(2) + ' TND';
+            if (elProfBudPct) elProfBudPct.textContent = pctLrVsBudgetAm + '%';
+          } else {
+            profCardEl.classList.add('hidden');
+          }
+        }
 
         var commCount = Object.keys(state.customCommissions).length;
         var visibleRestosCount = 0;
@@ -4871,12 +4892,6 @@
         var activeFilter = getEffectiveAmFilter();
         var allowedAms = getAllowedAmListForCurrentUser();
         var showZeroStats = canSeeZeroOrdersStats();
-        var bGlobal = Number(state.budgetGlobal || 0);
-
-        var pillBGlobal = document.getElementById('portefeuillesGlobalBudgetPill');
-        if (pillBGlobal) {
-          pillBGlobal.textContent = 'Budget Global : ' + bGlobal.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TND';
-        }
         var btnSyncBCard = document.getElementById('btnSyncBudgetPortfolioCard');
         var ownerBudgetSec = document.getElementById('ownerBudgetEditorSection');
         if (btnSyncBCard) {
@@ -4904,14 +4919,8 @@
           var pctOffresGlobal = globalStats.totalOffres > 0
             ? ((st.totalOffres / globalStats.totalOffres) * 100).toFixed(1)
             : '0.0';
-          var pctLrLgGlobal = globalStats.lrLgTnd > 0
-            ? ((st.lrLgTnd / globalStats.lrLgTnd) * 100).toFixed(1)
-            : '0.0';
-          var pctLrLgVsBudgetGlobal = bGlobal > 0
-            ? ((st.lrLgTnd / bGlobal) * 100).toFixed(1)
-            : '0.0';
-          var pctBudgetAmShare = bGlobal > 0
-            ? ((st.budgetTnd / bGlobal) * 100).toFixed(1)
+          var pctLrLgVsBudgetAm = st.budgetTnd > 0
+            ? ((st.lrLgTnd / st.budgetTnd) * 100).toFixed(1)
             : '0.0';
 
           var zeroOrdersBlock = showZeroStats
@@ -4935,9 +4944,8 @@
               '<div><span class="text-slate-400 block">Offres Livrées</span><strong class="text-[#FF2A6D]">' + st.totalOffres + ' (' + st.restosOffreCount + ' r.)</strong></div>' +
               '<div class="text-right"><span class="text-slate-400 block">% Offres / Global</span><strong class="text-[#FF2A6D] text-xs">' + pctOffresGlobal + ' %</strong></div>' +
               '<div class="pt-1 border-t border-purple-100/70"><span class="text-slate-400 block">LR & LG (TND)</span><strong class="text-[#6C2BD9] font-mono">' + st.lrLgTnd.toFixed(2) + ' TND</strong></div>' +
-              '<div class="text-right pt-1 border-t border-purple-100/70"><span class="text-slate-400 block">% LR & LG / Global</span><strong class="text-[#6C2BD9] text-xs">' + pctLrLgGlobal + ' %</strong></div>' +
-              '<div><span class="text-slate-400 block">Budget AM (TND)</span><strong class="text-[#1A1A2E] font-mono">' + st.budgetTnd.toFixed(2) + ' TND (' + pctBudgetAmShare + '%)</strong></div>' +
-              '<div class="text-right"><span class="text-slate-400 block">% LR & LG / Budget Global</span><strong class="text-[#FF2A6D] text-xs">' + pctLrLgVsBudgetGlobal + ' %</strong></div>' +
+              '<div class="text-right pt-1 border-t border-purple-100/70"><span class="text-slate-400 block">Budget AM (TND)</span><strong class="text-[#1A1A2E] font-mono">' + st.budgetTnd.toFixed(2) + ' TND</strong></div>' +
+              '<div class="col-span-2 flex items-center justify-between bg-[#F3EBFF]/60 px-2.5 py-1 rounded-xl"><span class="text-slate-600 font-semibold">% LR & LG / Budget AM</span><strong class="text-[#FF2A6D] text-xs font-extrabold">' + pctLrLgVsBudgetAm + ' %</strong></div>' +
               zeroOrdersBlock +
             '</div>' +
           '</div>';
@@ -5405,7 +5413,7 @@
         document.getElementById('inputMainFile').value = '';
         document.getElementById('mainFileName').textContent = 'Ajouter 1 ou plusieurs fichiers Data exp (cumul auto)';
         document.getElementById('mainFileName').title = 'Glissez-déposez 1 ou plusieurs fichiers Data exp ici';
-        document.getElementById('mainFileSub').textContent = 'Sélection multiple autorisée • Stockage persistant';
+        document.getElementById('mainFileSub').textContent = 'Unlimited Data • Filtre strict Order ID commençant par YAF-';
         document.getElementById('badgeSourceStatus').textContent = 'En attente';
         document.getElementById('badgeSourceStatus').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600';
         var idbBadge = document.getElementById('badgeIndexedDbSaved');
@@ -5678,7 +5686,6 @@
       function construireFeuilleSyntheseAm() {
         var globalStats = calculerStatsPourAm('ALL');
         var allowedAms = getAllowedAmListForCurrentUser();
-        var bGlobal = Number(state.budgetGlobal || 0);
         var aoa = [[
           'Portefeuille AM',
           'Restaurants attribués',
@@ -5692,18 +5699,15 @@
           'Restos avec Offre',
           'CA Livrées (TND)',
           'LR & LG (TND)',
-          '% LR & LG / Global',
           'Budget AM (TND)',
-          'Budget Global (TND)',
-          '% LR & LG / Budget Global'
+          '% LR & LG / Budget AM'
         ]];
 
         allowedAms.forEach(function (am) {
           var st = calculerStatsPourAm(am);
           var pctLivGlobal = globalStats.totalLivrees > 0 ? Number(((st.totalLivrees / globalStats.totalLivrees) * 100).toFixed(2)) : 0;
           var pctOffGlobal = globalStats.totalOffres > 0 ? Number(((st.totalOffres / globalStats.totalOffres) * 100).toFixed(2)) : 0;
-          var pctLrGlobal = globalStats.lrLgTnd > 0 ? Number(((st.lrLgTnd / globalStats.lrLgTnd) * 100).toFixed(2)) : 0;
-          var pctLrBudGlobal = bGlobal > 0 ? Number(((st.lrLgTnd / bGlobal) * 100).toFixed(2)) : 0;
+          var pctLrBudAm = st.budgetTnd > 0 ? Number(((st.lrLgTnd / st.budgetTnd) * 100).toFixed(2)) : 0;
           aoa.push([
             am,
             st.assignedRestosCount,
@@ -5717,10 +5721,8 @@
             st.restosOffreCount,
             Number(st.caLivrees.toFixed(2)),
             Number(st.lrLgTnd.toFixed(2)),
-            pctLrGlobal,
             Number(st.budgetTnd.toFixed(2)),
-            Number(bGlobal.toFixed(2)),
-            pctLrBudGlobal
+            pctLrBudAm
           ]);
         });
 
@@ -6327,16 +6329,12 @@
               }
             }
 
-            var sumAm = 0;
-            Object.keys(parsedByAm).forEach(function (k) { sumAm += parsedByAm[k]; });
-            var finalGlobal = explicitGlobal > 0 ? explicitGlobal : sumAm;
-
-            if (Object.keys(parsedByAm).length === 0 && finalGlobal === 0) {
+            if (Object.keys(parsedByAm).length === 0) {
               throw new Error('Aucune ligne AM reconnue dans la feuille Budget');
             }
 
             state.budgetByAm = parsedByAm;
-            state.budgetGlobal = Number(finalGlobal.toFixed(2));
+            state.budgetGlobal = 0;
             saveBudgetToStore();
 
             if (icon) icon.classList.remove('fa-spin');
@@ -6350,8 +6348,7 @@
             mettreAJourInterface();
             if (manualTrigger) {
               showToast(
-                '<strong>Feuille Budget synchronisée !</strong><br/>' +
-                '• Budget Global : <strong>' + state.budgetGlobal.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TND</strong> (' + Object.keys(state.budgetByAm).length + ' AM configurés).',
+                '<strong>Budgets AM synchronisés !</strong> (' + Object.keys(state.budgetByAm).length + ' AM configurés).',
                 'success'
               );
             }
@@ -6383,13 +6380,11 @@
             }
           }
         });
-        var globalInp = document.getElementById('budgetInput_GLOBAL');
-        var manualGlobal = globalInp ? purgerNombre(globalInp.value) : 0;
         state.budgetByAm = parsedByAm;
-        state.budgetGlobal = Number((manualGlobal > 0 ? manualGlobal : sum).toFixed(2));
+        state.budgetGlobal = 0;
         saveBudgetToStore();
         mettreAJourInterface();
-        showToast('<strong>Budgets AM enregistrés !</strong> Budget Global : <strong>' + state.budgetGlobal.toFixed(2) + ' TND</strong>.', 'success');
+        showToast('<strong>Budgets AM enregistrés !</strong> (' + Object.keys(parsedByAm).length + ' AM configurés).', 'success');
         return false;
       };
 
@@ -7122,8 +7117,10 @@
         var idxOrderDay = headers.indexOf('order day') !== -1 ? headers.indexOf('order day') : headers.indexOf('delivered day');
         var idxStatus = headers.indexOf('status');
         var idxServices = headers.indexOf('services');
+        var idxOidCheck = headers.indexOf('order id');
         var idxResto = headers.indexOf('restaurant name');
         var idxCommercial = headers.indexOf('commercial');
+        var idxOrderIdOff = headers.indexOf('order id');
         var idxTotalFood = headers.indexOf('total food');
         var idxCouponAdmin = headers.indexOf('coupon admin');
         var idxCouponResto = headers.indexOf('coupon restaurant');
@@ -7138,6 +7135,7 @@
         for (var r = 1; r < aoa.length; r++) {
           var row = aoa[r];
           if (!row) continue;
+          if (typeof idxOidCheck !== 'undefined' && idxOidCheck !== -1 && !estOrderIdYaf(row[idxOidCheck])) continue;
 
           var iso = idxOrderDay !== -1 ? parseOrderDayToIsoDate(row[idxOrderDay]) : '';
           var wNum = findWeekNumForIsoDate(iso);
@@ -7327,7 +7325,9 @@
         var idxResto = headers.indexOf('restaurant name');
         var idxStatus = headers.indexOf('status');
         var idxServices = headers.indexOf('services');
+        var idxOidCheck = headers.indexOf('order id');
         var idxCommercial = headers.indexOf('commercial');
+        var idxOrderIdOff = headers.indexOf('order id');
         var idxAcceptedBy = headers.indexOf('accepted by');
         var idxDiscType = headers.lastIndexOf('discount type') !== -1 ? headers.lastIndexOf('discount type') : headers.indexOf('discount type');
         var idxProvider = headers.indexOf('discount type provider');
@@ -7343,6 +7343,7 @@
         for (var r = 1; r < aoa.length; r++) {
           var row = aoa[r];
           if (!row) continue;
+          if (typeof idxOidCheck !== 'undefined' && idxOidCheck !== -1 && !estOrderIdYaf(row[idxOidCheck])) continue;
 
           var iso = idxOrderDay !== -1 ? parseOrderDayToIsoDate(row[idxOrderDay]) : '';
           var wNum = findWeekNumForIsoDate(iso);
@@ -7616,6 +7617,17 @@
         // Restauration automatique des fichiers Data exp enregistrés dans IndexedDB
         loadArchiveFromIndexedDb().then(function (archive) {
           if (archive && archive.rawSourceRows && archive.rawSourceRows.length > 1) {
+            var _h0 = archive.rawSourceRows[0].map(function (h) { return String(h || '').trim().toLowerCase(); });
+            var _oidIdx = _h0.indexOf('order id');
+            if (_oidIdx !== -1) {
+              var _cleaned = [archive.rawSourceRows[0]];
+              for (var _ir = 1; _ir < archive.rawSourceRows.length; _ir++) {
+                if (archive.rawSourceRows[_ir] && estOrderIdYaf(archive.rawSourceRows[_ir][_oidIdx])) {
+                  _cleaned.push(archive.rawSourceRows[_ir]);
+                }
+              }
+              archive.rawSourceRows = _cleaned;
+            }
             state.rawSourceRows = archive.rawSourceRows;
             state.storedFilesMeta = Array.isArray(archive.storedFilesMeta) ? archive.storedFilesMeta : [];
             detecterBornesDatesSource(state.rawSourceRows);
