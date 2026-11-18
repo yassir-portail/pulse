@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yassir Portail | Yassir</title>
+  <title>Générateur VF Data & Offres | Yassir</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
@@ -103,7 +103,7 @@
         </div>
 
         <span class="px-3.5 py-1 rounded-full text-[11px] font-bold bg-[#F3EBFF] text-[#6C2BD9] mb-2">
-          Portail Opérations • Yassir Portail
+          Portail Opérations • Générateur VF Data & Offres
         </span>
         <h1 class="text-xl sm:text-2xl font-extrabold text-[#1A1A2E] tracking-tight">Connexion à l'espace de travail</h1>
         <p class="text-xs text-slate-500 mt-1">Veuillez saisir votre identifiant personnel</p>
@@ -337,7 +337,7 @@
 
           <div>
             <div class="flex flex-wrap items-center gap-2">
-              <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white">Yassir Portail</h1>
+              <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white">Générateur VF Data & Offres</h1>
               <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-bold bg-white/15 text-white border border-white/25">
                 <i class="fa-solid fa-circle-user text-[#00BFA5]"></i>
                 <span id="headerUserBadge">proprio</span>
@@ -391,27 +391,35 @@
               <div class="flex items-center gap-2">
                 <span class="w-6 h-6 rounded-full bg-[#6C2BD9] text-white text-[11px] font-extrabold flex items-center justify-center shadow-sm">1</span>
                 <h2 class="text-sm font-extrabold text-[#1A1A2E]">
-                  Fichier source (<code class="text-[11px] font-bold bg-[#F3EBFF] text-[#6C2BD9] px-2 py-0.5 rounded-md">Data exp</code>)
+                  Base de données (<code class="text-[11px] font-bold bg-[#F3EBFF] text-[#6C2BD9] px-2 py-0.5 rounded-md">Data exp</code>)
                 </h2>
               </div>
-              <span id="badgeSourceStatus" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">En attente</span>
+              <div class="flex items-center gap-1.5">
+                <span id="badgeIndexedDbSaved" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F3EBFF] text-[#6C2BD9]" title="Sauvegardé automatiquement dans le stockage IndexedDB du navigateur">
+                  <i class="fa-solid fa-database mr-1 text-[#00BFA5]"></i>Enregistré
+                </span>
+                <span id="badgeSourceStatus" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">En attente</span>
+              </div>
             </div>
             <p class="text-[11px] text-slate-500 leading-snug">
-              Importez votre export brut (<code>.xlsx</code>, <code>.xls</code>, <code>.csv</code>). Affichage en <strong>Vue Globale</strong> par défaut.
+              Importez 1 ou plusieurs fichiers (3 ou 6 mois). Chaque fichier ajouté est <strong>fusionné sans doublon</strong> et <strong>sauvegardé automatiquement</strong>.
             </p>
           </div>
 
           <label id="dropZoneMain" for="inputMainFile" class="border border-dashed border-purple-300 hover:border-[#6C2BD9] bg-[#F8F9FC]/70 hover:bg-[#F3EBFF]/50 rounded-2xl px-4 py-3 cursor-pointer transition flex items-center gap-3 min-h-[68px]">
-            <input id="inputMainFile" type="file" accept=".xlsx,.xls,.csv" onchange="window.yassirOnMainFileChange(event)" class="hidden" />
+            <input id="inputMainFile" type="file" accept=".xlsx,.xls,.csv" multiple onchange="window.yassirOnMainFileChange(event)" class="hidden" />
             <div class="w-9 h-9 rounded-xl bg-[#F3EBFF] text-[#6C2BD9] flex items-center justify-center shrink-0">
-              <i class="fa-solid fa-file-excel text-base"></i>
+              <i class="fa-solid fa-layer-group text-base"></i>
             </div>
             <div class="min-w-0 flex-1 text-left">
-              <p id="mainFileName" class="text-xs font-semibold text-[#1A1A2E] truncate" title="Glissez-déposez votre fichier Data exp ici">Glissez-déposez votre fichier Data exp ici</p>
-              <p id="mainFileSub" class="text-[11px] text-slate-400 truncate mt-0.5">Cliquez ou glissez un fichier (.xlsx, .xls, .csv)</p>
+              <p id="mainFileName" class="text-xs font-semibold text-[#1A1A2E] truncate" title="Glissez-déposez 1 ou plusieurs fichiers Data exp ici">Ajouter 1 ou plusieurs fichiers Data exp (cumul auto)</p>
+              <p id="mainFileSub" class="text-[11px] text-slate-400 truncate mt-0.5">Sélection multiple autorisée • Stockage persistant</p>
             </div>
-            <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-[#6C2BD9] text-white shrink-0">Parcourir</span>
+            <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-[#6C2BD9] text-white shrink-0">+ Ajouter</span>
           </label>
+
+          <!-- Liste des fichiers cumulés & enregistrés dans le storage -->
+          <div id="storedFilesChipsBar" class="hidden flex flex-wrap items-center gap-1.5 pt-0.5"></div>
 
           <!-- Petite icône d'insertion Data préc (réservée à Ahmed, Karim, Omar et Proprio) -->
           <div id="prevDataImportBar" class="hidden pt-2 border-t border-purple-100 flex flex-wrap items-center justify-between gap-2">
@@ -502,6 +510,43 @@
         </div>
 
         <div id="amQuickFilterPills" class="flex flex-wrap items-center gap-2 pt-1"></div>
+
+        <!-- Filtre de Période (Du ... Au ... + Raccourcis intelligents) -->
+        <div id="dateRangeFilterBar" class="hidden pt-3 mt-1 border-t border-purple-100 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+          <div class="flex flex-wrap items-center gap-2">
+            <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#1A1A2E]">
+              <i class="fa-solid fa-calendar-days text-[#FF2A6D]"></i>
+              <span>Période :</span>
+            </span>
+            <div class="flex items-center gap-1.5 bg-[#F8F9FC] px-3 py-1 rounded-full border border-purple-200">
+              <label for="filterDateStart" class="text-[11px] font-bold text-slate-500">Du</label>
+              <input id="filterDateStart" type="date" onchange="window.yassirOnDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+            </div>
+            <div class="flex items-center gap-1.5 bg-[#F8F9FC] px-3 py-1 rounded-full border border-purple-200">
+              <label for="filterDateEnd" class="text-[11px] font-bold text-slate-500">Au</label>
+              <input id="filterDateEnd" type="date" onchange="window.yassirOnDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+            </div>
+            <span id="dateRangeBoundsHint" class="text-[11px] text-slate-400 font-medium"></span>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button type="button" onclick="window.yassirApplyDatePreset('ALL')" id="btnDatePresetAll" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#6C2BD9] text-white transition cursor-pointer">
+              Toute la période
+            </button>
+            <button type="button" onclick="window.yassirApplyDatePreset('LAST_7')" id="btnDatePreset7" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
+              7 derniers jours
+            </button>
+            <button type="button" onclick="window.yassirApplyDatePreset('LAST_14')" id="btnDatePreset14" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
+              14 derniers jours
+            </button>
+            <button type="button" onclick="window.yassirApplyDatePreset('LAST_30')" id="btnDatePreset30" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
+              30 derniers jours
+            </button>
+            <button type="button" onclick="window.yassirApplyDatePreset('LAST_90')" id="btnDatePreset90" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
+              3 derniers mois
+            </button>
+          </div>
+        </div>
       </section>
 
       <!-- ========================================================================
@@ -1200,7 +1245,7 @@
     </main>
 
     <footer class="bg-white border-t border-purple-100 py-4 text-center text-xs text-slate-500">
-      <span class="font-extrabold text-[#6C2BD9]">Yassir</span> • Yassir Portail — 109 colonnes, Export Stat, Commissions synchronisées & 7 Portefeuilles AM.
+      <span class="font-extrabold text-[#6C2BD9]">Yassir</span> • Générateur VF Data & Offres — 109 colonnes, Export Stat, Commissions synchronisées & 7 Portefeuilles AM.
     </footer>
   </div>
 
@@ -1849,6 +1894,11 @@
          ======================================================================== */
       var state = {
         rawSourceRows: [],
+        storedFilesMeta: [],
+        dateStart: '',
+        dateEnd: '',
+        minAvailableDate: '',
+        maxAvailableDate: '',
         prevSourceRows: [],
         customCommissions: {},
         amPortfolios: {},
@@ -2847,11 +2897,369 @@
           });
       }
 
+
+      /* ========================================================================
+         G0. STOCKAGE PERSISTANT INDEXEDDB (CUMUL MULTI-FICHIERS 6 MOIS) & FILTRE DATES
+         ======================================================================== */
+      var YASSIR_IDB_CONFIG = {
+        DB_NAME: 'YassirVfArchiveDB_v1',
+        STORE_NAME: 'archiveStore',
+        RECORD_KEY: 'cumulative_data_exp'
+      };
+
+      function openYassirArchiveDb() {
+        return new Promise(function (resolve, reject) {
+          if (!window.indexedDB) {
+            reject(new Error('IndexedDB non supporté'));
+            return;
+          }
+          var req = window.indexedDB.open(YASSIR_IDB_CONFIG.DB_NAME, 1);
+          req.onupgradeneeded = function (ev) {
+            var db = ev.target.result;
+            if (!db.objectStoreNames.contains(YASSIR_IDB_CONFIG.STORE_NAME)) {
+              db.createObjectStore(YASSIR_IDB_CONFIG.STORE_NAME);
+            }
+          };
+          req.onsuccess = function (ev) { resolve(ev.target.result); };
+          req.onerror = function (ev) { reject(ev.target.error || new Error('Erreur IndexedDB')); };
+        });
+      }
+
+      function saveArchiveToIndexedDb() {
+        if (!state.rawSourceRows || state.rawSourceRows.length < 2) return Promise.resolve();
+        return openYassirArchiveDb().then(function (db) {
+          return new Promise(function (resolve, reject) {
+            var tx = db.transaction(YASSIR_IDB_CONFIG.STORE_NAME, 'readwrite');
+            var store = tx.objectStore(YASSIR_IDB_CONFIG.STORE_NAME);
+            store.put({
+              rawSourceRows: state.rawSourceRows,
+              storedFilesMeta: state.storedFilesMeta,
+              savedAt: new Date().toISOString()
+            }, YASSIR_IDB_CONFIG.RECORD_KEY);
+            tx.oncomplete = function () {
+              var badge = document.getElementById('badgeIndexedDbSaved');
+              if (badge) badge.classList.remove('hidden');
+              resolve();
+            };
+            tx.onerror = function (ev) { reject(ev.target.error); };
+          });
+        }).catch(function () {});
+      }
+
+      function loadArchiveFromIndexedDb() {
+        return openYassirArchiveDb().then(function (db) {
+          return new Promise(function (resolve) {
+            var tx = db.transaction(YASSIR_IDB_CONFIG.STORE_NAME, 'readonly');
+            var store = tx.objectStore(YASSIR_IDB_CONFIG.STORE_NAME);
+            var req = store.get(YASSIR_IDB_CONFIG.RECORD_KEY);
+            req.onsuccess = function (ev) { resolve(ev.target.result || null); };
+            req.onerror = function () { resolve(null); };
+          });
+        }).catch(function () { return null; });
+      }
+
+      function clearArchiveInIndexedDb() {
+        return openYassirArchiveDb().then(function (db) {
+          return new Promise(function (resolve) {
+            var tx = db.transaction(YASSIR_IDB_CONFIG.STORE_NAME, 'readwrite');
+            var store = tx.objectStore(YASSIR_IDB_CONFIG.STORE_NAME);
+            store.delete(YASSIR_IDB_CONFIG.RECORD_KEY);
+            tx.oncomplete = function () { resolve(); };
+            tx.onerror = function () { resolve(); };
+          });
+        }).catch(function () {});
+      }
+
+      function parseOrderDayToIsoDate(val) {
+        if (val === null || val === undefined || val === '') return '';
+        if (val instanceof Date && !isNaN(val.getTime())) {
+          var y = val.getUTCFullYear();
+          var m = String(val.getUTCMonth() + 1).padStart(2, '0');
+          var d = String(val.getUTCDate()).padStart(2, '0');
+          return y + '-' + m + '-' + d;
+        }
+        if (typeof val === 'number' && val > 25569) {
+          var dt = new Date(Math.round((val - 25569) * 86400 * 1000));
+          return dt.getUTCFullYear() + '-' + String(dt.getUTCMonth() + 1).padStart(2, '0') + '-' + String(dt.getUTCDate()).padStart(2, '0');
+        }
+        var str = String(val).trim();
+        if (!str) return '';
+
+        // ISO YYYY-MM-DD...
+        var isoM = str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (isoM) {
+          return isoM[1] + '-' + String(isoM[2]).padStart(2, '0') + '-' + String(isoM[3]).padStart(2, '0');
+        }
+
+        // DD/MM/YYYY or DD-MM-YYYY
+        var frM = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})/);
+        if (frM) {
+          return frM[3] + '-' + String(frM[2]).padStart(2, '0') + '-' + String(frM[1]).padStart(2, '0');
+        }
+
+        // English "Mon Nov 16 2026" or "Nov 16, 2026"
+        var parsed = Date.parse(str);
+        if (!isNaN(parsed)) {
+          var dObj = new Date(parsed);
+          return dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+        }
+        return '';
+      }
+
+      function detecterBornesDatesSource(aoa) {
+        if (!aoa || aoa.length < 2) {
+          state.minAvailableDate = '';
+          state.maxAvailableDate = '';
+          return;
+        }
+        var headers = aoa[0].map(function (h) { return h !== null && h !== undefined ? String(h).trim().toLowerCase() : ''; });
+        var idxOrderDay = headers.indexOf('order day');
+        if (idxOrderDay === -1) idxOrderDay = headers.indexOf('delivered day');
+        if (idxOrderDay === -1) return;
+
+        var minIso = '';
+        var maxIso = '';
+        for (var r = 1; r < aoa.length; r++) {
+          var row = aoa[r];
+          if (!row) continue;
+          var iso = parseOrderDayToIsoDate(row[idxOrderDay]);
+          if (!iso) continue;
+          if (!minIso || iso < minIso) minIso = iso;
+          if (!maxIso || iso > maxIso) maxIso = iso;
+        }
+        state.minAvailableDate = minIso;
+        state.maxAvailableDate = maxIso;
+      }
+
+      function obtenirSourceAoaFiltreeParDate() {
+        var aoa = state.rawSourceRows;
+        if (!aoa || aoa.length < 2) return aoa;
+        var dStart = state.dateStart;
+        var dEnd = state.dateEnd;
+        if (!dStart && !dEnd) return aoa;
+
+        var headers = aoa[0].map(function (h) { return h !== null && h !== undefined ? String(h).trim().toLowerCase() : ''; });
+        var idxOrderDay = headers.indexOf('order day');
+        if (idxOrderDay === -1) idxOrderDay = headers.indexOf('delivered day');
+        if (idxOrderDay === -1) return aoa;
+
+        var filtered = [aoa[0]];
+        for (var r = 1; r < aoa.length; r++) {
+          var row = aoa[r];
+          if (!row) continue;
+          var iso = parseOrderDayToIsoDate(row[idxOrderDay]);
+          if (!iso) continue;
+          if (dStart && iso < dStart) continue;
+          if (dEnd && iso > dEnd) continue;
+          filtered.push(row);
+        }
+        return filtered;
+      }
+
+      function mettreAJourBarreDatesEtFichiers() {
+        var dateBar = document.getElementById('dateRangeFilterBar');
+        var inpStart = document.getElementById('filterDateStart');
+        var inpEnd = document.getElementById('filterDateEnd');
+        var hintEl = document.getElementById('dateRangeBoundsHint');
+        var chipsBar = document.getElementById('storedFilesChipsBar');
+
+        var hasRows = state.rawSourceRows && state.rawSourceRows.length > 1;
+        if (dateBar) {
+          if (hasRows && state.minAvailableDate && state.maxAvailableDate) {
+            dateBar.classList.remove('hidden');
+            if (inpStart) {
+              inpStart.min = state.minAvailableDate;
+              inpStart.max = state.maxAvailableDate;
+              if (!inpStart.value) inpStart.value = state.dateStart || state.minAvailableDate;
+            }
+            if (inpEnd) {
+              inpEnd.min = state.minAvailableDate;
+              inpEnd.max = state.maxAvailableDate;
+              if (!inpEnd.value) inpEnd.value = state.dateEnd || state.maxAvailableDate;
+            }
+            if (hintEl) {
+              hintEl.textContent = '(Disponible : ' + state.minAvailableDate + ' → ' + state.maxAvailableDate + ')';
+            }
+          } else {
+            dateBar.classList.add('hidden');
+          }
+        }
+
+        if (chipsBar) {
+          if (state.storedFilesMeta && state.storedFilesMeta.length > 0) {
+            chipsBar.classList.remove('hidden');
+            chipsBar.innerHTML = state.storedFilesMeta.map(function (fMeta, idx) {
+              return '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F3EBFF] text-[#6C2BD9] border border-purple-200" title="' + escapeHtml(fMeta.name) + ' (' + fMeta.rowsCount + ' lignes)">' +
+                '<i class="fa-solid fa-file-circle-check text-[#00BFA5]"></i>' +
+                '<span class="max-w-[140px] truncate">' + escapeHtml(fMeta.name) + '</span>' +
+                '<span class="text-slate-400">(' + fMeta.rowsCount + ')</span>' +
+                '<button type="button" onclick="window.yassirRemoveStoredFile(' + idx + ')" class="text-slate-400 hover:text-[#FF2A6D] ml-0.5 cursor-pointer" title="Retirer ce fichier du cumul"><i class="fa-solid fa-xmark"></i></button>' +
+              '</span>';
+            }).join('');
+          } else {
+            chipsBar.classList.add('hidden');
+            chipsBar.innerHTML = '';
+          }
+        }
+      }
+
+      window.yassirOnDateRangeChange = function () {
+        var inpStart = document.getElementById('filterDateStart');
+        var inpEnd = document.getElementById('filterDateEnd');
+        state.dateStart = inpStart ? inpStart.value : '';
+        state.dateEnd = inpEnd ? inpEnd.value : '';
+        updateDatePresetButtonsUI('');
+        executerTraitementMetier();
+      };
+
+      function updateDatePresetButtonsUI(activePreset) {
+        var map = {
+          ALL: 'btnDatePresetAll',
+          LAST_7: 'btnDatePreset7',
+          LAST_14: 'btnDatePreset14',
+          LAST_30: 'btnDatePreset30',
+          LAST_90: 'btnDatePreset90'
+        };
+        Object.keys(map).forEach(function (k) {
+          var btn = document.getElementById(map[k]);
+          if (!btn) return;
+          btn.className = (k === activePreset)
+            ? 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#6C2BD9] text-white transition cursor-pointer'
+            : 'px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer';
+        });
+      }
+
+      window.yassirApplyDatePreset = function (preset) {
+        if (!state.maxAvailableDate || !state.minAvailableDate) return;
+        var inpStart = document.getElementById('filterDateStart');
+        var inpEnd = document.getElementById('filterDateEnd');
+
+        if (preset === 'ALL') {
+          state.dateStart = '';
+          state.dateEnd = '';
+          if (inpStart) inpStart.value = state.minAvailableDate;
+          if (inpEnd) inpEnd.value = state.maxAvailableDate;
+        } else {
+          var daysBack = preset === 'LAST_7' ? 6 : (preset === 'LAST_14' ? 13 : (preset === 'LAST_30' ? 29 : 89));
+          var parts = state.maxAvailableDate.split('-');
+          var endDt = new Date(Date.UTC(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)));
+          var startDt = new Date(endDt.getTime() - daysBack * 86400 * 1000);
+          var startIso = startDt.getUTCFullYear() + '-' + String(startDt.getUTCMonth() + 1).padStart(2, '0') + '-' + String(startDt.getUTCDate()).padStart(2, '0');
+          if (startIso < state.minAvailableDate) startIso = state.minAvailableDate;
+
+          state.dateStart = startIso;
+          state.dateEnd = state.maxAvailableDate;
+          if (inpStart) inpStart.value = startIso;
+          if (inpEnd) inpEnd.value = state.maxAvailableDate;
+        }
+
+        updateDatePresetButtonsUI(preset);
+        executerTraitementMetier();
+      };
+
+      function fusionnerNouveauFichierDansArchive(fileName, newAoa) {
+        if (!newAoa || newAoa.length < 2) return 0;
+        var newHeaders = newAoa[0].map(function (h) { return h !== null && h !== undefined ? String(h).trim() : ''; });
+
+        if (!state.rawSourceRows || state.rawSourceRows.length < 2) {
+          state.rawSourceRows = [newHeaders];
+          state.storedFilesMeta = [];
+        }
+
+        var baseHeaders = state.rawSourceRows[0].map(function (h) { return h !== null && h !== undefined ? String(h).trim() : ''; });
+        var baseHeadersLower = baseHeaders.map(function (h) { return h.toLowerCase(); });
+        var idxBaseOrderId = baseHeadersLower.indexOf('order id');
+        var idxNewOrderId = newHeaders.map(function (h) { return h.toLowerCase(); }).indexOf('order id');
+
+        var existingOrderIds = new Set();
+        if (idxBaseOrderId !== -1) {
+          for (var r = 1; r < state.rawSourceRows.length; r++) {
+            var oid = String(state.rawSourceRows[r][idxBaseOrderId] || '').trim();
+            if (oid) existingOrderIds.add(oid);
+          }
+        }
+
+        // Mapper les colonnes du nouveau fichier vers l'en-tête de base
+        var colMap = baseHeadersLower.map(function (bh) {
+          return newHeaders.findIndex(function (nh) { return nh.toLowerCase() === bh; });
+        });
+
+        var addedCount = 0;
+        for (var nr = 1; nr < newAoa.length; nr++) {
+          var sRow = newAoa[nr];
+          if (!sRow || sRow.every(function (c) { return c === null || c === undefined || String(c).trim() === ''; })) continue;
+
+          if (idxNewOrderId !== -1) {
+            var newOid = String(sRow[idxNewOrderId] || '').trim();
+            if (newOid && existingOrderIds.has(newOid)) {
+              continue; // Éviter les doublons si deux fichiers se chevauchent
+            }
+            if (newOid) existingOrderIds.add(newOid);
+          }
+
+          var alignedRow = new Array(baseHeaders.length).fill('');
+          for (var c = 0; c < baseHeaders.length; c++) {
+            var srcIdx = colMap[c];
+            if (srcIdx !== -1 && srcIdx < sRow.length) {
+              alignedRow[c] = sRow[srcIdx];
+            }
+          }
+          alignedRow.__fileSourceIdx = state.storedFilesMeta.length;
+          state.rawSourceRows.push(alignedRow);
+          addedCount++;
+        }
+
+        // Remplacer ou ajouter la métadonnée du fichier
+        var existingMetaIdx = state.storedFilesMeta.findIndex(function (m) { return m.name === fileName; });
+        if (existingMetaIdx !== -1) {
+          state.storedFilesMeta[existingMetaIdx].rowsCount += addedCount;
+        } else {
+          state.storedFilesMeta.push({
+            name: fileName,
+            rowsCount: addedCount,
+            addedAt: new Date().toISOString()
+          });
+        }
+
+        return addedCount;
+      }
+
+      window.yassirRemoveStoredFile = function (fileIdx) {
+        var meta = state.storedFilesMeta[fileIdx];
+        if (!meta) return;
+        // Supprimer les lignes associées à ce fichier et réindexer
+        var filteredRows = [state.rawSourceRows[0]];
+        for (var r = 1; r < state.rawSourceRows.length; r++) {
+          var row = state.rawSourceRows[r];
+          var srcIdx = row.__fileSourceIdx;
+          if (srcIdx === fileIdx) continue;
+          if (typeof srcIdx === 'number' && srcIdx > fileIdx) {
+            row.__fileSourceIdx = srcIdx - 1;
+          }
+          filteredRows.push(row);
+        }
+        state.storedFilesMeta.splice(fileIdx, 1);
+
+        if (filteredRows.length <= 1 || state.storedFilesMeta.length === 0) {
+          window.yassirResetAll();
+          return;
+        }
+
+        state.rawSourceRows = filteredRows;
+        state.dateStart = '';
+        state.dateEnd = '';
+        detecterBornesDatesSource(state.rawSourceRows);
+        saveArchiveToIndexedDb();
+        executerTraitementMetier();
+        showToast('Fichier <strong>' + escapeHtml(meta.name) + '</strong> retiré de la base enregistrée.', 'info');
+      };
+
       /* ========================================================================
          G. MOTEUR PRINCIPAL : GÉNÉRATION DES 109 COLONNES + DOUBLE FILTRAGE
          ======================================================================== */
       function executerTraitementMetier() {
-        var sourceData = state.rawSourceRows;
+        mettreAJourBarreDatesEtFichiers();
+        var sourceData = obtenirSourceAoaFiltreeParDate();
         if (!sourceData || sourceData.length < 2) {
           state.marketRows = [];
           state.foodRows = [];
@@ -3982,61 +4390,95 @@
       /* ========================================================================
          L. IMPORTATION DES FICHIERS DATA EXP & COMMISSIONS
          ======================================================================== */
-      function chargerFichierPrincipal(file) {
-        if (!file) return;
-        var reader = new FileReader();
-        reader.onload = function (e) {
-          try {
-            var data = new Uint8Array(e.target.result);
-            var workbook = XLSX.read(data, { type: 'array', cellDates: true });
+      function lireFichierPrincipalPromise(file) {
+        return new Promise(function (resolve, reject) {
+          var reader = new FileReader();
+          reader.onload = function (e) {
+            try {
+              var data = new Uint8Array(e.target.result);
+              var workbook = XLSX.read(data, { type: 'array', cellDates: true });
 
-            var repoSheetName = workbook.SheetNames.find(function (n) { return n.trim().toLowerCase() === 'restaurant par facture'; });
-            var autoCommLoaded = 0;
-            if (repoSheetName && isOwnerAdmin()) {
-              var repoRows = XLSX.utils.sheet_to_json(workbook.Sheets[repoSheetName], { header: 1 });
-              for (var r = 1; r < repoRows.length; r++) {
-                var row = repoRows[r];
-                if (row && row[0] !== undefined && row[0] !== null && row[1] !== undefined && row[1] !== '') {
-                  var rName = String(row[0]).trim().toLowerCase();
-                  var cVal = purgerNombre(row[1]);
-                  if (rName && !isNaN(cVal)) {
-                    state.customCommissions[rName] = cVal;
-                    autoCommLoaded++;
+              var repoSheetName = workbook.SheetNames.find(function (n) { return n.trim().toLowerCase() === 'restaurant par facture'; });
+              var autoCommLoaded = 0;
+              if (repoSheetName && isOwnerAdmin()) {
+                var repoRows = XLSX.utils.sheet_to_json(workbook.Sheets[repoSheetName], { header: 1 });
+                for (var r = 1; r < repoRows.length; r++) {
+                  var row = repoRows[r];
+                  if (row && row[0] !== undefined && row[0] !== null && row[1] !== undefined && row[1] !== '') {
+                    var rName = String(row[0]).trim().toLowerCase();
+                    var cVal = purgerNombre(row[1]);
+                    if (rName && !isNaN(cVal)) {
+                      state.customCommissions[rName] = cVal;
+                      autoCommLoaded++;
+                    }
                   }
                 }
+                if (autoCommLoaded > 0) saveCommissionsToStore();
               }
-              if (autoCommLoaded > 0) saveCommissionsToStore();
+
+              var sourceSheetName = workbook.SheetNames.find(function (n) { return n.trim().toLowerCase() === 'data exp'; }) || workbook.SheetNames[0];
+              var aoa = XLSX.utils.sheet_to_json(workbook.Sheets[sourceSheetName], { header: 1, defval: '' });
+              if (!aoa || aoa.length < 2) {
+                reject(new Error('La feuille « ' + sourceSheetName + ' » de ' + file.name + ' est vide.'));
+                return;
+              }
+              resolve({ fileName: file.name, aoa: aoa, autoCommLoaded: autoCommLoaded });
+            } catch (err) {
+              reject(err);
             }
+          };
+          reader.onerror = function () { reject(new Error('Erreur lecture ' + file.name)); };
+          reader.readAsArrayBuffer(file);
+        });
+      }
 
-            var sourceSheetName = workbook.SheetNames.find(function (n) { return n.trim().toLowerCase() === 'data exp'; }) || workbook.SheetNames[0];
-            var aoa = XLSX.utils.sheet_to_json(workbook.Sheets[sourceSheetName], { header: 1, defval: '' });
+      function chargerPlusieursFichiersPrincipaux(filesList) {
+        var files = Array.from(filesList || []);
+        if (files.length === 0) return;
 
-            if (!aoa || aoa.length < 2) {
-              showToast('La feuille « ' + escapeHtml(sourceSheetName) + ' » est vide.', 'error');
-              return;
-            }
+        showToast('Chargement et fusion de <strong>' + files.length + ' fichier(s)</strong> en cours...', 'info');
 
-            state.rawSourceRows = aoa;
-            document.getElementById('mainFileName').textContent = file.name;
-            document.getElementById('mainFileName').title = file.name;
-            document.getElementById('mainFileSub').textContent = 'Onglet « ' + sourceSheetName + ' » • ' + (aoa.length - 1) + ' ligne(s) reçue(s)';
-            document.getElementById('badgeSourceStatus').textContent = 'Chargé';
-            document.getElementById('badgeSourceStatus').className = 'text-xs font-bold px-3 py-1 rounded-full bg-[#E0F7F4] text-[#00897B]';
+        Promise.all(files.map(lireFichierPrincipalPromise))
+          .then(function (results) {
+            var totalAdded = 0;
+            var totalAutoComm = 0;
+            results.forEach(function (res) {
+              totalAdded += fusionnerNouveauFichierDansArchive(res.fileName, res.aoa);
+              totalAutoComm += res.autoCommLoaded;
+            });
+
+            state.dateStart = '';
+            state.dateEnd = '';
+            detecterBornesDatesSource(state.rawSourceRows);
+            updateDatePresetButtonsUI('ALL');
+
+            var totalRowsInBase = Math.max(0, state.rawSourceRows.length - 1);
+            var nbFiles = state.storedFilesMeta.length;
+            document.getElementById('mainFileName').textContent = nbFiles + ' fichier(s) enregistré(s) • ' + totalRowsInBase.toLocaleString('fr-FR') + ' commandes';
+            document.getElementById('mainFileName').title = state.storedFilesMeta.map(function (m) { return m.name; }).join(', ');
+            document.getElementById('mainFileSub').textContent = state.minAvailableDate && state.maxAvailableDate
+              ? ('Période globale : ' + state.minAvailableDate + ' → ' + state.maxAvailableDate)
+              : ('Base cumulée prête');
+            document.getElementById('badgeSourceStatus').textContent = nbFiles + ' fichier(s)';
+            document.getElementById('badgeSourceStatus').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] text-[#00897B]';
             document.getElementById('btnResetAll').classList.remove('hidden');
 
+            saveArchiveToIndexedDb();
             executerTraitementMetier();
 
-            var globalStats = calculerStatsPourAm('ALL');
-            var msg = 'Fichier <strong>' + escapeHtml(file.name) + '</strong> traité : <strong>' + globalStats.totalRecues + '</strong> reçues (<strong>' + globalStats.totalLivrees + '</strong> livrées) et <strong>' + globalStats.totalOffres + '</strong> Offre(s).';
-            if (autoCommLoaded > 0) {
-              msg += '<br/>Onglet <em>« Restaurant par facture »</em> synchronisé (' + autoCommLoaded + ' taux).';
+            var msg = '<strong>' + totalAdded.toLocaleString('fr-FR') + ' nouvelles lignes</strong> ajoutées et enregistrées automatiquement (' + totalRowsInBase.toLocaleString('fr-FR') + ' lignes au total sur ' + nbFiles + ' fichier(s)).';
+            if (totalAutoComm > 0) {
+              msg += '<br/>Onglet <em>« Restaurant par facture »</em> synchronisé (' + totalAutoComm + ' taux).';
             }
             showToast(msg, 'success');
-          } catch (err) {
-            showToast('Erreur lors de la lecture du fichier : ' + escapeHtml(err.message), 'error');
-          }
-        };
-        reader.readAsArrayBuffer(file);
+          })
+          .catch(function (err) {
+            showToast('Erreur importation : ' + escapeHtml(err.message), 'error');
+          });
+      }
+
+      function chargerFichierPrincipal(file) {
+        if (file) chargerPlusieursFichiersPrincipaux([file]);
       }
 
       function chargerFichierCommissions(file) {
@@ -4075,7 +4517,10 @@
       }
 
       window.yassirOnMainFileChange = function (e) {
-        if (e.target.files && e.target.files[0]) chargerFichierPrincipal(e.target.files[0]);
+        if (e.target.files && e.target.files.length > 0) {
+          chargerPlusieursFichiersPrincipaux(e.target.files);
+          e.target.value = '';
+        }
       };
 
       window.yassirOnCommFileChange = function (e) {
@@ -4084,22 +4529,30 @@
 
       window.yassirResetAll = function () {
         state.rawSourceRows = [];
+        state.storedFilesMeta = [];
+        state.dateStart = '';
+        state.dateEnd = '';
+        state.minAvailableDate = '';
+        state.maxAvailableDate = '';
         state.marketRows = [];
         state.foodRows = [];
         state.offresRows = [];
         state.statRows = [];
         state.selectedAm = 'ALL';
         state.searchQuery = '';
+        clearArchiveInIndexedDb();
         document.getElementById('searchInput').value = '';
         document.getElementById('inputMainFile').value = '';
-        document.getElementById('mainFileName').textContent = 'Glissez-déposez votre fichier Data exp ici';
-        document.getElementById('mainFileName').title = 'Glissez-déposez votre fichier Data exp ici';
-        document.getElementById('mainFileSub').textContent = 'Cliquez ou glissez un fichier (.xlsx, .xls, .csv)';
+        document.getElementById('mainFileName').textContent = 'Ajouter 1 ou plusieurs fichiers Data exp (cumul auto)';
+        document.getElementById('mainFileName').title = 'Glissez-déposez 1 ou plusieurs fichiers Data exp ici';
+        document.getElementById('mainFileSub').textContent = 'Sélection multiple autorisée • Stockage persistant';
         document.getElementById('badgeSourceStatus').textContent = 'En attente';
-        document.getElementById('badgeSourceStatus').className = 'text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600';
+        document.getElementById('badgeSourceStatus').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600';
+        var idbBadge = document.getElementById('badgeIndexedDbSaved');
+        if (idbBadge) idbBadge.classList.add('hidden');
         document.getElementById('btnResetAll').classList.add('hidden');
         mettreAJourInterface();
-        showToast('Données réinitialisées.', 'info');
+        showToast('Base de données enregistrée réinitialisée.', 'info');
       };
 
       /* ========================================================================
@@ -4441,7 +4894,11 @@
           e.preventDefault();
           zone.classList.remove('border-[#6C2BD9]', 'bg-[#F3EBFF]/60');
           if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            onFileCallback(e.dataTransfer.files[0]);
+            if (zoneId === 'dropZoneMain') {
+              chargerPlusieursFichiersPrincipaux(e.dataTransfer.files);
+            } else {
+              onFileCallback(e.dataTransfer.files[0]);
+            }
           }
         });
       }
@@ -5317,6 +5774,30 @@
         setupDropZone('dropZoneMain', chargerFichierPrincipal);
         setupDropZone('dropZonePrev', chargerFichierPrecedent);
         setupDropZone('dropZoneComm', chargerFichierCommissions);
+
+        // Restauration automatique des fichiers Data exp enregistrés dans IndexedDB
+        loadArchiveFromIndexedDb().then(function (archive) {
+          if (archive && archive.rawSourceRows && archive.rawSourceRows.length > 1) {
+            state.rawSourceRows = archive.rawSourceRows;
+            state.storedFilesMeta = Array.isArray(archive.storedFilesMeta) ? archive.storedFilesMeta : [];
+            detecterBornesDatesSource(state.rawSourceRows);
+            updateDatePresetButtonsUI('ALL');
+
+            var totalRowsInBase = Math.max(0, state.rawSourceRows.length - 1);
+            var nbFiles = state.storedFilesMeta.length || 1;
+            document.getElementById('mainFileName').textContent = nbFiles + ' fichier(s) enregistré(s) • ' + totalRowsInBase.toLocaleString('fr-FR') + ' commandes';
+            document.getElementById('mainFileSub').textContent = state.minAvailableDate && state.maxAvailableDate
+              ? ('Période globale : ' + state.minAvailableDate + ' → ' + state.maxAvailableDate)
+              : 'Base enregistrée restaurée';
+            document.getElementById('badgeSourceStatus').textContent = nbFiles + ' fichier(s)';
+            document.getElementById('badgeSourceStatus').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] text-[#00897B]';
+            var badgeIdb = document.getElementById('badgeIndexedDbSaved');
+            if (badgeIdb) badgeIdb.classList.remove('hidden');
+            document.getElementById('btnResetAll').classList.remove('hidden');
+
+            executerTraitementMetier();
+          }
+        });
 
         // Synchronisation automatique en direct avec Google Sheets au démarrage
         window.yassirSyncAllFromGoogleSheets(false);
