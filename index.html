@@ -385,30 +385,48 @@
            ZONES D'IMPORTATION (1 : DATA EXP | 2 : COMMISSIONS RESTAURANT PAR FACTURE)
            ======================================================================== -->
       <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div id="mainSourceImportCard" class="bg-white rounded-3xl border border-purple-100 p-6 shadow-sm hover:border-[#6C2BD9]/40 transition flex flex-col justify-between">
+        <div id="mainSourceImportCard" class="bg-white rounded-3xl border border-purple-100 p-4 sm:p-5 shadow-sm hover:border-[#6C2BD9]/40 transition flex flex-col justify-between gap-3">
           <div>
-            <div class="flex items-start justify-between gap-3 mb-3">
-              <div class="flex items-center gap-2.5">
-                <span class="w-7 h-7 rounded-full bg-[#6C2BD9] text-white text-xs font-extrabold flex items-center justify-center shadow-sm">1</span>
-                <h2 class="text-base font-extrabold text-[#1A1A2E]">
-                  Fichier source principal (<code class="text-xs font-bold bg-[#F3EBFF] text-[#6C2BD9] px-2 py-0.5 rounded-lg">Data exp</code>)
+            <div class="flex items-center justify-between gap-2 mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-full bg-[#6C2BD9] text-white text-[11px] font-extrabold flex items-center justify-center shadow-sm">1</span>
+                <h2 class="text-sm font-extrabold text-[#1A1A2E]">
+                  Fichier source (<code class="text-[11px] font-bold bg-[#F3EBFF] text-[#6C2BD9] px-2 py-0.5 rounded-md">Data exp</code>)
                 </h2>
               </div>
-              <span id="badgeSourceStatus" class="text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600">En attente</span>
+              <span id="badgeSourceStatus" class="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600">En attente</span>
             </div>
-            <p class="text-xs text-slate-500 mb-4">
-              Importez votre export brut (<code>.xlsx</code>, <code>.xls</code> ou <code>.csv</code>). Les résultats s'affichent en <strong>Vue Globale</strong> par défaut ; cliquez ensuite sur un portefeuille autorisé pour isoler ses indicateurs et exporter ses statistiques.
+            <p class="text-[11px] text-slate-500 leading-snug">
+              Importez votre export brut (<code>.xlsx</code>, <code>.xls</code>, <code>.csv</code>). Affichage en <strong>Vue Globale</strong> par défaut.
             </p>
           </div>
 
-          <label id="dropZoneMain" for="inputMainFile" class="border-2 border-dashed border-purple-200 hover:border-[#6C2BD9] hover:bg-[#F3EBFF]/40 rounded-2xl p-6 text-center cursor-pointer transition flex flex-col items-center justify-center min-h-[145px]">
+          <label id="dropZoneMain" for="inputMainFile" class="border border-dashed border-purple-300 hover:border-[#6C2BD9] bg-[#F8F9FC]/70 hover:bg-[#F3EBFF]/50 rounded-2xl px-4 py-3 cursor-pointer transition flex items-center gap-3 min-h-[68px]">
             <input id="inputMainFile" type="file" accept=".xlsx,.xls,.csv" onchange="window.yassirOnMainFileChange(event)" class="hidden" />
-            <div class="w-12 h-12 rounded-2xl bg-[#F3EBFF] text-[#6C2BD9] flex items-center justify-center mb-2.5">
-              <i class="fa-solid fa-file-excel text-xl"></i>
+            <div class="w-9 h-9 rounded-xl bg-[#F3EBFF] text-[#6C2BD9] flex items-center justify-center shrink-0">
+              <i class="fa-solid fa-file-excel text-base"></i>
             </div>
-            <p id="mainFileName" class="text-sm font-bold text-[#1A1A2E]">Glissez-déposez votre fichier Data exp ici</p>
-            <p id="mainFileSub" class="text-xs text-slate-400 mt-1">ou cliquez pour parcourir (.xlsx, .xls, .csv)</p>
+            <div class="min-w-0 flex-1 text-left">
+              <p id="mainFileName" class="text-xs font-semibold text-[#1A1A2E] truncate" title="Glissez-déposez votre fichier Data exp ici">Glissez-déposez votre fichier Data exp ici</p>
+              <p id="mainFileSub" class="text-[11px] text-slate-400 truncate mt-0.5">Cliquez ou glissez un fichier (.xlsx, .xls, .csv)</p>
+            </div>
+            <span class="px-3 py-1 rounded-full text-[11px] font-bold bg-[#6C2BD9] text-white shrink-0">Parcourir</span>
           </label>
+
+          <!-- Petite icône d'insertion Data préc (réservée à Ahmed, Karim, Omar et Proprio) -->
+          <div id="prevDataImportBar" class="hidden pt-2 border-t border-purple-100 flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2 min-w-0 flex-1">
+              <label id="dropZonePrev" for="inputPrevFile" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-[11px] font-bold bg-[#F3EBFF] hover:bg-purple-200/80 text-[#6C2BD9] border border-purple-200 transition cursor-pointer shrink-0" title="Importer le fichier de la période précédente (Data préc) pour afficher le tableau de variation">
+                <input id="inputPrevFile" type="file" accept=".xlsx,.xls,.csv" onchange="window.yassirOnPrevFileChange(event)" class="hidden" />
+                <i class="fa-solid fa-clock-rotate-left text-[#FF2A6D]"></i>
+                <span>Data préc</span>
+              </label>
+              <span id="prevFileNameLabel" class="text-[11px] text-slate-400 truncate">Aucune période précédente chargée</span>
+            </div>
+            <button id="btnClearPrevData" type="button" onclick="window.yassirClearPrevData()" class="hidden px-2 py-1 rounded-full text-[10px] font-bold bg-rose-50 hover:bg-rose-100 text-[#FF2A6D] transition cursor-pointer" title="Retirer Data préc">
+              <i class="fa-solid fa-xmark"></i>
+            </button>
+          </div>
         </div>
 
         <div id="commissionsImportCard" class="hidden bg-white rounded-3xl border border-purple-100 p-6 shadow-sm hover:border-[#6C2BD9]/40 transition flex flex-col justify-between">
@@ -738,6 +756,52 @@
                   </tr>
                 </thead>
                 <tbody id="synthGlobalDaysBody" class="bg-white"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Tableau 3 (en dessous) : Variation entre deux périodes (s'affiche uniquement quand Data préc est importé) -->
+          <div id="synthVariationSection" class="hidden space-y-3 pt-2 border-t border-purple-100">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div>
+                <h4 class="text-sm font-extrabold text-[#1A1A2E] flex items-center gap-2">
+                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#FF2A6D] text-white">Comparatif Périodes</span>
+                  <span>Variation par Restaurant (Période Actuelle vs Data préc)</span>
+                </h4>
+                <p class="text-xs text-slate-500 mt-0.5">Commandes <strong>Food VF</strong> uniquement • Trié par commandes livrées décroissantes</p>
+              </div>
+              <div class="flex flex-wrap items-center gap-2">
+                <div class="relative">
+                  <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-[#6C2BD9]/60 text-xs"></i>
+                  <input id="searchVariationRestoInput" type="text" oninput="window.yassirRenderVariationTable()" placeholder="Filtrer restaurant ou zone..." class="pl-8 pr-3 py-1.5 text-xs bg-[#F8F9FC] border border-purple-200 rounded-full focus:outline-none focus:ring-2 focus:ring-[#6C2BD9]" />
+                </div>
+                <button id="btnExportVariationXlsx" type="button" onclick="window.yassirExportVariationExcel()" class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#6C2BD9] hover:bg-[#5521B5] text-white shadow-sm transition cursor-pointer">
+                  <i class="fa-solid fa-file-excel"></i>
+                  <span>Télécharger Variation (.xlsx)</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="border border-purple-200 rounded-2xl overflow-x-auto max-h-[540px] custom-scrollbar shadow-sm">
+              <table class="min-w-full text-xs border-collapse">
+                <thead class="bg-[#5B21B6] text-white font-extrabold sticky top-0 z-10">
+                  <tr>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Area</th>
+                    <th class="px-3.5 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Restaurant Name</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Requested</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Delivered</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Succes Rate</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Previous</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Variation</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Growth/Drop %</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">GMV</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Yassir Commission</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">AOV</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">Promo Order</th>
+                    <th class="px-3 py-2.5 text-center border border-purple-400/30 whitespace-nowrap">L.R/L.G Costs</th>
+                  </tr>
+                </thead>
+                <tbody id="synthVariationTableBody" class="bg-white divide-y divide-slate-200"></tbody>
               </table>
             </div>
           </div>
@@ -1520,6 +1584,11 @@
           btnOpenCommTabLabel.textContent = 'Consulter la grille des commissions';
         }
 
+        var prevBar = document.getElementById('prevDataImportBar');
+        if (prevBar) {
+          if (canSeeGlobalSynth()) prevBar.classList.remove('hidden');
+          else prevBar.classList.add('hidden');
+        }
         mettreAJourInterface();
       }
 
@@ -1780,6 +1849,7 @@
          ======================================================================== */
       var state = {
         rawSourceRows: [],
+        prevSourceRows: [],
         customCommissions: {},
         amPortfolios: {},
         selectedAm: 'ALL',
@@ -2101,6 +2171,19 @@
 
           daysBody.innerHTML = rowsHtml;
         }
+
+        var varSection = document.getElementById('synthVariationSection');
+        var hasPrev = canSeeGlobalSynth() && state.prevSourceRows && state.prevSourceRows.length > 1;
+        if (varSection) {
+          if (hasPrev) {
+            currentVariationRowsList = calculerVariationEntrePeriodes();
+            varSection.classList.remove('hidden');
+            window.yassirRenderVariationTable();
+          } else {
+            currentVariationRowsList = [];
+            varSection.classList.add('hidden');
+          }
+        }
       }
 
       function buildSynthSheetFromData(synth) {
@@ -2150,6 +2233,30 @@
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, buildSynthSheetFromData(synthFood), 'Synthèse Food');
 
+        if (state.prevSourceRows && state.prevSourceRows.length > 1) {
+          var vRows = calculerVariationEntrePeriodes();
+          if (vRows.length > 0) {
+            var vAoa = [[
+              'Area', 'Restaurant Name', 'Requested', 'Delivered', 'Succes Rate',
+              'Previous', 'Variation', 'Growth/Drop %', 'GMV', 'Yassir Commission',
+              'AOV', 'Promo Order', 'L.R/L.G Costs'
+            ]];
+            vRows.forEach(function (r) {
+              vAoa.push([
+                r.area, r.resto, r.req, r.deliv, r.successRate + '%',
+                r.previous, r.variation, r.hasPrev ? (r.growthPct + '%') : 'New',
+                r.gmv, r.comm, r.aov, r.promoOrder, r.lrLg
+              ]);
+            });
+            var wsVar = XLSX.utils.aoa_to_sheet(vAoa);
+            wsVar['!cols'] = [
+              { wch: 20 }, { wch: 30 }, { wch: 12 }, { wch: 12 }, { wch: 14 },
+              { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 14 }, { wch: 18 },
+              { wch: 12 }, { wch: 14 }, { wch: 15 }
+            ];
+            XLSX.utils.book_append_sheet(wb, wsVar, 'Variation Food');
+          }
+        }
         var dateStr = new Date().toISOString().slice(0, 10);
         XLSX.writeFile(wb, 'YASSIR_Synthese_Food_' + dateStr + '.xlsx');
         showToast('Fichier <strong>YASSIR_Synthese_Food_' + dateStr + '.xlsx</strong> téléchargé (commandes Food uniquement).', 'success');
@@ -2179,6 +2286,272 @@
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
         showToast('Synthèse Globale exportée en CSV.', 'success');
+      };
+
+
+      /* ========================================================================
+         E3. MODULE VARIATION ENTRE DEUX PÉRIODES (DATA EXP VS DATA PRÉC)
+         ======================================================================== */
+      var currentVariationRowsList = [];
+
+      function chargerFichierPrecedent(file) {
+        if (!file || !canSeeGlobalSynth()) return;
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          try {
+            var data = new Uint8Array(e.target.result);
+            var workbook = XLSX.read(data, { type: 'array', cellDates: true });
+            var sourceSheetName = workbook.SheetNames.find(function (n) { return n.trim().toLowerCase() === 'data exp'; }) || workbook.SheetNames[0];
+            var aoa = XLSX.utils.sheet_to_json(workbook.Sheets[sourceSheetName], { header: 1, defval: '' });
+
+            if (!aoa || aoa.length < 2) {
+              showToast('Le fichier <strong>Data préc</strong> est vide.', 'error');
+              return;
+            }
+
+            state.prevSourceRows = aoa;
+            var lbl = document.getElementById('prevFileNameLabel');
+            var btnClear = document.getElementById('btnClearPrevData');
+            if (lbl) {
+              lbl.textContent = file.name + ' (' + (aoa.length - 1) + ' lignes)';
+              lbl.title = file.name;
+              lbl.className = 'text-[11px] font-bold text-[#00897B] truncate';
+            }
+            if (btnClear) btnClear.classList.remove('hidden');
+
+            if (state.activeTab === 'synth_global') {
+              renderSynthGlobalPanel();
+            } else if (state.rawSourceRows && state.rawSourceRows.length > 1) {
+              window.yassirSwitchTab('synth_global');
+            }
+
+            showToast('<strong>Data préc</strong> chargé (' + (aoa.length - 1) + ' lignes). Le tableau de variation est disponible dans <strong>Synthèse Food</strong>.', 'success');
+          } catch (err) {
+            showToast('Erreur lecture Data préc : ' + escapeHtml(err.message), 'error');
+          }
+        };
+        reader.readAsArrayBuffer(file);
+      }
+
+      window.yassirOnPrevFileChange = function (e) {
+        if (e.target.files && e.target.files[0]) chargerFichierPrecedent(e.target.files[0]);
+      };
+
+      window.yassirClearPrevData = function () {
+        state.prevSourceRows = [];
+        currentVariationRowsList = [];
+        var inp = document.getElementById('inputPrevFile');
+        var lbl = document.getElementById('prevFileNameLabel');
+        var btnClear = document.getElementById('btnClearPrevData');
+        if (inp) inp.value = '';
+        if (lbl) {
+          lbl.textContent = 'Aucune période précédente chargée';
+          lbl.title = '';
+          lbl.className = 'text-[11px] text-slate-400 truncate';
+        }
+        if (btnClear) btnClear.classList.add('hidden');
+        if (state.activeTab === 'synth_global') renderSynthGlobalPanel();
+      };
+
+      function extraireDeliveredFoodParRestoDepuisAoa(aoa) {
+        var prevDelivMap = new Map();
+        if (!aoa || aoa.length < 2) return prevDelivMap;
+
+        var headers = aoa[0].map(function (h) { return h !== null && h !== undefined ? String(h).trim().toLowerCase() : ''; });
+        var idxResto = headers.indexOf('restaurant name');
+        var idxStatus = headers.indexOf('status');
+        var idxServices = headers.indexOf('services');
+
+        if (idxResto === -1 || idxStatus === -1) return prevDelivMap;
+
+        for (var r = 1; r < aoa.length; r++) {
+          var row = aoa[r];
+          if (!row) continue;
+          var rName = String(row[idxResto] || '').trim();
+          var rKey = rName.toLowerCase();
+          if (!rKey) continue;
+
+          var srv = idxServices !== -1 ? String(row[idxServices] || '').trim().toLowerCase() : '';
+          if (srv.includes('market') || rKey.includes('mg market') || rKey.includes('market')) continue;
+          if (srv.includes('express') || srv.includes('coursier') || srv.includes('courier') || srv.includes('last mile') || srv.includes('b2b')) continue;
+
+          if (estCommandeLivree(row[idxStatus])) {
+            prevDelivMap.set(rKey, (prevDelivMap.get(rKey) || 0) + 1);
+          }
+        }
+        return prevDelivMap;
+      }
+
+      function calculerVariationEntrePeriodes() {
+        if (!state.prevSourceRows || state.prevSourceRows.length < 2) return [];
+        var foodRecords = getStrictlyFoodRecords();
+        if (!foodRecords || foodRecords.length === 0) return [];
+
+        var prevDelivMap = extraireDeliveredFoodParRestoDepuisAoa(state.prevSourceRows);
+
+        var idxArea = TARGET_HEADERS.indexOf('Area');
+        var idxResto = TARGET_HEADERS.indexOf('restaurant name');
+        var idxOrderId = TARGET_HEADERS.indexOf('order id');
+        var idxStatus = TARGET_HEADERS.indexOf('status');
+        var idxGmv = TARGET_HEADERS.indexOf('Total Food VF');
+        var idxComm = TARGET_HEADERS.indexOf('CA');
+        var idxLrLg = TARGET_HEADERS.indexOf('à payer réduits');
+        var idxDiscType = TARGET_HEADERS.indexOf('Discount Type');
+        var idxFoodCat = TARGET_HEADERS.indexOf('Food Category');
+        var idxTags = TARGET_HEADERS.indexOf('Tags');
+
+        var aggMap = new Map();
+
+        foodRecords.forEach(function (rec) {
+          var c = rec.cells;
+          var rawResto = String(c[idxResto] || '').trim();
+          var rKey = rawResto.toLowerCase();
+          if (!rKey) return;
+
+          var cfg = state.amPortfolios[rKey];
+          var areaVal = String(c[idxArea] || '').trim() || (cfg && cfg.ville ? cfg.ville : '');
+          var displayResto = cfg ? cfg.displayName : rawResto;
+
+          if (!aggMap.has(rKey)) {
+            aggMap.set(rKey, {
+              key: rKey,
+              area: areaVal,
+              resto: displayResto,
+              req: 0,
+              deliv: 0,
+              gmv: 0,
+              comm: 0,
+              promoOrder: 0,
+              lrLg: 0
+            });
+          }
+
+          var entry = aggMap.get(rKey);
+          if (!entry.area && areaVal) entry.area = areaVal;
+
+          if (String(c[idxOrderId] || '').trim().length > 0) entry.req += 1;
+
+          if (estCommandeLivree(c[idxStatus])) {
+            entry.deliv += 1;
+            entry.gmv += purgerNombre(c[idxGmv]);
+            entry.comm += purgerNombre(c[idxComm]);
+            entry.lrLg += purgerNombre(c[idxLrLg]);
+
+            var foodCatLower = (String(c[idxFoodCat] || '') + ' ' + String(c[idxTags] || '')).toLowerCase();
+            var discTypeLower = String(c[idxDiscType] || '').toLowerCase();
+            if (foodCatLower.includes('super promo') || discTypeLower.includes('percentage')) {
+              entry.promoOrder += 1;
+            }
+          }
+        });
+
+        var rows = [];
+        aggMap.forEach(function (entry) {
+          var prevDeliv = prevDelivMap.get(entry.key) || 0;
+          var variation = entry.deliv - prevDeliv;
+          var growthPct = prevDeliv > 0 ? ((variation / prevDeliv) * 100) : (entry.deliv > 0 ? 100 : 0);
+          var successRate = entry.req > 0 ? ((entry.deliv / entry.req) * 100) : 0;
+          var aov = entry.deliv > 0 ? (entry.gmv / entry.deliv) : 0;
+
+          rows.push({
+            area: entry.area,
+            resto: entry.resto,
+            req: entry.req,
+            deliv: entry.deliv,
+            successRate: Number(successRate.toFixed(2)),
+            previous: prevDeliv,
+            variation: variation,
+            growthPct: Number(growthPct.toFixed(2)),
+            hasPrev: prevDeliv > 0,
+            gmv: Number(entry.gmv.toFixed(1)),
+            comm: Number(entry.comm.toFixed(1)),
+            aov: Number(aov.toFixed(1)),
+            promoOrder: entry.promoOrder,
+            lrLg: Number(entry.lrLg.toFixed(1))
+          });
+        });
+
+        rows.sort(function (a, b) {
+          return (b.deliv - a.deliv) || (b.req - a.req) || a.resto.localeCompare(b.resto, 'fr');
+        });
+
+        return rows;
+      }
+
+      window.yassirRenderVariationTable = function () {
+        var tbody = document.getElementById('synthVariationTableBody');
+        if (!tbody) return;
+        var qEl = document.getElementById('searchVariationRestoInput');
+        var q = qEl ? qEl.value.trim().toLowerCase() : '';
+
+        var filtered = q
+          ? currentVariationRowsList.filter(function (r) {
+              return r.resto.toLowerCase().includes(q) || (r.area && r.area.toLowerCase().includes(q));
+            })
+          : currentVariationRowsList;
+
+        if (filtered.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="13" class="px-4 py-8 text-center text-slate-400">Aucun restaurant trouvé.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = filtered.map(function (r) {
+          var varColor = r.variation > 0 ? 'text-[#00897B] font-extrabold' : (r.variation < 0 ? 'text-[#FF2A6D] font-extrabold' : 'text-slate-600');
+          var growthStr = r.hasPrev ? (r.growthPct.toFixed(2) + '%') : (r.deliv > 0 ? 'New' : '0.00%');
+          return '<tr class="hover:bg-[#F3EBFF]/35">' +
+            '<td class="px-3 py-2 text-center border border-slate-200 text-slate-700 whitespace-nowrap">' + escapeHtml(r.area || '-') + '</td>' +
+            '<td class="px-3.5 py-2 text-center border border-slate-200 font-semibold text-[#1A1A2E] whitespace-nowrap">' + escapeHtml(r.resto) + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono">' + r.req + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono font-bold">' + r.deliv + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono">' + r.successRate.toFixed(2) + '%</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono">' + r.previous + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono ' + varColor + '">' + r.variation + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono ' + varColor + '">' + growthStr + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono">' + r.gmv.toFixed(1) + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono">' + r.comm.toFixed(1) + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono">' + r.aov.toFixed(1) + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono">' + r.promoOrder + '</td>' +
+            '<td class="px-3 py-2 text-center border border-slate-200 font-mono">' + r.lrLg.toFixed(1) + '</td>' +
+          '</tr>';
+        }).join('');
+      };
+
+      window.yassirExportVariationExcel = function () {
+        if (!canSeeGlobalSynth() || currentVariationRowsList.length === 0) return;
+        var headers = [
+          'Area', 'Restaurant Name', 'Requested', 'Delivered', 'Succes Rate',
+          'Previous', 'Variation', 'Growth/Drop %', 'GMV', 'Yassir Commission',
+          'AOV', 'Promo Order', 'L.R/L.G Costs'
+        ];
+        var aoa = [headers];
+        currentVariationRowsList.forEach(function (r) {
+          aoa.push([
+            r.area,
+            r.resto,
+            r.req,
+            r.deliv,
+            r.successRate + '%',
+            r.previous,
+            r.variation,
+            r.hasPrev ? (r.growthPct + '%') : 'New',
+            r.gmv,
+            r.comm,
+            r.aov,
+            r.promoOrder,
+            r.lrLg
+          ]);
+        });
+        var wb = XLSX.utils.book_new();
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+        ws['!cols'] = [
+          { wch: 20 }, { wch: 30 }, { wch: 12 }, { wch: 12 }, { wch: 14 },
+          { wch: 12 }, { wch: 12 }, { wch: 15 }, { wch: 14 }, { wch: 18 },
+          { wch: 12 }, { wch: 14 }, { wch: 15 }
+        ];
+        XLSX.utils.book_append_sheet(wb, ws, 'Variation Food');
+        var dateStr = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, 'YASSIR_Variation_Food_' + dateStr + '.xlsx');
+        showToast('Tableau de variation téléchargé en Excel (.xlsx).', 'success');
       };
 
       /* ========================================================================
@@ -2645,6 +3018,11 @@
         state.offresRows = calculerOffresDepuisDataExp(sourceData);
         state.statRows = calculerStatDepuisDataExp(marketRows.concat(foodRows));
         state.currentPage = 1;
+        var prevBar = document.getElementById('prevDataImportBar');
+        if (prevBar) {
+          if (canSeeGlobalSynth()) prevBar.classList.remove('hidden');
+          else prevBar.classList.add('hidden');
+        }
         mettreAJourInterface();
       }
 
@@ -2740,6 +3118,11 @@
         }
         state.selectedAm = amName;
         state.currentPage = 1;
+        var prevBar = document.getElementById('prevDataImportBar');
+        if (prevBar) {
+          if (canSeeGlobalSynth()) prevBar.classList.remove('hidden');
+          else prevBar.classList.add('hidden');
+        }
         mettreAJourInterface();
       };
 
@@ -3635,6 +4018,7 @@
 
             state.rawSourceRows = aoa;
             document.getElementById('mainFileName').textContent = file.name;
+            document.getElementById('mainFileName').title = file.name;
             document.getElementById('mainFileSub').textContent = 'Onglet « ' + sourceSheetName + ' » • ' + (aoa.length - 1) + ' ligne(s) reçue(s)';
             document.getElementById('badgeSourceStatus').textContent = 'Chargé';
             document.getElementById('badgeSourceStatus').className = 'text-xs font-bold px-3 py-1 rounded-full bg-[#E0F7F4] text-[#00897B]';
@@ -3709,7 +4093,8 @@
         document.getElementById('searchInput').value = '';
         document.getElementById('inputMainFile').value = '';
         document.getElementById('mainFileName').textContent = 'Glissez-déposez votre fichier Data exp ici';
-        document.getElementById('mainFileSub').textContent = 'ou cliquez pour parcourir (.xlsx, .xls, .csv)';
+        document.getElementById('mainFileName').title = 'Glissez-déposez votre fichier Data exp ici';
+        document.getElementById('mainFileSub').textContent = 'Cliquez ou glissez un fichier (.xlsx, .xls, .csv)';
         document.getElementById('badgeSourceStatus').textContent = 'En attente';
         document.getElementById('badgeSourceStatus').className = 'text-xs font-bold px-3 py-1 rounded-full bg-slate-100 text-slate-600';
         document.getElementById('btnResetAll').classList.add('hidden');
@@ -3733,6 +4118,11 @@
             : 'tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer';
         });
 
+        var prevBar = document.getElementById('prevDataImportBar');
+        if (prevBar) {
+          if (canSeeGlobalSynth()) prevBar.classList.remove('hidden');
+          else prevBar.classList.add('hidden');
+        }
         mettreAJourInterface();
       };
 
@@ -4925,6 +5315,7 @@
         }
 
         setupDropZone('dropZoneMain', chargerFichierPrincipal);
+        setupDropZone('dropZonePrev', chargerFichierPrecedent);
         setupDropZone('dropZoneComm', chargerFichierCommissions);
 
         // Synchronisation automatique en direct avec Google Sheets au démarrage
