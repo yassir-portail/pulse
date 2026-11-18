@@ -615,7 +615,7 @@
               <div class="flex flex-wrap items-center gap-1.5">
                 <button id="btnSyncHistoricalSheets" type="button" disabled onclick="window.yassirSyncHistoricalSheets(true)" style="display:none" class="hidden inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] hover:bg-teal-200 text-[#00897B] transition cursor-pointer" title="Synchroniser les 6 mois (Mai à Octobre) depuis Google Sheets (Propriétaire Admin uniquement)">
                   <i id="iconSyncHistSheets" class="fa-solid fa-cloud-arrow-down"></i>
-                  <span id="labelSyncHistSheets">Sync Mai–Oct</span>
+                  <span id="labelSyncHistSheets">Sync Mai–Nov</span>
                 </button>
                 <span id="badgeIndexedDbSaved" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F3EBFF] text-[#6C2BD9]" title="Sauvegardé automatiquement dans le stockage IndexedDB du navigateur">
                   <i class="fa-solid fa-database mr-1 text-[#00BFA5]"></i>Enregistré
@@ -1619,6 +1619,54 @@
             </div>
           </div>
 
+          <!-- Éditeur Budget AM (Propriétaire Admin uniquement - complément de Sync Budget Google Sheets) -->
+          <div id="ownerBudgetEditorSection" class="hidden bg-[#F8F9FC] p-4 sm:p-5 rounded-2xl border border-teal-200 space-y-3">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#00BFA5] text-[#1A1A2E]">Budget AM & Global (Propriétaire Admin)</span>
+                <h4 class="text-xs font-extrabold uppercase tracking-wider text-[#1A1A2E]">Configuration des Budgets TND (Synchronisés ou manuels)</h4>
+              </div>
+              <button type="button" onclick="window.yassirSyncBudgetSheet(true)" class="px-3.5 py-1.5 rounded-full text-xs font-bold bg-[#6C2BD9] hover:bg-[#5521B5] text-white shadow-sm transition cursor-pointer self-start sm:self-auto">
+                <i class="fa-solid fa-arrows-rotate mr-1"></i> Synchroniser depuis Google Sheet Budget
+              </button>
+            </div>
+            <form onsubmit="return window.yassirSaveManualBudgets(event);" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-2.5 items-end">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1 truncate">Aziza Souli</label>
+                <input id="budgetInput_Aziza_Souli" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-2.5 py-1.5 text-xs font-mono bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00BFA5]" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1 truncate">Khouloud Harbaoui</label>
+                <input id="budgetInput_Khouloud_Harbaoui" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-2.5 py-1.5 text-xs font-mono bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00BFA5]" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1 truncate">Omar Beldi</label>
+                <input id="budgetInput_Omar_Beldi" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-2.5 py-1.5 text-xs font-mono bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00BFA5]" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1 truncate">Imed Fourati</label>
+                <input id="budgetInput_Imed_Fourati" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-2.5 py-1.5 text-xs font-mono bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00BFA5]" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1 truncate">Nour Ali</label>
+                <input id="budgetInput_Nour_Ali" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-2.5 py-1.5 text-xs font-mono bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00BFA5]" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1 truncate">Iheb Dachraoui</label>
+                <input id="budgetInput_Iheb_Dachraoui" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-2.5 py-1.5 text-xs font-mono bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00BFA5]" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-600 mb-1 truncate">Ilyes kammoun</label>
+                <input id="budgetInput_Ilyes_kammoun" type="number" step="0.01" min="0" placeholder="0.00" class="w-full px-2.5 py-1.5 text-xs font-mono bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#00BFA5]" />
+              </div>
+              <div>
+                <button type="submit" class="w-full py-1.5 px-3 rounded-xl text-xs font-extrabold bg-[#00BFA5] hover:bg-teal-500 text-[#1A1A2E] shadow-sm transition cursor-pointer">
+                  <i class="fa-solid fa-check mr-1"></i> Enregistrer
+                </button>
+              </div>
+            </form>
+          </div>
+
           <!-- Bandeau lecture seule pour Superviseurs (Karim, Ahmed) ou AM -->
           <div id="amReadOnlyBanner" class="hidden bg-[#F3EBFF] border border-purple-200 rounded-2xl p-3.5 text-xs text-[#6C2BD9] flex items-center gap-2.5">
             <i class="fa-solid fa-lock text-sm shrink-0"></i>
@@ -2117,6 +2165,7 @@
           if (commImportCard) commImportCard.classList.add('hidden');
           if (tabBtnComm) tabBtnComm.classList.add('hidden');
           scopeSubtitle.textContent = 'Espace AM (' + (account.amName || account.username) + ') • Accès exclusif à la Vue Globale et à votre portefeuille';
+          var chipsElAm = document.getElementById('storedFilesChipsBar'); if (chipsElAm) chipsElAm.classList.add('hidden');
           ownerAdminSection.classList.add('hidden');
           amReadOnlyBanner.classList.remove('hidden');
           amReadOnlyBannerText.textContent = 'Vous consultez uniquement votre portefeuille et la vue globale. La modification des restaurants ou des commissions est réservée au Propriétaire Admin.';
@@ -3722,7 +3771,8 @@
         }
 
         if (chipsBar) {
-          if (state.storedFilesMeta && state.storedFilesMeta.length > 0) {
+          var canSeeSourceChips = isOwnerAdmin() || canViewAllPortfolios();
+          if (canSeeSourceChips && state.storedFilesMeta && state.storedFilesMeta.length > 0) {
             var ownerCanDelete = isOwnerAdmin();
             chipsBar.classList.remove('hidden');
             chipsBar.innerHTML = state.storedFilesMeta.map(function (fMeta, idx) {
@@ -4828,9 +4878,21 @@
           pillBGlobal.textContent = 'Budget Global : ' + bGlobal.toLocaleString('fr-FR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' TND';
         }
         var btnSyncBCard = document.getElementById('btnSyncBudgetPortfolioCard');
+        var ownerBudgetSec = document.getElementById('ownerBudgetEditorSection');
         if (btnSyncBCard) {
           if (isOwnerAdmin()) btnSyncBCard.classList.remove('hidden');
           else btnSyncBCard.classList.add('hidden');
+        }
+        if (ownerBudgetSec) {
+          if (isOwnerAdmin()) {
+            ownerBudgetSec.classList.remove('hidden');
+            AM_AGENTS.forEach(function (am) {
+              var inp = document.getElementById('budgetInput_' + am.replace(/\s+/g, '_'));
+              if (inp) inp.value = state.budgetByAm[am] ? state.budgetByAm[am] : '';
+            });
+          } else {
+            ownerBudgetSec.classList.add('hidden');
+          }
         }
 
         grid.innerHTML = allowedAms.map(function (am) {
@@ -5873,7 +5935,8 @@
           { label: 'Juillet (Google Sheets)', sheetId: '1r0bxY1DI5rxnw2KGzpN-jmjckv_ZkWfRl9H2Fsz1WWo', gid: '0', tab: 'Data exp' },
           { label: 'Août (Google Sheets)', sheetId: '1Q1O7zPHjGOi8uPQMQhe2RkVRHXwDSF_bOL-ljgdtxpA', gid: '0', tab: 'Data exp' },
           { label: 'Septembre (Google Sheets)', sheetId: '1JbYUhX2Sq2Wx5YARhc40Ps7X_6C8VaIdJj7SuZbobqI', gid: '579637184', tab: 'Data exp' },
-          { label: 'Octobre (Google Sheets)', sheetId: '1-xENUB2sIzTGXRhszXur_Z5PVb5Hldh8FSivYZmkzqs', gid: '0', tab: 'Data exp' }
+          { label: 'Octobre (Google Sheets)', sheetId: '1-xENUB2sIzTGXRhszXur_Z5PVb5Hldh8FSivYZmkzqs', gid: '0', tab: 'Data exp' },
+          { label: 'Novembre (Google Sheets)', sheetId: '1S1NFwHiCvSMF8Wrojz2qH-lrPOVBxaXLN9w-l7XG9nk', gid: '1826888592', tab: 'Data exp' }
         ]
       };
 
@@ -6086,7 +6149,7 @@
         if (icon) {
           icon.className = 'fa-solid fa-arrows-rotate fa-spin';
         }
-        if (label) label.textContent = 'Chargement Mai–Oct...';
+        if (label) label.textContent = 'Chargement Mai–Nov...';
 
         if (manualTrigger) {
           showToast('Synchronisation des 6 mois historiques (<strong>Mai, Juin, Juillet, Août, Septembre</strong>) depuis Google Sheets...', 'info');
@@ -6152,7 +6215,7 @@
             document.getElementById('badgeSourceStatus').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] text-[#00897B]';
             if (isOwnerAdmin()) document.getElementById('btnResetAll').classList.remove('hidden');
 
-            if (label) label.textContent = 'Mai–Oct OK (' + loadedMonths.length + '/6)';
+            if (label) label.textContent = 'Mai–Nov OK (' + loadedMonths.length + '/7)';
 
             saveArchiveToIndexedDb();
             executerTraitementMetier();
@@ -6167,16 +6230,41 @@
               showToast(msg, 'success');
             }
           } else {
-            if (label) label.textContent = 'Sync Mai–Oct';
+            if (label) label.textContent = 'Sync Mai–Nov';
             if (manualTrigger) {
               showToast(
-                'Impossible de lire les 6 feuilles Google Sheets. Vérifiez que chaque feuille (Mai, Juin, Juillet, Août, Septembre, Octobre) est partagée en <strong>« Tous les utilisateurs disposant du lien : Lecteur »</strong>.',
+                'Impossible de lire les 6 feuilles Google Sheets. Vérifiez que chaque feuille (Mai, Juin, Juillet, Août, Septembre, Octobre, Novembre) est partagée en <strong>« Tous les utilisateurs disposant du lien : Lecteur »</strong>.',
                 'error'
               );
             }
           }
         });
       };
+
+      function matchAgentFirstOrFullName(rawText) {
+        var exact = matchAgentFromText(rawText);
+        if (exact) return exact;
+        var norm = normalizeText(rawText);
+        if (!norm) return '';
+        var firstNameMap = {
+          'aziza': 'Aziza Souli',
+          'khouloud': 'Khouloud Harbaoui',
+          'omar': 'Omar Beldi',
+          'imed': 'Imed Fourati',
+          'nour': 'Nour Ali',
+          'iheb': 'Iheb Dachraoui',
+          'ilyes': 'Ilyes kammoun',
+          'ilyas': 'Ilyes kammoun'
+        };
+        var keys = Object.keys(firstNameMap);
+        for (var i = 0; i < keys.length; i++) {
+          var fn = keys[i];
+          if (norm === fn || norm.startsWith(fn + ' ') || norm.endsWith(' ' + fn) || norm.indexOf(' ' + fn + ' ') !== -1) {
+            return firstNameMap[fn];
+          }
+        }
+        return '';
+      }
 
       window.yassirSyncBudgetSheet = function (manualTrigger) {
         if (manualTrigger && !isOwnerAdmin()) return;
@@ -6190,6 +6278,12 @@
           LIVE_SHEETS_CONFIG.BUDGET_GID,
           LIVE_SHEETS_CONFIG.BUDGET_TAB
         )
+          .catch(function () {
+            return fetchGoogleSheetJsonp(LIVE_SHEETS_CONFIG.BUDGET_SHEET_ID, 'Sheet1', false);
+          })
+          .catch(function () {
+            return fetchGoogleSheetJsonp(LIVE_SHEETS_CONFIG.BUDGET_SHEET_ID, 'Feuille 1', false);
+          })
           .then(function (rows) {
             if (!rows || rows.length === 0) throw new Error('Feuille Budget vide');
             var parsedByAm = {};
@@ -6207,14 +6301,17 @@
                 var cellStr = String(row[c] !== null && row[c] !== undefined ? row[c] : '').trim();
                 if (!cellStr) continue;
                 var low = cellStr.toLowerCase();
-                if (low === 'global' || low === 'total' || low === 'budget global' || low === 'total budget') {
+                if (low === 'global' || low === 'total' || low === 'budget global' || low === 'total budget' || low.includes('budget global')) {
                   isGlobalRow = true;
                 }
                 if (!matchedAm) {
-                  var ag = matchAgentFromText(cellStr);
+                  var ag = matchAgentFirstOrFullName(cellStr);
                   if (ag) matchedAm = ag;
                 }
-                var cleanedNumStr = cellStr.replace(/tnd|dt|€|\$|%/gi, '').replace(/\s+/g, '').replace(/,/g, '.');
+                var cleanedNumStr = cellStr
+                  .replace(/tnd|dt|€|\$|%/gi, '')
+                  .replace(/[\s\u00A0\u202F]/g, '')
+                  .replace(/,/g, '.');
                 if (/^-?\d+(\.\d+)?$/.test(cleanedNumStr)) {
                   var num = parseFloat(cleanedNumStr);
                   if (Number.isFinite(num) && num > 0) {
@@ -6234,11 +6331,13 @@
             Object.keys(parsedByAm).forEach(function (k) { sumAm += parsedByAm[k]; });
             var finalGlobal = explicitGlobal > 0 ? explicitGlobal : sumAm;
 
-            if (Object.keys(parsedByAm).length > 0 || finalGlobal > 0) {
-              state.budgetByAm = parsedByAm;
-              state.budgetGlobal = Number(finalGlobal.toFixed(2));
-              saveBudgetToStore();
+            if (Object.keys(parsedByAm).length === 0 && finalGlobal === 0) {
+              throw new Error('Aucune ligne AM reconnue dans la feuille Budget');
             }
+
+            state.budgetByAm = parsedByAm;
+            state.budgetGlobal = Number(finalGlobal.toFixed(2));
+            saveBudgetToStore();
 
             if (icon) icon.classList.remove('fa-spin');
             if (label) {
@@ -6261,9 +6360,37 @@
             if (icon) icon.classList.remove('fa-spin');
             if (label) label.textContent = 'Sync Budget';
             if (manualTrigger) {
-              showToast('Erreur synchronisation Budget : vérifiez que la feuille Google Sheets Budget est partagée en mode <strong>Lecteur</strong> (' + escapeHtml(err.message) + ').', 'error');
+              showToast(
+                '<strong>Budget non accessible par Google Sheets :</strong> ouvrez votre feuille Google Sheets <em>Budget</em>, cliquez sur <strong>Partager</strong> en haut à droite et réglez l\'accès général sur <strong>« Tous les utilisateurs disposant du lien : Lecteur »</strong> (ou saisissez les budgets manuellement ci-dessous).',
+                'error'
+              );
             }
           });
+      };
+
+      window.yassirSaveManualBudgets = function (e) {
+        if (e && e.preventDefault) e.preventDefault();
+        if (!isOwnerAdmin()) return false;
+        var parsedByAm = {};
+        var sum = 0;
+        AM_AGENTS.forEach(function (am) {
+          var inp = document.getElementById('budgetInput_' + am.replace(/\s+/g, '_'));
+          if (inp) {
+            var val = purgerNombre(inp.value);
+            if (val > 0) {
+              parsedByAm[am] = Number(val.toFixed(2));
+              sum += parsedByAm[am];
+            }
+          }
+        });
+        var globalInp = document.getElementById('budgetInput_GLOBAL');
+        var manualGlobal = globalInp ? purgerNombre(globalInp.value) : 0;
+        state.budgetByAm = parsedByAm;
+        state.budgetGlobal = Number((manualGlobal > 0 ? manualGlobal : sum).toFixed(2));
+        saveBudgetToStore();
+        mettreAJourInterface();
+        showToast('<strong>Budgets AM enregistrés !</strong> Budget Global : <strong>' + state.budgetGlobal.toFixed(2) + ' TND</strong>.', 'success');
+        return false;
       };
 
       window.yassirSyncAllFromGoogleSheets = function (manualTrigger) {
