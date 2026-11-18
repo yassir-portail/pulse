@@ -395,7 +395,7 @@
                 </h2>
               </div>
               <div class="flex flex-wrap items-center gap-1.5">
-                <button id="btnSyncHistoricalSheets" type="button" onclick="window.yassirSyncHistoricalSheets(true)" class="hidden inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] hover:bg-teal-200 text-[#00897B] transition cursor-pointer" title="Synchroniser les 6 mois (Mai à Octobre) depuis Google Sheets (Propriétaire Admin uniquement)">
+                <button id="btnSyncHistoricalSheets" type="button" disabled onclick="window.yassirSyncHistoricalSheets(true)" style="display:none" class="hidden inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] hover:bg-teal-200 text-[#00897B] transition cursor-pointer" title="Synchroniser les 6 mois (Mai à Octobre) depuis Google Sheets (Propriétaire Admin uniquement)">
                   <i id="iconSyncHistSheets" class="fa-solid fa-cloud-arrow-down"></i>
                   <span id="labelSyncHistSheets">Sync Mai–Oct</span>
                 </button>
@@ -1473,7 +1473,9 @@
       }
 
       function isOwnerAdmin() {
-        return currentUser && currentUser.role === 'owner';
+        if (!currentUser) return false;
+        var u = String(currentUser.username || '').toLowerCase();
+        return currentUser.role === 'owner' || u === 'proprio' || u === 'omar.beldi';
       }
 
       function canViewAllPortfolios() {
@@ -1666,13 +1668,11 @@
         }
         var btnHistSync = document.getElementById('btnSyncHistoricalSheets');
         if (btnHistSync) {
-          if (isOwnerAdmin()) btnHistSync.classList.remove('hidden');
-          else btnHistSync.classList.add('hidden');
+          if (isOwnerAdmin()) { btnHistSync.classList.remove('hidden'); btnHistSync.disabled = false; btnHistSync.style.display = 'inline-flex'; } else { btnHistSync.classList.add('hidden'); btnHistSync.disabled = true; btnHistSync.style.display = 'none'; }
         }
         var btnReset = document.getElementById('btnResetAll');
         if (btnReset) {
-          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) btnReset.classList.remove('hidden');
-          else btnReset.classList.add('hidden');
+          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) { btnReset.classList.remove('hidden'); btnReset.style.display = 'inline-flex'; } else { btnReset.classList.add('hidden'); btnReset.style.display = 'none'; }
         }
         mettreAJourInterface();
       }
@@ -3088,11 +3088,16 @@
           return frM[3] + '-' + String(frM[2]).padStart(2, '0') + '-' + String(frM[1]).padStart(2, '0');
         }
 
-        // English "Mon Nov 16 2026" or "Nov 16, 2026"
-        var parsed = Date.parse(str);
-        if (!isNaN(parsed)) {
-          var dObj = new Date(parsed);
-          return dObj.getFullYear() + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+        // English "Mon Nov 16 2026" or "Nov 16, 2026" (exiger une année 20xx explicite)
+        if (/\b20\d{2}\b/.test(str)) {
+          var parsed = Date.parse(str);
+          if (!isNaN(parsed)) {
+            var dObj = new Date(parsed);
+            var yr = dObj.getFullYear();
+            if (yr >= 2020 && yr <= 2035) {
+              return yr + '-' + String(dObj.getMonth() + 1).padStart(2, '0') + '-' + String(dObj.getDate()).padStart(2, '0');
+            }
+          }
         }
         return '';
       }
@@ -3584,13 +3589,11 @@
         }
         var btnHistSync = document.getElementById('btnSyncHistoricalSheets');
         if (btnHistSync) {
-          if (isOwnerAdmin()) btnHistSync.classList.remove('hidden');
-          else btnHistSync.classList.add('hidden');
+          if (isOwnerAdmin()) { btnHistSync.classList.remove('hidden'); btnHistSync.disabled = false; btnHistSync.style.display = 'inline-flex'; } else { btnHistSync.classList.add('hidden'); btnHistSync.disabled = true; btnHistSync.style.display = 'none'; }
         }
         var btnReset = document.getElementById('btnResetAll');
         if (btnReset) {
-          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) btnReset.classList.remove('hidden');
-          else btnReset.classList.add('hidden');
+          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) { btnReset.classList.remove('hidden'); btnReset.style.display = 'inline-flex'; } else { btnReset.classList.add('hidden'); btnReset.style.display = 'none'; }
         }
         mettreAJourInterface();
       }
@@ -3694,13 +3697,11 @@
         }
         var btnHistSync = document.getElementById('btnSyncHistoricalSheets');
         if (btnHistSync) {
-          if (isOwnerAdmin()) btnHistSync.classList.remove('hidden');
-          else btnHistSync.classList.add('hidden');
+          if (isOwnerAdmin()) { btnHistSync.classList.remove('hidden'); btnHistSync.disabled = false; btnHistSync.style.display = 'inline-flex'; } else { btnHistSync.classList.add('hidden'); btnHistSync.disabled = true; btnHistSync.style.display = 'none'; }
         }
         var btnReset = document.getElementById('btnResetAll');
         if (btnReset) {
-          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) btnReset.classList.remove('hidden');
-          else btnReset.classList.add('hidden');
+          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) { btnReset.classList.remove('hidden'); btnReset.style.display = 'inline-flex'; } else { btnReset.classList.add('hidden'); btnReset.style.display = 'none'; }
         }
         mettreAJourInterface();
       };
@@ -4750,13 +4751,11 @@
         }
         var btnHistSync = document.getElementById('btnSyncHistoricalSheets');
         if (btnHistSync) {
-          if (isOwnerAdmin()) btnHistSync.classList.remove('hidden');
-          else btnHistSync.classList.add('hidden');
+          if (isOwnerAdmin()) { btnHistSync.classList.remove('hidden'); btnHistSync.disabled = false; btnHistSync.style.display = 'inline-flex'; } else { btnHistSync.classList.add('hidden'); btnHistSync.disabled = true; btnHistSync.style.display = 'none'; }
         }
         var btnReset = document.getElementById('btnResetAll');
         if (btnReset) {
-          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) btnReset.classList.remove('hidden');
-          else btnReset.classList.add('hidden');
+          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) { btnReset.classList.remove('hidden'); btnReset.style.display = 'inline-flex'; } else { btnReset.classList.add('hidden'); btnReset.style.display = 'none'; }
         }
         mettreAJourInterface();
       };
