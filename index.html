@@ -395,7 +395,7 @@
                 </h2>
               </div>
               <div class="flex flex-wrap items-center gap-1.5">
-                <button id="btnSyncHistoricalSheets" type="button" onclick="window.yassirSyncHistoricalSheets(true)" class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] hover:bg-teal-200 text-[#00897B] transition cursor-pointer" title="Charger et fusionner automatiquement les 5 mois (Mai, Juin, Juillet, Août, Septembre, Octobre) depuis Google Sheets">
+                <button id="btnSyncHistoricalSheets" type="button" onclick="window.yassirSyncHistoricalSheets(true)" class="hidden inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] hover:bg-teal-200 text-[#00897B] transition cursor-pointer" title="Synchroniser les 6 mois (Mai à Octobre) depuis Google Sheets (Propriétaire Admin uniquement)">
                   <i id="iconSyncHistSheets" class="fa-solid fa-cloud-arrow-down"></i>
                   <span id="labelSyncHistSheets">Sync Mai–Oct</span>
                 </button>
@@ -515,40 +515,66 @@
 
         <div id="amQuickFilterPills" class="flex flex-wrap items-center gap-2 pt-1"></div>
 
-        <!-- Filtre de Période (Du ... Au ... + Raccourcis intelligents) -->
-        <div id="dateRangeFilterBar" class="hidden pt-3 mt-1 border-t border-purple-100 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
-          <div class="flex flex-wrap items-center gap-2">
-            <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#1A1A2E]">
-              <i class="fa-solid fa-calendar-days text-[#FF2A6D]"></i>
-              <span>Période :</span>
-            </span>
-            <div class="flex items-center gap-1.5 bg-[#F8F9FC] px-3 py-1 rounded-full border border-purple-200">
-              <label for="filterDateStart" class="text-[11px] font-bold text-slate-500">Du</label>
-              <input id="filterDateStart" type="date" onchange="window.yassirOnDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+        <!-- Filtre de Période Actuelle & Période Précédente (Du ... Au ... + Raccourcis intelligents) -->
+        <div id="dateRangeFilterBar" class="hidden pt-3 mt-1 border-t border-purple-100 space-y-2.5">
+          <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-3">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#1A1A2E]">
+                <i class="fa-solid fa-calendar-days text-[#6C2BD9]"></i>
+                <span>Période Actuelle :</span>
+              </span>
+              <div class="flex items-center gap-1.5 bg-[#F8F9FC] px-3 py-1 rounded-full border border-purple-200">
+                <label for="filterDateStart" class="text-[11px] font-bold text-slate-500">Du</label>
+                <input id="filterDateStart" type="date" onchange="window.yassirOnDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+              </div>
+              <div class="flex items-center gap-1.5 bg-[#F8F9FC] px-3 py-1 rounded-full border border-purple-200">
+                <label for="filterDateEnd" class="text-[11px] font-bold text-slate-500">Au</label>
+                <input id="filterDateEnd" type="date" onchange="window.yassirOnDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+              </div>
+              <span id="dateRangeBoundsHint" class="text-[11px] text-slate-400 font-medium"></span>
             </div>
-            <div class="flex items-center gap-1.5 bg-[#F8F9FC] px-3 py-1 rounded-full border border-purple-200">
-              <label for="filterDateEnd" class="text-[11px] font-bold text-slate-500">Au</label>
-              <input id="filterDateEnd" type="date" onchange="window.yassirOnDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+
+            <div class="flex flex-wrap items-center gap-1.5">
+              <button type="button" onclick="window.yassirApplyDatePreset('ALL')" id="btnDatePresetAll" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#6C2BD9] text-white transition cursor-pointer">
+                Toute la période
+              </button>
+              <button type="button" onclick="window.yassirApplyDatePreset('LAST_7')" id="btnDatePreset7" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
+                7 derniers jours
+              </button>
+              <button type="button" onclick="window.yassirApplyDatePreset('LAST_14')" id="btnDatePreset14" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
+              14 derniers jours
+              </button>
+              <button type="button" onclick="window.yassirApplyDatePreset('LAST_30')" id="btnDatePreset30" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
+                30 derniers jours
+              </button>
+              <button type="button" onclick="window.yassirApplyDatePreset('LAST_90')" id="btnDatePreset90" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
+                3 derniers mois
+              </button>
             </div>
-            <span id="dateRangeBoundsHint" class="text-[11px] text-slate-400 font-medium"></span>
           </div>
 
-          <div class="flex flex-wrap items-center gap-1.5">
-            <button type="button" onclick="window.yassirApplyDatePreset('ALL')" id="btnDatePresetAll" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#6C2BD9] text-white transition cursor-pointer">
-              Toute la période
-            </button>
-            <button type="button" onclick="window.yassirApplyDatePreset('LAST_7')" id="btnDatePreset7" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
-              7 derniers jours
-            </button>
-            <button type="button" onclick="window.yassirApplyDatePreset('LAST_14')" id="btnDatePreset14" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
-              14 derniers jours
-            </button>
-            <button type="button" onclick="window.yassirApplyDatePreset('LAST_30')" id="btnDatePreset30" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
-              30 derniers jours
-            </button>
-            <button type="button" onclick="window.yassirApplyDatePreset('LAST_90')" id="btnDatePreset90" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-[#F8F9FC] text-slate-600 border border-purple-200 hover:bg-[#F3EBFF] transition cursor-pointer">
-              3 derniers mois
-            </button>
+          <!-- Filtre de dates pour Data préc (Période précédente de comparaison pour Ahmed, Karim, Omar et Proprio) -->
+          <div id="prevDateRangeFilterRow" class="hidden flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-dashed border-pink-200 bg-pink-50/30 px-3 py-2 rounded-2xl">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-1.5 text-xs font-extrabold text-[#FF2A6D]">
+                <i class="fa-solid fa-clock-rotate-left"></i>
+                <span>Filtre Data préc (Période précédente) :</span>
+              </span>
+              <div class="flex items-center gap-1.5 bg-white px-3 py-1 rounded-full border border-pink-200">
+                <label for="filterPrevDateStart" class="text-[11px] font-bold text-slate-500">Du</label>
+                <input id="filterPrevDateStart" type="date" onchange="window.yassirOnPrevDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+              </div>
+              <div class="flex items-center gap-1.5 bg-white px-3 py-1 rounded-full border border-pink-200">
+                <label for="filterPrevDateEnd" class="text-[11px] font-bold text-slate-500">Au</label>
+                <input id="filterPrevDateEnd" type="date" onchange="window.yassirOnPrevDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+              </div>
+              <span id="prevDateBoundsHint" class="text-[11px] text-slate-500 font-medium"></span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="window.yassirResetPrevDateFilter()" class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white hover:bg-pink-100 text-[#FF2A6D] border border-pink-200 transition cursor-pointer">
+                Réinitialiser dates Data préc
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -1638,6 +1664,16 @@
           if (canSeeGlobalSynth()) prevBar.classList.remove('hidden');
           else prevBar.classList.add('hidden');
         }
+        var btnHistSync = document.getElementById('btnSyncHistoricalSheets');
+        if (btnHistSync) {
+          if (isOwnerAdmin()) btnHistSync.classList.remove('hidden');
+          else btnHistSync.classList.add('hidden');
+        }
+        var btnReset = document.getElementById('btnResetAll');
+        if (btnReset) {
+          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) btnReset.classList.remove('hidden');
+          else btnReset.classList.add('hidden');
+        }
         mettreAJourInterface();
       }
 
@@ -1904,6 +1940,10 @@
         minAvailableDate: '',
         maxAvailableDate: '',
         prevSourceRows: [],
+        prevDateStart: '',
+        prevDateEnd: '',
+        minPrevDate: '',
+        maxPrevDate: '',
         customCommissions: {},
         amPortfolios: {},
         selectedAm: 'ALL',
@@ -2227,7 +2267,7 @@
         }
 
         var varSection = document.getElementById('synthVariationSection');
-        var hasPrev = canSeeGlobalSynth() && state.prevSourceRows && state.prevSourceRows.length > 1;
+        var hasPrev = canSeeGlobalSynth() && ((state.prevSourceRows && state.prevSourceRows.length > 1) || ((state.prevDateStart || state.prevDateEnd) && state.rawSourceRows && state.rawSourceRows.length > 1));
         if (varSection) {
           if (hasPrev) {
             currentVariationRowsList = calculerVariationEntrePeriodes();
@@ -2287,7 +2327,7 @@
         var wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, buildSynthSheetFromData(synthFood), 'Synthèse Food');
 
-        if (state.prevSourceRows && state.prevSourceRows.length > 1) {
+        if ((state.prevSourceRows && state.prevSourceRows.length > 1) || ((state.prevDateStart || state.prevDateEnd) && state.rawSourceRows && state.rawSourceRows.length > 1)) {
           var vRows = calculerVariationEntrePeriodes();
           if (vRows.length > 0) {
             var vAoa = [[
@@ -2364,6 +2404,30 @@
             }
 
             state.prevSourceRows = aoa;
+            state.prevDateStart = '';
+            state.prevDateEnd = '';
+
+            // Détecter bornes de dates de Data préc
+            var pHeaders = aoa[0].map(function (h) { return h !== null && h !== undefined ? String(h).trim().toLowerCase() : ''; });
+            var pIdxDay = pHeaders.indexOf('order day') !== -1 ? pHeaders.indexOf('order day') : pHeaders.indexOf('delivered day');
+            var pMin = '', pMax = '';
+            if (pIdxDay !== -1) {
+              for (var pr = 1; pr < aoa.length; pr++) {
+                if (!aoa[pr]) continue;
+                var pIso = parseOrderDayToIsoDate(aoa[pr][pIdxDay]);
+                if (!pIso) continue;
+                if (!pMin || pIso < pMin) pMin = pIso;
+                if (!pMax || pIso > pMax) pMax = pIso;
+              }
+            }
+            state.minPrevDate = pMin;
+            state.maxPrevDate = pMax;
+
+            var inpPS = document.getElementById('filterPrevDateStart');
+            var inpPE = document.getElementById('filterPrevDateEnd');
+            if (inpPS) inpPS.value = pMin || '';
+            if (inpPE) inpPE.value = pMax || '';
+
             var lbl = document.getElementById('prevFileNameLabel');
             var btnClear = document.getElementById('btnClearPrevData');
             if (lbl) {
@@ -2373,13 +2437,14 @@
             }
             if (btnClear) btnClear.classList.remove('hidden');
 
+            mettreAJourBarreDatesEtFichiers();
             if (state.activeTab === 'synth_global') {
               renderSynthGlobalPanel();
             } else if (state.rawSourceRows && state.rawSourceRows.length > 1) {
               window.yassirSwitchTab('synth_global');
             }
 
-            showToast('<strong>Data préc</strong> chargé (' + (aoa.length - 1) + ' lignes). Le tableau de variation est disponible dans <strong>Synthèse Food</strong>.', 'success');
+            showToast('<strong>Data préc</strong> chargé (' + (aoa.length - 1) + ' lignes). Vous pouvez filtrer ses dates dans <strong>Filtre Data préc</strong>.', 'success');
           } catch (err) {
             showToast('Erreur lecture Data préc : ' + escapeHtml(err.message), 'error');
           }
@@ -2393,21 +2458,30 @@
 
       window.yassirClearPrevData = function () {
         state.prevSourceRows = [];
+        state.prevDateStart = '';
+        state.prevDateEnd = '';
+        state.minPrevDate = '';
+        state.maxPrevDate = '';
         currentVariationRowsList = [];
         var inp = document.getElementById('inputPrevFile');
+        var inpPS = document.getElementById('filterPrevDateStart');
+        var inpPE = document.getElementById('filterPrevDateEnd');
         var lbl = document.getElementById('prevFileNameLabel');
         var btnClear = document.getElementById('btnClearPrevData');
         if (inp) inp.value = '';
+        if (inpPS) inpPS.value = '';
+        if (inpPE) inpPE.value = '';
         if (lbl) {
           lbl.textContent = 'Aucune période précédente chargée';
           lbl.title = '';
           lbl.className = 'text-[11px] text-slate-400 truncate';
         }
         if (btnClear) btnClear.classList.add('hidden');
+        mettreAJourBarreDatesEtFichiers();
         if (state.activeTab === 'synth_global') renderSynthGlobalPanel();
       };
 
-      function extraireDeliveredFoodParRestoDepuisAoa(aoa) {
+      function extraireDeliveredFoodParRestoDepuisAoa(aoa, dStart, dEnd) {
         var prevDelivMap = new Map();
         if (!aoa || aoa.length < 2) return prevDelivMap;
 
@@ -2415,12 +2489,21 @@
         var idxResto = headers.indexOf('restaurant name');
         var idxStatus = headers.indexOf('status');
         var idxServices = headers.indexOf('services');
+        var idxOrderDay = headers.indexOf('order day') !== -1 ? headers.indexOf('order day') : headers.indexOf('delivered day');
 
         if (idxResto === -1 || idxStatus === -1) return prevDelivMap;
 
         for (var r = 1; r < aoa.length; r++) {
           var row = aoa[r];
           if (!row) continue;
+
+          if ((dStart || dEnd) && idxOrderDay !== -1) {
+            var iso = parseOrderDayToIsoDate(row[idxOrderDay]);
+            if (!iso) continue;
+            if (dStart && iso < dStart) continue;
+            if (dEnd && iso > dEnd) continue;
+          }
+
           var rName = String(row[idxResto] || '').trim();
           var rKey = rName.toLowerCase();
           if (!rKey) continue;
@@ -2437,11 +2520,15 @@
       }
 
       function calculerVariationEntrePeriodes() {
-        if (!state.prevSourceRows || state.prevSourceRows.length < 2) return [];
+        var hasDedicatedPrev = state.prevSourceRows && state.prevSourceRows.length > 1;
+        var hasPrevDateRangeOnArchive = !hasDedicatedPrev && (state.prevDateStart || state.prevDateEnd) && state.rawSourceRows && state.rawSourceRows.length > 1;
+        if (!hasDedicatedPrev && !hasPrevDateRangeOnArchive) return [];
+
         var foodRecords = getStrictlyFoodRecords();
         if (!foodRecords || foodRecords.length === 0) return [];
 
-        var prevDelivMap = extraireDeliveredFoodParRestoDepuisAoa(state.prevSourceRows);
+        var sourcePrevAoa = hasDedicatedPrev ? state.prevSourceRows : state.rawSourceRows;
+        var prevDelivMap = extraireDeliveredFoodParRestoDepuisAoa(sourcePrevAoa, state.prevDateStart, state.prevDateEnd);
 
         var idxArea = TARGET_HEADERS.indexOf('Area');
         var idxResto = TARGET_HEADERS.indexOf('restaurant name');
@@ -3089,15 +3176,51 @@
           }
         }
 
+        var prevDateRow = document.getElementById('prevDateRangeFilterRow');
+        var inpPrevStart = document.getElementById('filterPrevDateStart');
+        var inpPrevEnd = document.getElementById('filterPrevDateEnd');
+        var prevHintEl = document.getElementById('prevDateBoundsHint');
+        var hasDedicatedPrev = state.prevSourceRows && state.prevSourceRows.length > 1;
+        var canCompare = canSeeGlobalSynth() && (hasDedicatedPrev || hasRows);
+
+        if (prevDateRow) {
+          if (canCompare) {
+            prevDateRow.classList.remove('hidden');
+            var pMin = hasDedicatedPrev ? state.minPrevDate : state.minAvailableDate;
+            var pMax = hasDedicatedPrev ? state.maxPrevDate : state.maxAvailableDate;
+            if (inpPrevStart && pMin && pMax) {
+              inpPrevStart.min = pMin;
+              inpPrevStart.max = pMax;
+              if (!inpPrevStart.value && hasDedicatedPrev) inpPrevStart.value = state.prevDateStart || pMin;
+            }
+            if (inpPrevEnd && pMin && pMax) {
+              inpPrevEnd.min = pMin;
+              inpPrevEnd.max = pMax;
+              if (!inpPrevEnd.value && hasDedicatedPrev) inpPrevEnd.value = state.prevDateEnd || pMax;
+            }
+            if (prevHintEl) {
+              prevHintEl.textContent = hasDedicatedPrev
+                ? ('(Data préc : ' + (pMin || '?') + ' → ' + (pMax || '?') + ')')
+                : '(Ou choisissez 2 dates sur l\'historique Mai–Oct)';
+            }
+          } else {
+            prevDateRow.classList.add('hidden');
+          }
+        }
+
         if (chipsBar) {
           if (state.storedFilesMeta && state.storedFilesMeta.length > 0) {
+            var ownerCanDelete = isOwnerAdmin();
             chipsBar.classList.remove('hidden');
             chipsBar.innerHTML = state.storedFilesMeta.map(function (fMeta, idx) {
+              var removeBtn = ownerCanDelete
+                ? '<button type="button" onclick="window.yassirRemoveStoredFile(' + idx + ')" class="text-slate-400 hover:text-[#FF2A6D] ml-0.5 cursor-pointer" title="Retirer ce fichier du cumul (Propriétaire Admin)"><i class="fa-solid fa-xmark"></i></button>'
+                : '';
               return '<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#F3EBFF] text-[#6C2BD9] border border-purple-200" title="' + escapeHtml(fMeta.name) + ' (' + fMeta.rowsCount + ' lignes)">' +
                 '<i class="fa-solid fa-file-circle-check text-[#00BFA5]"></i>' +
                 '<span class="max-w-[140px] truncate">' + escapeHtml(fMeta.name) + '</span>' +
                 '<span class="text-slate-400">(' + fMeta.rowsCount + ')</span>' +
-                '<button type="button" onclick="window.yassirRemoveStoredFile(' + idx + ')" class="text-slate-400 hover:text-[#FF2A6D] ml-0.5 cursor-pointer" title="Retirer ce fichier du cumul"><i class="fa-solid fa-xmark"></i></button>' +
+                removeBtn +
               '</span>';
             }).join('');
           } else {
@@ -3106,6 +3229,29 @@
           }
         }
       }
+
+      window.yassirOnPrevDateRangeChange = function () {
+        var inpS = document.getElementById('filterPrevDateStart');
+        var inpE = document.getElementById('filterPrevDateEnd');
+        state.prevDateStart = inpS ? inpS.value : '';
+        state.prevDateEnd = inpE ? inpE.value : '';
+        if (state.activeTab === 'synth_global') {
+          renderSynthGlobalPanel();
+        } else if ((state.prevDateStart || state.prevDateEnd) && canSeeGlobalSynth() && getEffectiveAmFilter() === 'ALL') {
+          window.yassirSwitchTab('synth_global');
+        }
+      };
+
+      window.yassirResetPrevDateFilter = function () {
+        state.prevDateStart = '';
+        state.prevDateEnd = '';
+        var inpS = document.getElementById('filterPrevDateStart');
+        var inpE = document.getElementById('filterPrevDateEnd');
+        var hasDedicatedPrev = state.prevSourceRows && state.prevSourceRows.length > 1;
+        if (inpS) inpS.value = hasDedicatedPrev ? (state.minPrevDate || '') : '';
+        if (inpE) inpE.value = hasDedicatedPrev ? (state.maxPrevDate || '') : '';
+        if (state.activeTab === 'synth_global') renderSynthGlobalPanel();
+      };
 
       window.yassirOnDateRangeChange = function () {
         var inpStart = document.getElementById('filterDateStart');
@@ -3229,6 +3375,7 @@
       }
 
       window.yassirRemoveStoredFile = function (fileIdx) {
+        if (!isOwnerAdmin()) return;
         var meta = state.storedFilesMeta[fileIdx];
         if (!meta) return;
         // Supprimer les lignes associées à ce fichier et réindexer
@@ -3435,6 +3582,16 @@
           if (canSeeGlobalSynth()) prevBar.classList.remove('hidden');
           else prevBar.classList.add('hidden');
         }
+        var btnHistSync = document.getElementById('btnSyncHistoricalSheets');
+        if (btnHistSync) {
+          if (isOwnerAdmin()) btnHistSync.classList.remove('hidden');
+          else btnHistSync.classList.add('hidden');
+        }
+        var btnReset = document.getElementById('btnResetAll');
+        if (btnReset) {
+          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) btnReset.classList.remove('hidden');
+          else btnReset.classList.add('hidden');
+        }
         mettreAJourInterface();
       }
 
@@ -3534,6 +3691,16 @@
         if (prevBar) {
           if (canSeeGlobalSynth()) prevBar.classList.remove('hidden');
           else prevBar.classList.add('hidden');
+        }
+        var btnHistSync = document.getElementById('btnSyncHistoricalSheets');
+        if (btnHistSync) {
+          if (isOwnerAdmin()) btnHistSync.classList.remove('hidden');
+          else btnHistSync.classList.add('hidden');
+        }
+        var btnReset = document.getElementById('btnResetAll');
+        if (btnReset) {
+          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) btnReset.classList.remove('hidden');
+          else btnReset.classList.add('hidden');
         }
         mettreAJourInterface();
       };
@@ -4465,7 +4632,7 @@
               : ('Base cumulée prête');
             document.getElementById('badgeSourceStatus').textContent = nbFiles + ' fichier(s)';
             document.getElementById('badgeSourceStatus').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] text-[#00897B]';
-            document.getElementById('btnResetAll').classList.remove('hidden');
+            if (isOwnerAdmin()) document.getElementById('btnResetAll').classList.remove('hidden');
 
             saveArchiveToIndexedDb();
             executerTraitementMetier();
@@ -4532,6 +4699,7 @@
       };
 
       window.yassirResetAll = function () {
+        if (!isOwnerAdmin()) return;
         state.rawSourceRows = [];
         state.storedFilesMeta = [];
         state.dateStart = '';
@@ -4579,6 +4747,16 @@
         if (prevBar) {
           if (canSeeGlobalSynth()) prevBar.classList.remove('hidden');
           else prevBar.classList.add('hidden');
+        }
+        var btnHistSync = document.getElementById('btnSyncHistoricalSheets');
+        if (btnHistSync) {
+          if (isOwnerAdmin()) btnHistSync.classList.remove('hidden');
+          else btnHistSync.classList.add('hidden');
+        }
+        var btnReset = document.getElementById('btnResetAll');
+        if (btnReset) {
+          if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) btnReset.classList.remove('hidden');
+          else btnReset.classList.add('hidden');
         }
         mettreAJourInterface();
       };
@@ -5137,6 +5315,7 @@
       }
 
       window.yassirSyncHistoricalSheets = function (manualTrigger) {
+        if (manualTrigger && !isOwnerAdmin()) return;
         var icon = document.getElementById('iconSyncHistSheets');
         var label = document.getElementById('labelSyncHistSheets');
         if (icon) {
@@ -5206,7 +5385,7 @@
               : 'Base cloud synchronisée';
             document.getElementById('badgeSourceStatus').textContent = nbFiles + ' source(s)';
             document.getElementById('badgeSourceStatus').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] text-[#00897B]';
-            document.getElementById('btnResetAll').classList.remove('hidden');
+            if (isOwnerAdmin()) document.getElementById('btnResetAll').classList.remove('hidden');
 
             if (label) label.textContent = 'Mai–Oct OK (' + loadedMonths.length + '/6)';
 
@@ -5932,7 +6111,7 @@
             document.getElementById('badgeSourceStatus').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] text-[#00897B]';
             var badgeIdb = document.getElementById('badgeIndexedDbSaved');
             if (badgeIdb) badgeIdb.classList.remove('hidden');
-            document.getElementById('btnResetAll').classList.remove('hidden');
+            if (isOwnerAdmin()) document.getElementById('btnResetAll').classList.remove('hidden');
 
             executerTraitementMetier();
           }
