@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Yassir Portail | Yassir</title>
+  <title>Générateur VF Data & Offres | Yassir</title>
 
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.sheetjs.com/xlsx-0.20.2/package/dist/xlsx.full.min.js"></script>
@@ -103,7 +103,7 @@
         </div>
 
         <span class="px-3.5 py-1 rounded-full text-[11px] font-bold bg-[#F3EBFF] text-[#6C2BD9] mb-2">
-          Portail Opérations • Yassir Portail
+          Portail Opérations • Générateur VF Data & Offres
         </span>
         <h1 class="text-xl sm:text-2xl font-extrabold text-[#1A1A2E] tracking-tight">Connexion à l'espace de travail</h1>
         <p class="text-xs text-slate-500 mt-1">Veuillez saisir votre identifiant personnel</p>
@@ -337,7 +337,7 @@
 
           <div>
             <div class="flex flex-wrap items-center gap-2">
-              <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white">Yassir Portail</h1>
+              <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white">Générateur VF Data & Offres</h1>
               <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-bold bg-white/15 text-white border border-white/25">
                 <i class="fa-solid fa-circle-user text-[#00BFA5]"></i>
                 <span id="headerUserBadge">proprio</span>
@@ -569,6 +569,12 @@
               <span id="tabCountStat" class="px-1.5 py-0.5 text-[11px] rounded-full bg-[#E0F7F4] text-[#00897B]">0</span>
             </button>
 
+            <button id="tabBtnSynthGlobal" type="button" data-tab="synth_global" onclick="window.yassirSwitchTab('synth_global')" class="hidden tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
+              <i class="fa-solid fa-table-cells text-[#6C2BD9]"></i>
+              <span>Synthèse Globale (KPIs & Jours)</span>
+              <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-[#F3EBFF] text-[#6C2BD9] font-extrabold">Global</span>
+            </button>
+
             <button type="button" data-tab="resto_analytics" onclick="window.yassirSwitchTab('resto_analytics')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
               <i class="fa-solid fa-store text-[#FF2A6D]"></i>
               <span>Analyse Restaurant</span>
@@ -671,6 +677,68 @@
               <button id="btnPrevPage" type="button" onclick="window.yassirPrevPage()" class="px-3.5 py-1.5 rounded-full border border-purple-200 bg-white text-[#6C2BD9] font-semibold hover:bg-[#F3EBFF] disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">Précédent</button>
               <span id="pageIndicator" class="font-bold text-[#1A1A2E]">Page 1 / 1</span>
               <button id="btnNextPage" type="button" onclick="window.yassirNextPage()" class="px-3.5 py-1.5 rounded-full border border-purple-200 bg-white text-[#6C2BD9] font-semibold hover:bg-[#F3EBFF] disabled:opacity-40 cursor-pointer disabled:cursor-not-allowed">Suivant</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================================
+             VUE 1A-BIS : ONGLET SYNTHÈSE GLOBALE (KPIs ARRAYFORMULA + LUNDI-DIMANCHE)
+             RÉSERVÉ À : PROPRIO, OMAR BELDI, KARIM BEN RAHAL, AHMED MARROUKI (VUE GLOBALE)
+             ====================================================================== -->
+        <div id="panelSynthGlobal" class="hidden p-4 sm:p-5 space-y-6">
+          <div class="bg-[#F8F9FC] p-4 sm:p-5 rounded-2xl border border-purple-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div>
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#6C2BD9] text-white">Vue Globale Uniquement</span>
+                <h3 class="text-sm sm:text-base font-extrabold text-[#1A1A2E]">Synthèse Globale Exécutive (17 KPIs & Récapitulatif Lundi–Dimanche)</h3>
+              </div>
+              <p class="text-xs text-slate-500 mt-1">
+                Calculé automatiquement sur l'ensemble du fichier <strong>Data exp (Vue Globale)</strong>. Accès réservé à <strong>Ahmed Marrouki</strong>, <strong>Karim Ben Rahal</strong>, <strong>Omar Beldi</strong> et au <strong>Propriétaire</strong>.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 shrink-0">
+              <button id="btnExportSynthGlobalXlsx" type="button" onclick="window.yassirExportSynthGlobalExcel()" disabled class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-extrabold bg-[#00BFA5] hover:bg-teal-500 disabled:bg-slate-200 disabled:text-slate-400 text-[#1A1A2E] shadow-sm transition cursor-pointer disabled:cursor-not-allowed">
+                <i class="fa-solid fa-file-excel"></i>
+                <span>Télécharger Synthèse Globale (.xlsx)</span>
+              </button>
+              <button id="btnExportSynthGlobalCsv" type="button" onclick="window.yassirExportSynthGlobalCsv()" disabled class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs font-bold bg-white hover:bg-[#F3EBFF] disabled:bg-slate-100 disabled:text-slate-400 text-[#6C2BD9] border border-purple-200 transition cursor-pointer disabled:cursor-not-allowed">
+                <i class="fa-solid fa-download"></i>
+                <span>CSV</span>
+              </button>
+            </div>
+          </div>
+
+          <div id="synthGlobalEmptyState" class="py-14 px-4 text-center border border-purple-100 rounded-2xl">
+            <div class="w-14 h-14 rounded-2xl bg-[#F3EBFF] text-[#6C2BD9] flex items-center justify-center mx-auto mb-3">
+              <i class="fa-solid fa-table-cells text-2xl"></i>
+            </div>
+            <h3 class="text-base font-bold text-[#1A1A2E]">Importez votre fichier Data exp pour afficher la Synthèse Globale</h3>
+            <p class="text-sm text-slate-500 max-w-md mx-auto mt-1">
+              Les deux tableaux (17 indicateurs clés & répartition hebdomadaire Lundi–Dimanche) se généreront automatiquement sur l'ensemble des données globales et seront téléchargeables en Excel.
+            </p>
+          </div>
+
+          <div id="synthGlobalContentGrid" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <!-- Tableau 1 : 17 KPIs ARRAYFORMULA (Violet #5B21B6 + Rose #FF1E6E) -->
+            <div class="lg:col-span-6 border border-purple-200 rounded-2xl overflow-hidden shadow-sm">
+              <table class="min-w-full text-xs sm:text-sm border-collapse">
+                <tbody id="synthGlobalKpisBody"></tbody>
+              </table>
+            </div>
+
+            <!-- Tableau 2 : Répartition par jour Lundi -> Dimanche + Total -->
+            <div class="lg:col-span-6 border border-purple-200 rounded-2xl overflow-hidden shadow-sm">
+              <table class="min-w-full text-xs sm:text-sm border-collapse">
+                <thead>
+                  <tr class="bg-[#5B21B6] text-white font-extrabold">
+                    <th class="px-4 py-2.5 text-center border border-purple-400/40">Day</th>
+                    <th class="px-4 py-2.5 text-center border border-purple-400/40">Req</th>
+                    <th class="px-4 py-2.5 text-center border border-purple-400/40">Del</th>
+                    <th class="px-4 py-2.5 text-center border border-purple-400/40">GMV</th>
+                  </tr>
+                </thead>
+                <tbody id="synthGlobalDaysBody" class="bg-white"></tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -1068,7 +1136,7 @@
     </main>
 
     <footer class="bg-white border-t border-purple-100 py-4 text-center text-xs text-slate-500">
-      <span class="font-extrabold text-[#6C2BD9]">Yassir</span> • Yassir Portail — 109 colonnes, Export Stat, Commissions synchronisées & 7 Portefeuilles AM.
+      <span class="font-extrabold text-[#6C2BD9]">Yassir</span> • Générateur VF Data & Offres — 109 colonnes, Export Stat, Commissions synchronisées & 7 Portefeuilles AM.
     </footer>
   </div>
 
@@ -1278,6 +1346,10 @@
         if (currentUser.role === 'owner' || currentUser.role === 'viewer_all') return true;
         var u = String(currentUser.username || '').toLowerCase();
         return u === 'proprio' || u === 'omar.beldi' || u === 'karim.benrahal' || u === 'ahmed.marrouki';
+      }
+
+      function canSeeGlobalSynth() {
+        return canSeeZeroOrdersStats();
       }
 
       function getAllowedAmListForCurrentUser() {
@@ -1822,6 +1894,254 @@
         }
         return String(val).trim();
       }
+
+
+      /* ========================================================================
+         E2. MODULE SYNTHÈSE GLOBALE (17 KPIs ARRAYFORMULA + TABLEAU LUNDI-DIMANCHE)
+         ======================================================================== */
+      function calculerSyntheseGlobaleData() {
+        var allRecords = state.marketRows.concat(state.foodRows);
+        if (!allRecords || allRecords.length === 0) return null;
+
+        var idxW_OrderId = TARGET_HEADERS.indexOf('order id');
+        var idxAI_Resto = TARGET_HEADERS.indexOf('restaurant name');
+        var idxAP_Status = TARGET_HEADERS.indexOf('status');
+        var idxAV_ItemTotal = TARGET_HEADERS.indexOf('item total');
+        var idxBB_LrLg = TARGET_HEADERS.indexOf('à payer réduits');
+        var idxBN_Comm = TARGET_HEADERS.indexOf('CA');
+        var idxBP_TotalFood = TARGET_HEADERS.indexOf('Total Food');
+        var idxBR_TotalFoodVF = TARGET_HEADERS.indexOf('Total Food VF');
+        var idxCN_DiscAmt = TARGET_HEADERS.indexOf('Discount Amount');
+        var idxCO_DiscType = TARGET_HEADERS.indexOf('Discount Type');
+        var idxCR_FoodCat = TARGET_HEADERS.indexOf('Food Category');
+        var idxTags = TARGET_HEADERS.indexOf('Tags');
+        var idxCT_AcceptedBy = TARGET_HEADERS.indexOf('Accepted By');
+        var idxOrderDay = TARGET_HEADERS.indexOf('order day');
+
+        var requested = 0;
+        var deliveredOrders = 0;
+        var cancelledByResto = 0;
+        var gmvBrut = 0;
+        var gmvTotalFoodVF = 0;
+        var gmvNetTotalFood = 0;
+        var promoOrder = 0;
+        var propPromoNumerator = 0;
+        var acceptedByResto = 0;
+        var uniqueStores = new Set();
+        var caYassir = 0;
+        var lrLgCosts = 0;
+
+        var dayNames = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+        var dayStats = dayNames.map(function (d) { return { day: d, req: 0, del: 0, gmv: 0 }; });
+
+        for (var i = 0; i < allRecords.length; i++) {
+          var c = allRecords[i].cells;
+          var orderIdStr = String(c[idxW_OrderId] || '').trim();
+          var restoStr = String(c[idxAI_Resto] || '').trim();
+          var statusLower = String(c[idxAP_Status] || '').trim().toLowerCase();
+
+          var isReq = orderIdStr.length > 0;
+          var isDel = statusLower.includes('delivered');
+          var isCancResto = statusLower.includes('restaurant rejected');
+
+          if (isReq) requested++;
+          if (isDel) deliveredOrders++;
+          if (isCancResto) cancelledByResto++;
+          if (restoStr) uniqueStores.add(restoStr.toLowerCase());
+
+          var brVal = purgerNombre(c[idxBR_TotalFoodVF]);
+          if (isDel) {
+            gmvBrut += purgerNombre(c[idxAV_ItemTotal]);
+            gmvTotalFoodVF += brVal;
+            gmvNetTotalFood += purgerNombre(c[idxBP_TotalFood]);
+            caYassir += purgerNombre(c[idxBN_Comm]);
+            lrLgCosts += purgerNombre(c[idxBB_LrLg]);
+
+            var acceptedByLower = String(c[idxCT_AcceptedBy] || '').trim().toLowerCase();
+            if (acceptedByLower.includes('restaurant')) {
+              acceptedByResto++;
+            }
+
+            var foodCatAndTagsLower = (String(c[idxCR_FoodCat] || '') + ' ' + String(c[idxTags] || '')).toLowerCase();
+            var discTypeLower = String(c[idxCO_DiscType] || '').toLowerCase();
+            var hasSuperPromo = foodCatAndTagsLower.includes('super promo');
+            var hasPercentage = discTypeLower.includes('percentage');
+            if (hasSuperPromo || hasPercentage) {
+              promoOrder++;
+              propPromoNumerator++;
+            }
+          }
+
+          var dIdx = getFrenchWeekdayIndexFromOrderDay(c[idxOrderDay]);
+          if (dIdx >= 0 && dIdx <= 6) {
+            if (isReq) dayStats[dIdx].req += 1;
+            if (isDel) {
+              dayStats[dIdx].del += 1;
+              dayStats[dIdx].gmv += brVal;
+            }
+          }
+        }
+
+        var cancellationPct = requested > 0 ? ((cancelledByResto / requested) * 100).toFixed(2) + '%' : '0.00%';
+        var aovTnd = deliveredOrders > 0 ? (gmvTotalFoodVF / deliveredOrders).toFixed(2) : '0.00';
+        var propPromoPct = deliveredOrders > 0 ? ((propPromoNumerator / deliveredOrders) * 100).toFixed(2) + '%' : '0.00%';
+        var automationPct = deliveredOrders > 0 ? ((acceptedByResto / deliveredOrders) * 100).toFixed(2) + '%' : '0.00%';
+        var propLrCaPct = caYassir > 0 ? ((lrLgCosts / caYassir) * 100).toFixed(2) + '%' : '0.00%';
+        var commissionPct = gmvTotalFoodVF > 0 ? ((caYassir / gmvTotalFoodVF) * 100).toFixed(2) + '%' : '0.00%';
+
+        var kpiRows = [
+          { label: 'Requested', value: requested, numVal: requested },
+          { label: 'Delivered Orders', value: deliveredOrders, numVal: deliveredOrders },
+          { label: 'Cancelled By Restaurant', value: cancelledByResto, numVal: cancelledByResto },
+          { label: 'Cancellation', value: cancellationPct, numVal: cancellationPct },
+          { label: 'GMV Brut (Item total)', value: Number(gmvBrut.toFixed(1)), numVal: Number(gmvBrut.toFixed(2)) },
+          { label: 'GMV (Total Food VF)', value: Number(gmvTotalFoodVF.toFixed(1)), numVal: Number(gmvTotalFoodVF.toFixed(2)) },
+          { label: 'GMV Net (Total Food)', value: Number(gmvNetTotalFood.toFixed(1)), numVal: Number(gmvNetTotalFood.toFixed(2)) },
+          { label: 'AOV TND', value: aovTnd, numVal: Number(aovTnd) },
+          { label: 'Promo Order', value: promoOrder, numVal: promoOrder },
+          { label: 'Prop Promo Order', value: propPromoPct, numVal: propPromoPct },
+          { label: 'Accepted by restaurant', value: acceptedByResto, numVal: acceptedByResto },
+          { label: 'Automation', value: automationPct, numVal: automationPct },
+          { label: 'Active Store', value: uniqueStores.size, numVal: uniqueStores.size },
+          { label: 'CA YASSIR', value: Number(caYassir.toFixed(1)), numVal: Number(caYassir.toFixed(2)) },
+          { label: 'L.R/L.G Costs', value: Number(lrLgCosts.toFixed(1)), numVal: Number(lrLgCosts.toFixed(2)) },
+          { label: 'Prop L.R/CA', value: propLrCaPct, numVal: propLrCaPct },
+          { label: 'Commission', value: commissionPct, numVal: commissionPct }
+        ];
+
+        var totalDayReq = dayStats.reduce(function (s, d) { return s + d.req; }, 0);
+        var totalDayDel = dayStats.reduce(function (s, d) { return s + d.del; }, 0);
+        var totalDayGmv = dayStats.reduce(function (s, d) { return s + d.gmv; }, 0);
+
+        return {
+          kpiRows: kpiRows,
+          dayStats: dayStats,
+          totals: { req: totalDayReq, del: totalDayDel, gmv: Number(totalDayGmv.toFixed(2)) }
+        };
+      }
+
+      function renderSynthGlobalPanel() {
+        var emptyEl = document.getElementById('synthGlobalEmptyState');
+        var gridEl = document.getElementById('synthGlobalContentGrid');
+        var btnXlsx = document.getElementById('btnExportSynthGlobalXlsx');
+        var btnCsv = document.getElementById('btnExportSynthGlobalCsv');
+        var kpisBody = document.getElementById('synthGlobalKpisBody');
+        var daysBody = document.getElementById('synthGlobalDaysBody');
+
+        var synth = calculerSyntheseGlobaleData();
+        if (!synth) {
+          if (emptyEl) emptyEl.classList.remove('hidden');
+          if (gridEl) gridEl.classList.add('hidden');
+          if (btnXlsx) btnXlsx.disabled = true;
+          if (btnCsv) btnCsv.disabled = true;
+          return;
+        }
+
+        if (emptyEl) emptyEl.classList.add('hidden');
+        if (gridEl) gridEl.classList.remove('hidden');
+        if (btnXlsx) btnXlsx.disabled = false;
+        if (btnCsv) btnCsv.disabled = false;
+
+        if (kpisBody) {
+          kpisBody.innerHTML = synth.kpiRows.map(function (r) {
+            return '<tr>' +
+              '<td class="px-4 py-2 font-extrabold text-white bg-[#5B21B6] border border-purple-400/30 w-3/5">' + escapeHtml(r.label) + '</td>' +
+              '<td class="px-4 py-2 font-extrabold text-white bg-[#FF1E6E] border border-pink-400/30 text-center font-mono w-2/5">' + escapeHtml(String(r.value)) + '</td>' +
+            '</tr>';
+          }).join('');
+        }
+
+        if (daysBody) {
+          var rowsHtml = synth.dayStats.map(function (d) {
+            return '<tr class="hover:bg-[#F3EBFF]/40">' +
+              '<td class="px-4 py-2 text-center font-semibold text-[#1A1A2E] border border-slate-200">' + escapeHtml(d.day) + '</td>' +
+              '<td class="px-4 py-2 text-center font-mono text-[#1A1A2E] border border-slate-200">' + d.req + '</td>' +
+              '<td class="px-4 py-2 text-center font-mono text-[#1A1A2E] border border-slate-200">' + d.del + '</td>' +
+              '<td class="px-4 py-2 text-center font-mono text-[#1A1A2E] border border-slate-200">' + Math.round(d.gmv) + '</td>' +
+            '</tr>';
+          }).join('');
+
+          rowsHtml += '<tr class="bg-[#FF1E6E] text-white font-extrabold">' +
+            '<td class="px-4 py-2.5 text-center border border-pink-400/40">Total</td>' +
+            '<td class="px-4 py-2.5 text-center font-mono border border-pink-400/40">' + synth.totals.req + '</td>' +
+            '<td class="px-4 py-2.5 text-center font-mono border border-pink-400/40">' + synth.totals.del + '</td>' +
+            '<td class="px-4 py-2.5 text-center font-mono border border-pink-400/40">' + synth.totals.gmv.toFixed(2) + '</td>' +
+          '</tr>';
+
+          daysBody.innerHTML = rowsHtml;
+        }
+      }
+
+      window.yassirExportSynthGlobalExcel = function () {
+        if (!canSeeGlobalSynth() || getEffectiveAmFilter() !== 'ALL') return;
+        var synth = calculerSyntheseGlobaleData();
+        if (!synth) return;
+
+        var wb = XLSX.utils.book_new();
+
+        // Feuille 1 : Tableau combiné côte à côte (KPIs à gauche + Lundi-Dimanche à droite, identique aux captures)
+        var combinedAoa = [];
+        var maxRows = Math.max(synth.kpiRows.length, synth.dayStats.length + 2);
+        for (var i = 0; i < maxRows; i++) {
+          var rowArr = ['', '', '', '', '', '', ''];
+          if (i < synth.kpiRows.length) {
+            rowArr[0] = synth.kpiRows[i].label;
+            rowArr[1] = synth.kpiRows[i].numVal;
+          }
+          if (i === 0) {
+            rowArr[3] = 'Day';
+            rowArr[4] = 'Req';
+            rowArr[5] = 'Del';
+            rowArr[6] = 'GMV';
+          } else if (i >= 1 && i <= synth.dayStats.length) {
+            var dObj = synth.dayStats[i - 1];
+            rowArr[3] = dObj.day;
+            rowArr[4] = dObj.req;
+            rowArr[5] = dObj.del;
+            rowArr[6] = Number(dObj.gmv.toFixed(2));
+          } else if (i === synth.dayStats.length + 1) {
+            rowArr[3] = 'Total';
+            rowArr[4] = synth.totals.req;
+            rowArr[5] = synth.totals.del;
+            rowArr[6] = synth.totals.gmv;
+          }
+          combinedAoa.push(rowArr);
+        }
+
+        var wsCombined = XLSX.utils.aoa_to_sheet(combinedAoa);
+        wsCombined['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 4 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 16 }];
+        XLSX.utils.book_append_sheet(wb, wsCombined, 'Synthèse Globale');
+
+        var dateStr = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, 'YASSIR_Synthese_Globale_' + dateStr + '.xlsx');
+        showToast('Fichier <strong>YASSIR_Synthese_Globale_' + dateStr + '.xlsx</strong> téléchargé.', 'success');
+      };
+
+      window.yassirExportSynthGlobalCsv = function () {
+        if (!canSeeGlobalSynth() || getEffectiveAmFilter() !== 'ALL') return;
+        var synth = calculerSyntheseGlobaleData();
+        if (!synth) return;
+
+        var aoa = [['Indicateur', 'Valeur']];
+        synth.kpiRows.forEach(function (r) { aoa.push([r.label, r.value]); });
+        aoa.push(['', '']);
+        aoa.push(['Day', 'Req', 'Del', 'GMV']);
+        synth.dayStats.forEach(function (d) { aoa.push([d.day, d.req, d.del, Number(d.gmv.toFixed(2))]); });
+        aoa.push(['Total', synth.totals.req, synth.totals.del, synth.totals.gmv]);
+
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+        var csvContent = XLSX.utils.sheet_to_csv(ws, { FS: ';' });
+        var blob = new Blob(['﻿' + csvContent], { type: 'text/csv;charset=utf-8;' });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', 'YASSIR_Synthese_Globale.csv');
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showToast('Synthèse Globale exportée en CSV.', 'success');
+      };
 
       /* ========================================================================
          E. MODULE EXPORT STAT (IMPLÉMENTATION EXACTE DE LA FORMULE VSTACK/QUERY)
@@ -2429,6 +2749,25 @@
         var activeFilter = getEffectiveAmFilter();
         var currentStats = activeFilter === 'ALL' ? globalStats : calculerStatsPourAm(activeFilter);
 
+        var tabBtnSynth = document.getElementById('tabBtnSynthGlobal');
+        var showSynthGlobalTab = canSeeGlobalSynth() && activeFilter === 'ALL';
+        if (tabBtnSynth) {
+          if (showSynthGlobalTab) {
+            tabBtnSynth.classList.remove('hidden');
+          } else {
+            tabBtnSynth.classList.add('hidden');
+            if (state.activeTab === 'synth_global') {
+              state.activeTab = 'market';
+              document.querySelectorAll('.tab-btn').forEach(function (btn) {
+                var isM = btn.getAttribute('data-tab') === 'market';
+                btn.className = isM
+                  ? 'tab-btn active px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-[#6C2BD9] text-white shadow-sm shadow-[#6C2BD9]/25 cursor-pointer'
+                  : 'tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer';
+              });
+            }
+          }
+        }
+
         var hasGlobalData = globalStats.totalRecues > 0;
         var kpiSection = document.getElementById('kpiSection');
         if (hasGlobalData) {
@@ -2507,14 +2846,22 @@
 
       function afficherTableauDonnees() {
         var panelData = document.getElementById('panelData');
+        var panelSynthGlobal = document.getElementById('panelSynthGlobal');
         var panelRestoAnalytics = document.getElementById('panelRestoAnalytics');
         var panelPortefeuilles = document.getElementById('panelPortefeuilles');
         var panelComm = document.getElementById('panelCommissions');
 
         panelData.classList.add('hidden');
+        if (panelSynthGlobal) panelSynthGlobal.classList.add('hidden');
         if (panelRestoAnalytics) panelRestoAnalytics.classList.add('hidden');
         panelPortefeuilles.classList.add('hidden');
         panelComm.classList.add('hidden');
+
+        if (state.activeTab === 'synth_global') {
+          if (panelSynthGlobal) panelSynthGlobal.classList.remove('hidden');
+          renderSynthGlobalPanel();
+          return;
+        }
 
         if (state.activeTab === 'resto_analytics') {
           if (panelRestoAnalytics) panelRestoAnalytics.classList.remove('hidden');
@@ -3337,6 +3684,7 @@
          ======================================================================== */
       window.yassirSwitchTab = function (tabName) {
         if (tabName === 'commissions' && !isOwnerAdmin()) return;
+        if (tabName === 'synth_global' && (!canSeeGlobalSynth() || getEffectiveAmFilter() !== 'ALL')) return;
         state.activeTab = tabName;
         state.currentPage = 1;
 
@@ -3533,6 +3881,35 @@
         XLSX.utils.book_append_sheet(wb, construireFeuille109Colonnes(filtrerParAmSelectionne(state.foodRows)), 'Food VF');
         XLSX.utils.book_append_sheet(wb, construireFeuilleOffres(filtrerParAmSelectionne(state.offresRows)), 'Offres');
         XLSX.utils.book_append_sheet(wb, construireFeuilleStat(filtrerParAmSelectionne(state.statRows)), 'Stat');
+        if (activeFilter === 'ALL' && canSeeGlobalSynth()) {
+          var synthData = calculerSyntheseGlobaleData();
+          if (synthData) {
+            var sAoa = [['Indicateur', 'Valeur', '', 'Day', 'Req', 'Del', 'GMV']];
+            var maxR = Math.max(synthData.kpiRows.length, synthData.dayStats.length + 1);
+            for (var si = 0; si < maxR; si++) {
+              var rLine = ['', '', '', '', '', '', ''];
+              if (si < synthData.kpiRows.length) {
+                rLine[0] = synthData.kpiRows[si].label;
+                rLine[1] = synthData.kpiRows[si].numVal;
+              }
+              if (si < synthData.dayStats.length) {
+                rLine[3] = synthData.dayStats[si].day;
+                rLine[4] = synthData.dayStats[si].req;
+                rLine[5] = synthData.dayStats[si].del;
+                rLine[6] = Number(synthData.dayStats[si].gmv.toFixed(2));
+              } else if (si === synthData.dayStats.length) {
+                rLine[3] = 'Total';
+                rLine[4] = synthData.totals.req;
+                rLine[5] = synthData.totals.del;
+                rLine[6] = synthData.totals.gmv;
+              }
+              sAoa.push(rLine);
+            }
+            var wsSynth = XLSX.utils.aoa_to_sheet(sAoa);
+            wsSynth['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 4 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 16 }];
+            XLSX.utils.book_append_sheet(wb, wsSynth, 'Synthèse Globale');
+          }
+        }
         XLSX.utils.book_append_sheet(wb, construireFeuilleSyntheseAm(), 'Synthèse Portefeuilles AM');
 
         var commRows = [['restaurant name', 'commission ca']];
