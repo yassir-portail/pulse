@@ -682,12 +682,12 @@
           <!-- Sélecteur de restaurant + Filtre statut + KPIs du restaurant -->
           <div class="bg-[#F8F9FC] p-4 sm:p-5 rounded-2xl border border-purple-100 space-y-4">
             <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
-              <div class="flex-1 max-w-xl">
+              <div class="flex-1 max-w-2xl">
                 <label for="selectRestoAnalytics" class="block text-xs font-extrabold uppercase tracking-wider text-[#6C2BD9] mb-1.5">
-                  <i class="fa-solid fa-utensils mr-1.5 text-[#FF2A6D]"></i> Sélectionner un restaurant (Portefeuille autorisé)
+                  <i class="fa-solid fa-utensils mr-1.5 text-[#FF2A6D]"></i> Liste des restaurants & commandes (cliquez ou sélectionnez)
                 </label>
                 <div class="flex flex-col sm:flex-row gap-2">
-                  <input id="searchRestoSelectInput" type="text" oninput="window.yassirFilterRestoDropdown(this.value)" placeholder="Filtrer la liste des restaurants..." class="sm:w-56 px-3.5 py-2.5 text-xs bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6C2BD9]" />
+                  <input id="searchRestoSelectInput" type="text" oninput="window.yassirFilterRestoDropdown(this.value)" placeholder="Rechercher un restaurant ou AM..." class="sm:w-60 px-3.5 py-2.5 text-xs bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6C2BD9]" />
                   <select id="selectRestoAnalytics" onchange="window.yassirOnSelectRestoAnalytics(this.value)" class="flex-1 px-3.5 py-2.5 text-xs sm:text-sm font-bold text-[#1A1A2E] bg-white border border-purple-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#6C2BD9]">
                     <option value="">-- Choisissez un restaurant --</option>
                   </select>
@@ -696,10 +696,47 @@
 
               <div class="flex flex-wrap items-center gap-2">
                 <span id="restoAnalyticsAmBadge" class="hidden px-3 py-1.5 rounded-full text-xs font-bold bg-[#F3EBFF] text-[#6C2BD9]">AM : -</span>
+                <button type="button" onclick="window.yassirExportRestoOrdersListExcel()" id="btnExportRestoListXlsx" class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#00BFA5] hover:bg-teal-500 text-[#1A1A2E] shadow-sm transition cursor-pointer">
+                  <i class="fa-solid fa-file-excel"></i>
+                  <span>Télécharger Liste Restaurants (.xlsx)</span>
+                </button>
                 <button type="button" onclick="window.yassirExportSelectedRestoItemsCsv()" id="btnExportRestoItemsCsv" disabled class="inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#6C2BD9] hover:bg-[#5521B5] disabled:bg-slate-200 disabled:text-slate-400 text-white shadow-sm transition cursor-pointer disabled:cursor-not-allowed">
                   <i class="fa-solid fa-download"></i>
                   <span>Exporter Top Items (.csv)</span>
                 </button>
+              </div>
+            </div>
+
+            <!-- Liste interactive et téléchargeable de tous les restaurants et leurs commandes -->
+            <div class="bg-white rounded-2xl border border-purple-100 overflow-hidden">
+              <div class="px-4 py-2.5 bg-[#F3EBFF]/70 border-b border-purple-100 flex flex-wrap items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="text-xs font-extrabold text-[#6C2BD9]">
+                    <i class="fa-solid fa-list-ul mr-1.5 text-[#FF2A6D]"></i> Liste complète des restaurants (<span id="restoListTotalBadge">0</span>)
+                  </span>
+                  <span class="text-[11px] text-slate-500 hidden sm:inline">• Cliquez sur une ligne pour afficher sa courbe Lundi–Dimanche et ses Top Items</span>
+                </div>
+                <div class="inline-flex rounded-full bg-white p-0.5 border border-purple-200 text-[11px] font-bold">
+                  <button id="btnRestoListFilterAll" type="button" onclick="window.yassirSetRestoListZeroFilter('all')" class="px-2.5 py-1 rounded-full bg-[#6C2BD9] text-white cursor-pointer">Tous</button>
+                  <button id="btnRestoListFilterActive" type="button" onclick="window.yassirSetRestoListZeroFilter('active')" class="px-2.5 py-1 rounded-full text-slate-600 hover:text-[#00897B] cursor-pointer">Avec livrées (&gt;0)</button>
+                  <button id="btnRestoListFilterZero" type="button" onclick="window.yassirSetRestoListZeroFilter('zero')" class="px-2.5 py-1 rounded-full text-slate-600 hover:text-[#FF2A6D] cursor-pointer">0 livrée</button>
+                </div>
+              </div>
+              <div class="max-h-56 overflow-y-auto overflow-x-auto custom-scrollbar">
+                <table class="min-w-full divide-y divide-purple-100 text-xs">
+                  <thead class="bg-[#6C2BD9] text-white font-bold uppercase sticky top-0 z-10">
+                    <tr>
+                      <th class="px-3.5 py-2 text-left">Restaurant</th>
+                      <th class="px-3.5 py-2 text-left">Portefeuille AM</th>
+                      <th class="px-3.5 py-2 text-left">Ville / Zone</th>
+                      <th class="px-3.5 py-2 text-right">Cmd Reçues</th>
+                      <th class="px-3.5 py-2 text-right">Cmd Livrées</th>
+                      <th class="px-3.5 py-2 text-right">GMV Livrées (TND)</th>
+                      <th class="px-3.5 py-2 text-right">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody id="restoOrdersSummaryListBody" class="divide-y divide-slate-100 bg-white"></tbody>
+                </table>
               </div>
             </div>
 
@@ -3717,14 +3754,29 @@
       var restoWeeklyChartInstance = null;
       var currentRestoTopItemsList = [];
 
+      var restoListZeroFilterMode = 'all';
+
+      window.yassirSetRestoListZeroFilter = function (mode) {
+        restoListZeroFilterMode = mode;
+        var bAll = document.getElementById('btnRestoListFilterAll');
+        var bAct = document.getElementById('btnRestoListFilterActive');
+        var bZero = document.getElementById('btnRestoListFilterZero');
+        if (bAll) bAll.className = mode === 'all' ? 'px-2.5 py-1 rounded-full bg-[#6C2BD9] text-white cursor-pointer' : 'px-2.5 py-1 rounded-full text-slate-600 hover:text-[#6C2BD9] cursor-pointer';
+        if (bAct) bAct.className = mode === 'active' ? 'px-2.5 py-1 rounded-full bg-[#00BFA5] text-[#1A1A2E] cursor-pointer' : 'px-2.5 py-1 rounded-full text-slate-600 hover:text-[#00897B] cursor-pointer';
+        if (bZero) bZero.className = mode === 'zero' ? 'px-2.5 py-1 rounded-full bg-[#FF2A6D] text-white cursor-pointer' : 'px-2.5 py-1 rounded-full text-slate-600 hover:text-[#FF2A6D] cursor-pointer';
+        var filterInput = document.getElementById('searchRestoSelectInput');
+        window.yassirFilterRestoDropdown(filterInput ? filterInput.value : '');
+      };
+
       function getAvailableRestaurantsForAnalytics() {
         var allowedAms = getAllowedAmListForCurrentUser();
         var activeAm = getEffectiveAmFilter();
         var idxResto = TARGET_HEADERS.indexOf('restaurant name');
+        var idxStatus = TARGET_HEADERS.indexOf('status');
+        var idxGmv = TARGET_HEADERS.indexOf('Total Food VF');
+        var idxArea = TARGET_HEADERS.indexOf('Area');
 
         var map = new Map();
-
-        var idxStatus = TARGET_HEADERS.indexOf('status');
 
         // 1. Restaurants issus des portefeuilles autorisés (inclus même avec 0 commande livrée)
         Object.entries(state.amPortfolios).forEach(function (pair) {
@@ -3732,10 +3784,18 @@
           var info = pair[1];
           if (!canViewAllPortfolios() && allowedAms.indexOf(info.am) === -1) return;
           if (activeAm !== 'ALL' && info.am !== activeAm) return;
-          map.set(key, { key: key, name: info.displayName, am: info.am, orderCount: 0, deliveredCount: 0 });
+          map.set(key, {
+            key: key,
+            name: info.displayName,
+            am: info.am,
+            ville: info.ville || '',
+            orderCount: 0,
+            deliveredCount: 0,
+            gmvSum: 0
+          });
         });
 
-        // 2. Comptage des commandes reçues et livrées dans Data exp
+        // 2. Comptage des commandes reçues, livrées et GMV dans Data exp
         var allRecords = state.marketRows.concat(state.foodRows);
         allRecords.forEach(function (rec) {
           if (!canViewAllPortfolios() && allowedAms.indexOf(rec.am) === -1) return;
@@ -3744,12 +3804,22 @@
           var rKey = rName.toLowerCase();
           if (!rKey) return;
           if (!map.has(rKey)) {
-            map.set(rKey, { key: rKey, name: rName, am: rec.am, orderCount: 0, deliveredCount: 0 });
+            map.set(rKey, {
+              key: rKey,
+              name: rName,
+              am: rec.am,
+              ville: String(rec.cells[idxArea] || '').trim(),
+              orderCount: 0,
+              deliveredCount: 0,
+              gmvSum: 0
+            });
           }
           var entry = map.get(rKey);
+          if (!entry.ville && rec.cells[idxArea]) entry.ville = String(rec.cells[idxArea]).trim();
           entry.orderCount++;
           if (estCommandeLivree(rec.cells[idxStatus])) {
             entry.deliveredCount++;
+            entry.gmvSum += purgerNombre(rec.cells[idxGmv]);
           }
         });
 
@@ -3758,21 +3828,91 @@
         });
       }
 
+      function getFilteredRestoOrdersList(filterText) {
+        var q = String(filterText || '').trim().toLowerCase();
+        return getAvailableRestaurantsForAnalytics().filter(function (item) {
+          if (restoListZeroFilterMode === 'active' && item.deliveredCount <= 0) return false;
+          if (restoListZeroFilterMode === 'zero' && item.deliveredCount > 0) return false;
+          if (!q) return true;
+          return item.name.toLowerCase().includes(q) ||
+                 item.am.toLowerCase().includes(q) ||
+                 (item.ville && item.ville.toLowerCase().includes(q));
+        });
+      }
+
       window.yassirFilterRestoDropdown = function (filterText) {
         var select = document.getElementById('selectRestoAnalytics');
-        if (!select) return;
-        var q = String(filterText || '').trim().toLowerCase();
-        var list = getAvailableRestaurantsForAnalytics().filter(function (item) {
-          return !q || item.name.toLowerCase().includes(q) || item.am.toLowerCase().includes(q);
-        });
+        var list = getFilteredRestoOrdersList(filterText);
 
-        var optionsHtml = '<option value="">-- Choisissez un restaurant (' + list.length + ' dont 0 livrées inclus) --</option>';
+        if (select) {
+          var optionsHtml = '<option value="">-- Choisissez un restaurant (' + list.length + ') --</option>';
+          list.forEach(function (item) {
+            var selAttr = (item.key === selectedAnalyticsRestoKey) ? ' selected' : '';
+            var suffix = ' (' + item.deliveredCount + ' livrées / ' + item.orderCount + ' reçues)';
+            optionsHtml += '<option value="' + escapeHtml(item.key) + '"' + selAttr + '>' + escapeHtml(item.name) + ' — ' + escapeHtml(item.am) + suffix + '</option>';
+          });
+          select.innerHTML = optionsHtml;
+        }
+
+        var badge = document.getElementById('restoListTotalBadge');
+        if (badge) badge.textContent = list.length;
+
+        var tbody = document.getElementById('restoOrdersSummaryListBody');
+        if (tbody) {
+          if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" class="px-4 py-6 text-center text-slate-400">Aucun restaurant trouvé pour ce filtre.</td></tr>';
+          } else {
+            tbody.innerHTML = list.map(function (item) {
+              var isSelected = item.key === selectedAnalyticsRestoKey;
+              var delivBadge = item.deliveredCount > 0
+                ? '<span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-[#E0F7F4] text-[#00897B]">' + item.deliveredCount + '</span>'
+                : '<span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-rose-50 text-[#FF2A6D]">0</span>';
+
+              return '<tr onclick="window.yassirOnSelectRestoAnalytics('' + escapeHtml(item.key).replace(/'/g, "\'") + '')" class="cursor-pointer transition-colors ' +
+                (isSelected ? 'bg-[#F3EBFF] font-bold' : 'hover:bg-[#F8F9FC]') + '">' +
+                '<td class="px-3.5 py-2 font-bold text-[#1A1A2E]">' + escapeHtml(item.name) + '</td>' +
+                '<td class="px-3.5 py-2"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F3EBFF] text-[#6C2BD9]">' + escapeHtml(item.am) + '</span></td>' +
+                '<td class="px-3.5 py-2 text-slate-500">' + escapeHtml(item.ville || '-') + '</td>' +
+                '<td class="px-3.5 py-2 text-right font-mono">' + item.orderCount + '</td>' +
+                '<td class="px-3.5 py-2 text-right font-mono">' + delivBadge + '</td>' +
+                '<td class="px-3.5 py-2 text-right font-mono font-semibold text-[#6C2BD9]">' + item.gmvSum.toFixed(2) + '</td>' +
+                '<td class="px-3.5 py-2 text-right">' +
+                  '<button type="button" class="px-2.5 py-1 rounded-full text-[10px] font-bold ' + (isSelected ? 'bg-[#FF2A6D] text-white' : 'bg-[#F3EBFF] text-[#6C2BD9] hover:bg-purple-200') + '">' +
+                  (isSelected ? 'Sélectionné' : 'Analyser') + '</button>' +
+                '</td>' +
+              '</tr>';
+            }).join('');
+          }
+        }
+      };
+
+      window.yassirExportRestoOrdersListExcel = function () {
+        var filterInput = document.getElementById('searchRestoSelectInput');
+        var list = getFilteredRestoOrdersList(filterInput ? filterInput.value : '');
+        if (list.length === 0) {
+          showToast('Aucun restaurant à exporter dans la liste.', 'info');
+          return;
+        }
+        var activeFilter = getEffectiveAmFilter();
+        var suffix = activeFilter === 'ALL' ? 'Global' : activeFilter.replace(/\s+/g, '_');
+        var aoa = [['Restaurant', 'Portefeuille AM', 'Ville / Zone', 'Commandes Reçues', 'Commandes Livrées', 'GMV Livrées (TND)']];
         list.forEach(function (item) {
-          var selAttr = (item.key === selectedAnalyticsRestoKey) ? ' selected' : '';
-          var suffix = ' (' + item.deliveredCount + ' livrées / ' + item.orderCount + ' reçues)';
-          optionsHtml += '<option value="' + escapeHtml(item.key) + '"' + selAttr + '>' + escapeHtml(item.name) + ' — ' + escapeHtml(item.am) + suffix + '</option>';
+          aoa.push([
+            item.name,
+            item.am,
+            item.ville || '',
+            item.orderCount,
+            item.deliveredCount,
+            Number(item.gmvSum.toFixed(2))
+          ]);
         });
-        select.innerHTML = optionsHtml;
+        var wb = XLSX.utils.book_new();
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+        ws['!cols'] = [{ wch: 32 }, { wch: 22 }, { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 20 }];
+        XLSX.utils.book_append_sheet(wb, ws, 'Restaurants Commandes');
+        var dateStr = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, 'YASSIR_Liste_Restaurants_Commandes_' + suffix + '_' + dateStr + '.xlsx');
+        showToast('Liste des <strong>' + list.length + ' restaurant(s)</strong> exportée en Excel (.xlsx).', 'success');
       };
 
       window.yassirOnSelectRestoAnalytics = function (restoKey) {
