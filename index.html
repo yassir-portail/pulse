@@ -61,6 +61,14 @@
     .animate-shake {
       animation: shake 0.35s ease-in-out;
     }
+
+    html, body {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+    }
   </style>
 </head>
 <body class="bg-[#F8F9FC] text-[#1A1A2E] min-h-screen w-full overflow-x-hidden flex flex-col antialiased">
@@ -128,7 +136,7 @@
 
         <div class="flex items-center justify-between pt-1">
           <label class="inline-flex items-center gap-2 cursor-pointer select-none">
-            <input id="loginRememberMe" type="checkbox" class="w-4 h-4 rounded border-purple-300 text-[#6C2BD9] focus:ring-[#6C2BD9]" />
+            <input id="loginRememberMe" type="checkbox" checked class="w-4 h-4 rounded border-purple-300 text-[#6C2BD9] focus:ring-[#6C2BD9]" />
             <span class="text-xs font-semibold text-slate-600">Se souvenir de moi</span>
           </label>
           <span class="text-[11px] font-semibold text-[#6C2BD9]">Accès sécurisé</span>
@@ -341,7 +349,12 @@
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <button id="btnSyncSheetsNow" type="button" onclick="window.yassirSyncAllFromGoogleSheets(true)" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-white/15 text-white hover:bg-white/25 border border-white/25 transition cursor-pointer" title="Synchroniser en direct avec Google Sheets (Portefeuilles AM & Commissions)">
+          <button id="btnToggleFullscreen" type="button" onclick="window.yassirToggleFullscreen()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-white/15 text-white hover:bg-white/25 border border-white/25 transition cursor-pointer" title="Afficher en plein écran">
+            <i id="iconFullscreen" class="fa-solid fa-expand text-[#00BFA5]"></i>
+            <span id="labelFullscreen">Plein écran</span>
+          </button>
+
+          <button id="btnSyncSheetsNow" type="button" onclick="window.yassirSyncAllFromGoogleSheets(true)" class="hidden inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-white/15 text-white hover:bg-white/25 border border-white/25 transition cursor-pointer" title="Synchroniser en direct avec Google Sheets (Portefeuilles AM & Commissions)">
             <i id="iconSyncSheets" class="fa-solid fa-arrows-rotate text-[#00BFA5]"></i>
             <span id="labelSyncSheets">Sync Sheets Live</span>
           </button>
@@ -372,7 +385,7 @@
            ZONES D'IMPORTATION (1 : DATA EXP | 2 : COMMISSIONS RESTAURANT PAR FACTURE)
            ======================================================================== -->
       <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div class="bg-white rounded-3xl border border-purple-100 p-6 shadow-sm hover:border-[#6C2BD9]/40 transition flex flex-col justify-between">
+        <div id="mainSourceImportCard" class="bg-white rounded-3xl border border-purple-100 p-6 shadow-sm hover:border-[#6C2BD9]/40 transition flex flex-col justify-between">
           <div>
             <div class="flex items-start justify-between gap-3 mb-3">
               <div class="flex items-center gap-2.5">
@@ -398,7 +411,7 @@
           </label>
         </div>
 
-        <div class="bg-white rounded-3xl border border-purple-100 p-6 shadow-sm hover:border-[#6C2BD9]/40 transition flex flex-col justify-between">
+        <div id="commissionsImportCard" class="hidden bg-white rounded-3xl border border-purple-100 p-6 shadow-sm hover:border-[#6C2BD9]/40 transition flex flex-col justify-between">
           <div>
             <div class="flex items-start justify-between gap-3 mb-3">
               <div class="flex items-center gap-2.5">
@@ -568,7 +581,7 @@
               <span id="tabCountAm" class="px-1.5 py-0.5 text-[11px] rounded-full bg-[#F3EBFF] text-[#6C2BD9]">546</span>
             </button>
 
-            <button type="button" data-tab="commissions" onclick="window.yassirSwitchTab('commissions')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
+            <button id="tabBtnCommissions" type="button" data-tab="commissions" onclick="window.yassirSwitchTab('commissions')" class="hidden tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
               <i class="fa-solid fa-percent text-[#00897B]"></i>
               <span>Commissions</span>
               <span id="tabCountComm" class="px-1.5 py-0.5 text-[11px] rounded-full bg-[#E0F7F4] text-[#00897B]">213</span>
@@ -1014,26 +1027,48 @@
           return memoryStorage[key];
         }
         try {
-          return window.localStorage.getItem(key);
-        } catch (e) {
-          return null;
-        }
+          var vLocal = window.localStorage.getItem(key);
+          if (vLocal !== null) return vLocal;
+        } catch (e) {}
+        try {
+          var vSession = window.sessionStorage.getItem(key);
+          if (vSession !== null) return vSession;
+        } catch (e) {}
+        try {
+          if (key === STORAGE_KEYS.REMEMBER && window.name && window.name.indexOf('YASSIR_SESSION:') === 0) {
+            return window.name.substring('YASSIR_SESSION:'.length);
+          }
+        } catch (e) {}
+        return null;
       }
       function safeSet(key, val) {
-        memoryStorage[key] = String(val);
+        var strVal = String(val);
+        memoryStorage[key] = strVal;
         try {
-          window.localStorage.setItem(key, String(val));
-        } catch (e) {
-          // Ignorer si Google Sites bloque localStorage
-        }
+          window.localStorage.setItem(key, strVal);
+        } catch (e) {}
+        try {
+          window.sessionStorage.setItem(key, strVal);
+        } catch (e) {}
+        try {
+          if (key === STORAGE_KEYS.REMEMBER) {
+            window.name = 'YASSIR_SESSION:' + strVal;
+          }
+        } catch (e) {}
       }
       function safeRemove(key) {
         delete memoryStorage[key];
         try {
           window.localStorage.removeItem(key);
-        } catch (e) {
-          // Ignorer
-        }
+        } catch (e) {}
+        try {
+          window.sessionStorage.removeItem(key);
+        } catch (e) {}
+        try {
+          if (key === STORAGE_KEYS.REMEMBER) {
+            window.name = '';
+          }
+        } catch (e) {}
       }
 
       /* ========================================================================
@@ -1050,10 +1085,10 @@
       ];
 
       var STORAGE_KEYS = {
-        ACCOUNTS: 'yassir_vf_accounts_v8',
-        REMEMBER: 'yassir_vf_remember_v8',
-        AM_PORTFOLIOS: 'yassir_vf_am_portfolios_v8',
-        COMMISSIONS: 'yassir_vf_commissions_v8'
+        ACCOUNTS: 'yassir_vf_accounts_v9',
+        REMEMBER: 'yassir_vf_remember_v9',
+        AM_PORTFOLIOS: 'yassir_vf_am_portfolios_v9',
+        COMMISSIONS: 'yassir_vf_commissions_v9'
       };
 
       // Rôles :
@@ -1066,7 +1101,7 @@
         { username: 'ahmed.marrouki', password: 'Ahmed@2026', role: 'viewer_all', displayName: 'Ahmed Marrouki', amName: null, protected: true },
         { username: 'aziza.souli', password: 'Aziza@2026', role: 'am', displayName: 'Aziza Souli', amName: 'Aziza Souli', protected: true },
         { username: 'khouloud.harbaoui', password: 'Khouloud@2026', role: 'am', displayName: 'Khouloud Harbaoui', amName: 'Khouloud Harbaoui', protected: true },
-        { username: 'omar.beldi', password: 'Omar@2026', role: 'am', displayName: 'Omar Beldi', amName: 'Omar Beldi', protected: true },
+        { username: 'omar.beldi', password: 'Omar@2026', role: 'owner', displayName: 'Omar Beldi (Propriétaire)', amName: 'Omar Beldi', protected: true },
         { username: 'imed.fourati', password: 'Imed@2026', role: 'am', displayName: 'Imed Fourati', amName: 'Imed Fourati', protected: true },
         { username: 'nour.ali', password: 'Nour@2026', role: 'am', displayName: 'Nour Ali', amName: 'Nour Ali', protected: true },
         { username: 'iheb.dachraoui', password: 'Iheb@2026', role: 'am', displayName: 'Iheb Dachraoui', amName: 'Iheb Dachraoui', protected: true },
@@ -1089,7 +1124,16 @@
         }
         try {
           var parsed = JSON.parse(raw);
-          if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            parsed.forEach(function (a) {
+              if (a && a.username && a.username.toLowerCase() === 'omar.beldi') {
+                a.role = 'owner';
+                a.displayName = 'Omar Beldi (Propriétaire)';
+                a.amName = 'Omar Beldi';
+              }
+            });
+            return parsed;
+          }
         } catch (e) {
           // Ignorer
         }
@@ -1232,8 +1276,13 @@
           displayName: account.displayName || account.username,
           amName: account.amName || null
         };
+        // Toujours conserver la session au rafraîchissement (sessionStorage + window.name), et en localStorage si "Se souvenir de moi" est coché
+        var serializedUser = JSON.stringify(currentUser);
+        memoryStorage[STORAGE_KEYS.REMEMBER] = serializedUser;
+        try { window.sessionStorage.setItem(STORAGE_KEYS.REMEMBER, serializedUser); } catch (e) {}
+        try { window.name = 'YASSIR_SESSION:' + serializedUser; } catch (e) {}
         if (remember) {
-          safeSet(STORAGE_KEYS.REMEMBER, JSON.stringify(currentUser));
+          try { window.localStorage.setItem(STORAGE_KEYS.REMEMBER, serializedUser); } catch (e) {}
         }
 
         state.selectedAm = 'ALL';
@@ -1244,6 +1293,10 @@
         document.getElementById('headerUserBadge').textContent = account.displayName || account.username;
         var roleBadge = document.getElementById('headerRoleBadge');
         var btnAccess = document.getElementById('btnOpenAccessManager');
+        var btnSync = document.getElementById('btnSyncSheetsNow');
+        var mainSourceCard = document.getElementById('mainSourceImportCard');
+        var commImportCard = document.getElementById('commissionsImportCard');
+        var tabBtnComm = document.getElementById('tabBtnCommissions');
         var scopeSubtitle = document.getElementById('headerScopeSubtitle');
         var ownerAdminSection = document.getElementById('ownerPortfolioAdminSection');
         var amReadOnlyBanner = document.getElementById('amReadOnlyBanner');
@@ -1264,6 +1317,10 @@
           roleBadge.textContent = 'Propriétaire Admin';
           roleBadge.className = 'ml-1 px-2 py-0.2 rounded-full text-[10px] bg-[#FF2A6D] text-white font-extrabold';
           btnAccess.classList.remove('hidden');
+          if (btnSync) btnSync.classList.remove('hidden');
+          if (mainSourceCard) mainSourceCard.classList.remove('lg:col-span-2');
+          if (commImportCard) commImportCard.classList.remove('hidden');
+          if (tabBtnComm) tabBtnComm.classList.remove('hidden');
           scopeSubtitle.textContent = 'Propriétaire Admin • Accès complet aux 7 Portefeuilles AM, édition des listes & commissions';
           ownerAdminSection.classList.remove('hidden');
           amReadOnlyBanner.classList.add('hidden');
@@ -1281,6 +1338,10 @@
           roleBadge.textContent = 'Propriétaire • Lecture';
           roleBadge.className = 'ml-1 px-2 py-0.2 rounded-full text-[10px] bg-[#00BFA5] text-[#1A1A2E] font-extrabold';
           btnAccess.classList.add('hidden');
+          if (btnSync) btnSync.classList.add('hidden');
+          if (mainSourceCard) mainSourceCard.classList.add('lg:col-span-2');
+          if (commImportCard) commImportCard.classList.add('hidden');
+          if (tabBtnComm) tabBtnComm.classList.add('hidden');
           scopeSubtitle.textContent = 'Vue Direction (' + (account.displayName || account.username) + ') • Consultation de tous les portefeuilles AM & Vue Globale (Lecture seule)';
           ownerAdminSection.classList.add('hidden');
           amReadOnlyBanner.classList.remove('hidden');
@@ -1299,6 +1360,10 @@
           roleBadge.textContent = 'AM • ' + (account.amName || account.username);
           roleBadge.className = 'ml-1 px-2 py-0.2 rounded-full text-[10px] bg-[#00BFA5] text-[#1A1A2E] font-extrabold';
           btnAccess.classList.add('hidden');
+          if (btnSync) btnSync.classList.add('hidden');
+          if (mainSourceCard) mainSourceCard.classList.add('lg:col-span-2');
+          if (commImportCard) commImportCard.classList.add('hidden');
+          if (tabBtnComm) tabBtnComm.classList.add('hidden');
           scopeSubtitle.textContent = 'Espace AM (' + (account.amName || account.username) + ') • Accès exclusif à la Vue Globale et à votre portefeuille';
           ownerAdminSection.classList.add('hidden');
           amReadOnlyBanner.classList.remove('hidden');
@@ -3041,6 +3106,7 @@
          M. NAVIGATION ONGLETS, FILTRES & PAGINATION
          ======================================================================== */
       window.yassirSwitchTab = function (tabName) {
+        if (tabName === 'commissions' && !isOwnerAdmin()) return;
         state.activeTab = tabName;
         state.currentPage = 1;
 
@@ -3538,6 +3604,7 @@
       }
 
       window.yassirSyncAllFromGoogleSheets = function (manualTrigger) {
+        if (manualTrigger && !isOwnerAdmin()) return;
         var icon = document.getElementById('iconSyncSheets');
         var label = document.getElementById('labelSyncSheets');
         if (icon) icon.classList.add('fa-spin');
@@ -3657,16 +3724,18 @@
 
         var map = new Map();
 
-        // 1. Restaurants issus des portefeuilles autorisés
+        var idxStatus = TARGET_HEADERS.indexOf('status');
+
+        // 1. Restaurants issus des portefeuilles autorisés (inclus même avec 0 commande livrée)
         Object.entries(state.amPortfolios).forEach(function (pair) {
           var key = pair[0];
           var info = pair[1];
           if (!canViewAllPortfolios() && allowedAms.indexOf(info.am) === -1) return;
           if (activeAm !== 'ALL' && info.am !== activeAm) return;
-          map.set(key, { key: key, name: info.displayName, am: info.am, orderCount: 0 });
+          map.set(key, { key: key, name: info.displayName, am: info.am, orderCount: 0, deliveredCount: 0 });
         });
 
-        // 2. Comptage des commandes dans Data exp (et ajout des restos non attribués si Vue Globale)
+        // 2. Comptage des commandes reçues et livrées dans Data exp
         var allRecords = state.marketRows.concat(state.foodRows);
         allRecords.forEach(function (rec) {
           if (!canViewAllPortfolios() && allowedAms.indexOf(rec.am) === -1) return;
@@ -3675,13 +3744,17 @@
           var rKey = rName.toLowerCase();
           if (!rKey) return;
           if (!map.has(rKey)) {
-            map.set(rKey, { key: rKey, name: rName, am: rec.am, orderCount: 0 });
+            map.set(rKey, { key: rKey, name: rName, am: rec.am, orderCount: 0, deliveredCount: 0 });
           }
-          map.get(rKey).orderCount++;
+          var entry = map.get(rKey);
+          entry.orderCount++;
+          if (estCommandeLivree(rec.cells[idxStatus])) {
+            entry.deliveredCount++;
+          }
         });
 
         return Array.from(map.values()).sort(function (a, b) {
-          return (b.orderCount - a.orderCount) || a.name.localeCompare(b.name, 'fr');
+          return (b.deliveredCount - a.deliveredCount) || (b.orderCount - a.orderCount) || a.name.localeCompare(b.name, 'fr');
         });
       }
 
@@ -3693,10 +3766,10 @@
           return !q || item.name.toLowerCase().includes(q) || item.am.toLowerCase().includes(q);
         });
 
-        var optionsHtml = '<option value="">-- Choisissez un restaurant (' + list.length + ') --</option>';
+        var optionsHtml = '<option value="">-- Choisissez un restaurant (' + list.length + ' dont 0 livrées inclus) --</option>';
         list.forEach(function (item) {
           var selAttr = (item.key === selectedAnalyticsRestoKey) ? ' selected' : '';
-          var suffix = item.orderCount > 0 ? ' (' + item.orderCount + ' cmd)' : '';
+          var suffix = ' (' + item.deliveredCount + ' livrées / ' + item.orderCount + ' reçues)';
           optionsHtml += '<option value="' + escapeHtml(item.key) + '"' + selAttr + '>' + escapeHtml(item.name) + ' — ' + escapeHtml(item.am) + suffix + '</option>';
         });
         select.innerHTML = optionsHtml;
@@ -3790,12 +3863,9 @@
 
         var availList = getAvailableRestaurantsForAnalytics();
         if (!selectedAnalyticsRestoKey && availList.length > 0) {
-          var firstWithOrders = availList.find(function (x) { return x.orderCount > 0; });
-          if (firstWithOrders) {
-            selectedAnalyticsRestoKey = firstWithOrders.key;
-            var selEl = document.getElementById('selectRestoAnalytics');
-            if (selEl) selEl.value = selectedAnalyticsRestoKey;
-          }
+          selectedAnalyticsRestoKey = availList[0].key;
+          var selEl = document.getElementById('selectRestoAnalytics');
+          if (selEl) selEl.value = selectedAnalyticsRestoKey;
         }
 
         if (!selectedAnalyticsRestoKey) {
@@ -3823,13 +3893,7 @@
         amBadge.textContent = 'Portefeuille AM : ' + amLabel;
         amBadge.classList.remove('hidden');
 
-        if (restoOrders.length === 0) {
-          emptyState.classList.remove('hidden');
-          contentBox.classList.add('hidden');
-          kpisBox.classList.add('hidden');
-          btnExport.disabled = true;
-          return;
-        }
+        // Afficher l'analyse complète même si le restaurant a 0 commande livrée ou 0 commande reçue
 
         emptyState.classList.add('hidden');
         contentBox.classList.remove('hidden');
@@ -4059,6 +4123,35 @@
         URL.revokeObjectURL(url);
         showToast('Classement Top Items exporté en CSV.', 'success');
       };
+
+      window.yassirToggleFullscreen = function () {
+        var docEl = document.documentElement;
+        var isFull = document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement;
+        if (!isFull) {
+          var req = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.msRequestFullscreen;
+          if (req) {
+            req.call(docEl).catch(function () {
+              window.open(window.location.href, '_blank');
+            });
+          } else {
+            window.open(window.location.href, '_blank');
+          }
+        } else {
+          var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+          if (exit) exit.call(document);
+        }
+      };
+
+      function updateFullscreenButtonUI() {
+        var isFull = !!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement);
+        var icon = document.getElementById('iconFullscreen');
+        var label = document.getElementById('labelFullscreen');
+        if (icon) icon.className = isFull ? 'fa-solid fa-compress text-[#FF2A6D]' : 'fa-solid fa-expand text-[#00BFA5]';
+        if (label) label.textContent = isFull ? 'Quitter plein écran' : 'Plein écran';
+      }
+
+      document.addEventListener('fullscreenchange', updateFullscreenButtonUI);
+      document.addEventListener('webkitfullscreenchange', updateFullscreenButtonUI);
 
       function initApp() {
         getAccounts();
