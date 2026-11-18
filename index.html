@@ -745,6 +745,13 @@
                 <label for="filterDateEnd" class="text-[11px] font-bold text-slate-500">Au</label>
                 <input id="filterDateEnd" type="date" onchange="window.yassirOnDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
               </div>
+              <div class="flex items-center gap-1.5 bg-[#E0F7F4]/70 px-3 py-1 rounded-full border border-teal-200" title="Journée opérationnelle : débute à 09:00 le jour J et se termine à 01:00 le lendemain (J+1)">
+                <i class="fa-solid fa-clock text-[#00897B] text-[11px]"></i>
+                <input id="filterTimeStart" type="time" value="09:00" onchange="window.yassirOnDateRangeChange()" aria-label="Heure début journée" class="text-xs font-extrabold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+                <span class="text-[11px] font-bold text-slate-500">→</span>
+                <input id="filterTimeEndNextDay" type="time" value="01:00" onchange="window.yassirOnDateRangeChange()" aria-label="Heure fin lendemain" class="text-xs font-extrabold text-[#00897B] bg-transparent focus:outline-none cursor-pointer" />
+                <span class="text-[10px] font-extrabold text-[#00897B]">J+1</span>
+              </div>
               <div class="flex items-center gap-1.5 bg-[#F3EBFF] px-3 py-1 rounded-full border border-purple-300">
                 <i class="fa-solid fa-calendar-week text-[#6C2BD9] text-[11px]"></i>
                 <select id="filterWeekSelect" onchange="window.yassirOnWeekSelectChange(this.value)" aria-label="Filtrer par semaine" class="text-xs font-extrabold text-[#6C2BD9] bg-transparent focus:outline-none cursor-pointer">
@@ -2451,6 +2458,8 @@
         storedFilesMeta: [],
         dateStart: '',
         dateEnd: '',
+        timeStart: '09:00',
+        timeEndNextDay: '01:00',
         minAvailableDate: '',
         maxAvailableDate: '',
         prevSourceRows: [],
@@ -3051,6 +3060,7 @@
         var idxServices = headers.indexOf('services');
         var idxOidCheck = headers.indexOf('order id');
         var idxOrderDay = headers.indexOf('order day') !== -1 ? headers.indexOf('order day') : headers.indexOf('delivered day');
+        var idxOrderTimePrev = headers.indexOf('order time');
 
         if (idxResto === -1 || idxStatus === -1) return prevDelivMap;
 
@@ -3060,10 +3070,12 @@
           if (typeof idxOidCheck !== 'undefined' && idxOidCheck !== -1 && !estOrderIdYaf(row[idxOidCheck])) continue;
 
           if ((dStart || dEnd) && idxOrderDay !== -1) {
-            var iso = parseOrderDayToIsoDate(row[idxOrderDay]);
-            if (!iso) continue;
-            if (dStart && iso < dStart) continue;
-            if (dEnd && iso > dEnd) continue;
+            var calIso = parseOrderDayToIsoDate(row[idxOrderDay]);
+            if (!calIso) continue;
+            var opIso = idxOrderTimePrev !== -1 ? getOperationalIsoDate(calIso, row[idxOrderTimePrev]) : calIso;
+            if (!opIso) continue;
+            if (dStart && opIso < dStart) continue;
+            if (dEnd && opIso > dEnd) continue;
           }
 
           var rName = String(row[idxResto] || '').trim();
@@ -3448,11 +3460,11 @@
         var idxArea = headers.indexOf('area') !== -1 ? headers.indexOf('area') : 2;
         var idxResto = headers.indexOf('restaurant name') !== -1 ? headers.indexOf('restaurant name') : 24;
         var idxStatus = headers.indexOf('status') !== -1 ? headers.indexOf('status') : 30;
-        var idxDiscType = headers.lastIndexOf('discount type') !== -1 ? headers.lastIndexOf('discount type') : (headers.indexOf('discount type') !== -1 ? headers.indexOf('discount type') : 78);
-        var idxDiscTypeFirst = headers.indexOf('discount type');
+        var idxServices = headers.indexOf('services');
+        // Colonne "Discount Type" (remise restaurant/admin, dernière occurrence si "discount type" coupon existe avant)
+        var idxDiscType = headers.lastIndexOf('discount type') !== -1 ? headers.lastIndexOf('discount type') : 78;
         var idxFoodCat = headers.indexOf('food category');
         var idxTags = headers.indexOf('tags');
-        var idxFoodItem = headers.indexOf('food item');
         var idxProvider = headers.indexOf('discount type provider') !== -1 ? headers.indexOf('discount type provider') : 90;
         var idxCommercial = headers.indexOf('commercial');
         var idxOrderIdOff = headers.indexOf('order id');
@@ -3479,37 +3491,39 @@
             ? String(row[idxResto]).trim()
             : '';
           if (!rawResto) continue;
+          var rKey = rawResto.toLowerCase();
+
+          var srv = (idxServices !== -1 && idxServices < row.length && row[idxServices] !== null)
+            ? String(row[idxServices]).trim().toLowerCase()
+            : '';
+          if (srv.includes('market') || rKey.includes('mg market') || rKey.includes('market')) continue;
 
           var rawArea = (idxArea < row.length && row[idxArea] !== null && row[idxArea] !== undefined)
             ? String(row[idxArea]).trim()
             : '';
           if (!rawArea) {
-            var cfgA = state.amPortfolios[rawResto.toLowerCase()];
+            var cfgA = state.amPortfolios[rKey];
             rawArea = (cfgA && cfgA.ville) ? cfgA.ville : 'Non spécifié';
           }
 
-          var combinedPromoText = '';
-          if (idxFoodCat !== -1 && idxFoodCat < row.length && row[idxFoodCat]) combinedPromoText += ' ' + String(row[idxFoodCat]);
-          if (idxTags !== -1 && idxTags < row.length && row[idxTags]) combinedPromoText += ' ' + String(row[idxTags]);
-          if (idxFoodItem !== -1 && idxFoodItem < row.length && row[idxFoodItem]) combinedPromoText += ' ' + String(row[idxFoodItem]);
-          if (!combinedPromoText && 82 < row.length && row[82]) combinedPromoText = String(row[82]);
+          var combinedCatTags = '';
+          if (idxFoodCat !== -1 && idxFoodCat < row.length && row[idxFoodCat]) combinedCatTags += ' ' + String(row[idxFoodCat]);
+          if (idxTags !== -1 && idxTags < row.length && row[idxTags]) combinedCatTags += ' ' + String(row[idxTags]);
 
-          var col3 = regexBowlsSuperPromo.test(combinedPromoText) ? 1 : 0;
+          var isArticlePromo = regexBowlsSuperPromo.test(combinedCatTags) ? 1 : 0;
 
-          var valDiscType = '';
-          if (idxDiscType < row.length && row[idxDiscType]) valDiscType += ' ' + String(row[idxDiscType]);
-          if (idxDiscTypeFirst !== -1 && idxDiscTypeFirst !== idxDiscType && idxDiscTypeFirst < row.length && row[idxDiscTypeFirst]) {
-            valDiscType += ' ' + String(row[idxDiscTypeFirst]);
-          }
-          var col4 = regexPercentage.test(valDiscType) ? 1 : 0;
-
-          if (col3 !== 1 && col4 !== 1) continue;
+          var valDiscType = (idxDiscType < row.length && row[idxDiscType] !== null && row[idxDiscType] !== undefined)
+            ? String(row[idxDiscType])
+            : '';
+          var isPercentage = regexPercentage.test(valDiscType);
 
           var valProvider = (idxProvider < row.length && row[idxProvider] !== null && row[idxProvider] !== undefined)
             ? String(row[idxProvider])
             : '';
-          var col6 = regexAdmin.test(valProvider) ? 1 : 0;
-          var col7 = regexRestaurant.test(valProvider) ? 1 : 0;
+          var isPromoAdmin = (isPercentage && regexAdmin.test(valProvider)) ? 1 : 0;
+          var isPromoRestaurant = (isPercentage && regexRestaurant.test(valProvider)) ? 1 : 0;
+
+          if (isArticlePromo !== 1 && isPromoAdmin !== 1 && isPromoRestaurant !== 1) continue;
 
           var rawComm = (idxCommercial !== -1 && idxCommercial < row.length && row[idxCommercial] !== null)
             ? String(row[idxCommercial])
@@ -3531,9 +3545,9 @@
 
           var entry = groupedMap.get(groupKey);
           entry.totalOffres += 1;
-          entry.discountArticle += col3;
-          entry.promoAdmin += col6;
-          entry.promoRestaurant += col7;
+          entry.discountArticle += isArticlePromo;
+          entry.promoAdmin += isPromoAdmin;
+          entry.promoRestaurant += isPromoRestaurant;
         }
 
         return Array.from(groupedMap.values())
@@ -3688,6 +3702,45 @@
         state.maxAvailableDate = maxIso;
       }
 
+      function shiftIsoDateByDays(isoDate, deltaDays) {
+        if (!isoDate) return '';
+        var p = isoDate.split('-');
+        if (p.length !== 3) return isoDate;
+        var dt = new Date(Date.UTC(parseInt(p[0], 10), parseInt(p[1], 10) - 1, parseInt(p[2], 10) + deltaDays));
+        return dt.getUTCFullYear() + '-' + String(dt.getUTCMonth() + 1).padStart(2, '0') + '-' + String(dt.getUTCDate()).padStart(2, '0');
+      }
+
+      function parseTimeStrToSeconds(timeStr, defaultSec) {
+        if (!timeStr) return defaultSec;
+        var parts = String(timeStr).trim().split(':');
+        if (parts.length < 2) return defaultSec;
+        var h = parseInt(parts[0], 10);
+        var m = parseInt(parts[1], 10);
+        var s = parts.length >= 3 ? parseInt(parts[2], 10) : 0;
+        if (isNaN(h) || isNaN(m)) return defaultSec;
+        return h * 3600 + m * 60 + (isNaN(s) ? 0 : s);
+      }
+
+      function getOperationalIsoDate(calendarIso, orderTimeVal) {
+        if (!calendarIso) return '';
+        var startSec = parseTimeStrToSeconds(state.timeStart || '09:00', 9 * 3600);
+        var endNextDaySec = parseTimeStrToSeconds(state.timeEndNextDay || '01:00', 1 * 3600);
+        var tObj = extraireObjetHeureNormalise(orderTimeVal);
+        if (!tObj) return calendarIso;
+
+        var secOfDay = tObj.getHours() * 3600 + tObj.getMinutes() * 60 + tObj.getSeconds();
+        // Entre minuit (00:00:00) et 01:00:00 -> appartient à la journée opérationnelle de la veille (J-1)
+        if (secOfDay <= endNextDaySec) {
+          return shiftIsoDateByDays(calendarIso, -1);
+        }
+        // Entre 01:00:01 et 08:59:59 -> hors plage opérationnelle 09:00 -> 01:00
+        if (secOfDay < startSec) {
+          return '';
+        }
+        // À partir de 09:00:00 jusqu'à 23:59:59 -> journée opérationnelle du jour même (J)
+        return calendarIso;
+      }
+
       function obtenirSourceAoaFiltreeParDate() {
         var aoa = state.rawSourceRows;
         if (!aoa || aoa.length < 2) return aoa;
@@ -3699,16 +3752,20 @@
         var idxOrderDay = headers.indexOf('order day');
         if (idxOrderDay === -1) idxOrderDay = headers.indexOf('delivered day');
         if (idxOrderDay === -1) return aoa;
+        var idxOrderTime = headers.indexOf('order time');
+        var idxOidFilter = headers.indexOf('order id');
 
         var filtered = [aoa[0]];
         for (var r = 1; r < aoa.length; r++) {
           var row = aoa[r];
           if (!row) continue;
-          if (typeof idxOidCheck !== 'undefined' && idxOidCheck !== -1 && !estOrderIdYaf(row[idxOidCheck])) continue;
-          var iso = parseOrderDayToIsoDate(row[idxOrderDay]);
-          if (!iso) continue;
-          if (dStart && iso < dStart) continue;
-          if (dEnd && iso > dEnd) continue;
+          if (idxOidFilter !== -1 && !estOrderIdYaf(row[idxOidFilter])) continue;
+          var calIso = parseOrderDayToIsoDate(row[idxOrderDay]);
+          if (!calIso) continue;
+          var opIso = idxOrderTime !== -1 ? getOperationalIsoDate(calIso, row[idxOrderTime]) : calIso;
+          if (!opIso) continue;
+          if (dStart && opIso < dStart) continue;
+          if (dEnd && opIso > dEnd) continue;
           filtered.push(row);
         }
         return filtered;
@@ -3873,10 +3930,14 @@
       window.yassirOnDateRangeChange = function () {
         var inpStart = document.getElementById('filterDateStart');
         var inpEnd = document.getElementById('filterDateEnd');
+        var inpTStart = document.getElementById('filterTimeStart');
+        var inpTEnd = document.getElementById('filterTimeEndNextDay');
         var selW = document.getElementById('filterWeekSelect');
         if (selW) selW.value = '';
         state.dateStart = inpStart ? inpStart.value : '';
         state.dateEnd = inpEnd ? inpEnd.value : '';
+        if (inpTStart && inpTStart.value) state.timeStart = inpTStart.value;
+        if (inpTEnd && inpTEnd.value) state.timeEndNextDay = inpTEnd.value;
         updateDatePresetButtonsUI('');
         executerTraitementMetier();
       };
@@ -7098,7 +7159,7 @@
         var scopeSelect = document.getElementById('globalAnalysisServiceScope');
         if (!tbody) return;
 
-        var aoa = state.rawSourceRows;
+        var aoa = obtenirSourceAoaFiltreeParDate();
         if (!aoa || aoa.length < 2) {
           if (emptyEl) emptyEl.classList.remove('hidden');
           if (wrapEl) wrapEl.classList.add('hidden');
@@ -7115,6 +7176,7 @@
 
         var headers = aoa[0].map(function (h) { return h !== null && h !== undefined ? String(h).trim().toLowerCase() : ''; });
         var idxOrderDay = headers.indexOf('order day') !== -1 ? headers.indexOf('order day') : headers.indexOf('delivered day');
+        var idxOrderTimeGa = headers.indexOf('order time');
         var idxStatus = headers.indexOf('status');
         var idxServices = headers.indexOf('services');
         var idxOidCheck = headers.indexOf('order id');
@@ -7137,7 +7199,8 @@
           if (!row) continue;
           if (typeof idxOidCheck !== 'undefined' && idxOidCheck !== -1 && !estOrderIdYaf(row[idxOidCheck])) continue;
 
-          var iso = idxOrderDay !== -1 ? parseOrderDayToIsoDate(row[idxOrderDay]) : '';
+          var calIsoGa = idxOrderDay !== -1 ? parseOrderDayToIsoDate(row[idxOrderDay]) : '';
+          var iso = (calIsoGa && idxOrderTimeGa !== -1) ? getOperationalIsoDate(calIsoGa, row[idxOrderTimeGa]) : calIsoGa;
           var wNum = findWeekNumForIsoDate(iso);
           if (wNum === -1) continue;
 
@@ -7321,6 +7384,7 @@
 
         var headers = aoa[0].map(function (h) { return h !== null && h !== undefined ? String(h).trim().toLowerCase() : ''; });
         var idxOrderDay = headers.indexOf('order day') !== -1 ? headers.indexOf('order day') : headers.indexOf('delivered day');
+        var idxOrderTimeRa = headers.indexOf('order time');
         var idxArea = headers.indexOf('area');
         var idxResto = headers.indexOf('restaurant name');
         var idxStatus = headers.indexOf('status');
@@ -7345,7 +7409,8 @@
           if (!row) continue;
           if (typeof idxOidCheck !== 'undefined' && idxOidCheck !== -1 && !estOrderIdYaf(row[idxOidCheck])) continue;
 
-          var iso = idxOrderDay !== -1 ? parseOrderDayToIsoDate(row[idxOrderDay]) : '';
+          var calIsoRa = idxOrderDay !== -1 ? parseOrderDayToIsoDate(row[idxOrderDay]) : '';
+          var iso = (calIsoRa && idxOrderTimeRa !== -1) ? getOperationalIsoDate(calIsoRa, row[idxOrderTimeRa]) : calIsoRa;
           var wNum = findWeekNumForIsoDate(iso);
           if (wNum === -1) continue;
 
@@ -7379,6 +7444,12 @@
           var rEntry = restoWeekMap.get(rKey);
           if (!rEntry.area && areaVal) rEntry.area = areaVal;
 
+          // Si un filtre de période précis (dateStart / dateEnd) est actif, filtrer la semaine cible sur cette plage exacte
+          var filterWeekFromBarCheck = state.dateStart ? findWeekNumForIsoDate(state.dateStart) : -1;
+          if (filterWeekFromBarCheck !== -1 && wNum === filterWeekFromBarCheck) {
+            if (state.dateStart && iso < state.dateStart) continue;
+            if (state.dateEnd && iso > state.dateEnd) continue;
+          }
           if (!rEntry.weeks.has(wNum)) {
             rEntry.weeks.set(wNum, { req: 0, deliv: 0, accResto: 0, promoResto: 0, cvm: 0, offersSet: new Set() });
           }
@@ -7418,10 +7489,13 @@
           return;
         }
 
+        var filterWeekFromBar = state.dateStart ? findWeekNumForIsoDate(state.dateStart) : -1;
         var prevSelectedWeek = parseInt(weekSel.value, 10);
-        var targetWeekNum = sortedAvailWeeks.indexOf(prevSelectedWeek) !== -1
-          ? prevSelectedWeek
-          : sortedAvailWeeks[sortedAvailWeeks.length - 1];
+        var targetWeekNum = (filterWeekFromBar !== -1 && sortedAvailWeeks.indexOf(filterWeekFromBar) !== -1)
+          ? filterWeekFromBar
+          : (sortedAvailWeeks.indexOf(prevSelectedWeek) !== -1
+              ? prevSelectedWeek
+              : sortedAvailWeeks[sortedAvailWeeks.length - 1]);
 
         weekSel.innerHTML = sortedAvailWeeks.map(function (wn) {
           var wMeta = YASSIR_WEEKS_CALENDAR.find(function (x) { return x.num === wn; });
