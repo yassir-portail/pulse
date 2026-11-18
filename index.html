@@ -571,8 +571,8 @@
 
             <button id="tabBtnSynthGlobal" type="button" data-tab="synth_global" onclick="window.yassirSwitchTab('synth_global')" class="hidden tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
               <i class="fa-solid fa-table-cells text-[#6C2BD9]"></i>
-              <span>Synthèse Globale (KPIs & Jours)</span>
-              <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-[#F3EBFF] text-[#6C2BD9] font-extrabold">Global</span>
+              <span>Synthèse Food (KPIs & Jours)</span>
+              <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-[#F3EBFF] text-[#6C2BD9] font-extrabold">Food Global</span>
             </button>
 
             <button type="button" data-tab="resto_analytics" onclick="window.yassirSwitchTab('resto_analytics')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
@@ -686,20 +686,20 @@
              RÉSERVÉ À : PROPRIO, OMAR BELDI, KARIM BEN RAHAL, AHMED MARROUKI (VUE GLOBALE)
              ====================================================================== -->
         <div id="panelSynthGlobal" class="hidden p-4 sm:p-5 space-y-6">
-          <div class="bg-[#F8F9FC] p-4 sm:p-5 rounded-2xl border border-purple-100 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
+          <div class="bg-[#F8F9FC] p-4 sm:p-5 rounded-2xl border border-purple-100 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4">
+            <div class="space-y-1.5">
               <div class="flex flex-wrap items-center gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#6C2BD9] text-white">Vue Globale Uniquement</span>
-                <h3 class="text-sm sm:text-base font-extrabold text-[#1A1A2E]">Synthèse Globale Exécutive (17 KPIs & Récapitulatif Lundi–Dimanche)</h3>
+                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-extrabold bg-[#6C2BD9] text-white">Food VF Uniquement (Hors Market) • Vue Globale</span>
+                <h3 class="text-sm sm:text-base font-extrabold text-[#1A1A2E]">Synthèse Globale Food (17 KPIs & Récapitulatif Lundi–Dimanche)</h3>
               </div>
-              <p class="text-xs text-slate-500 mt-1">
-                Calculé automatiquement sur l'ensemble du fichier <strong>Data exp (Vue Globale)</strong>. Accès réservé à <strong>Ahmed Marrouki</strong>, <strong>Karim Ben Rahal</strong>, <strong>Omar Beldi</strong> et au <strong>Propriétaire</strong>.
+              <p class="text-xs text-slate-500">
+                Calculé <strong>uniquement sur les commandes Food VF (<span id="synthFoodOnlyCountBadge">0</span> commandes)</strong>, sans inclure le Market. Réservé à <strong>Ahmed Marrouki</strong>, <strong>Karim Ben Rahal</strong>, <strong>Omar Beldi</strong> et au <strong>Propriétaire</strong>.
               </p>
             </div>
             <div class="flex flex-wrap items-center gap-2 shrink-0">
               <button id="btnExportSynthGlobalXlsx" type="button" onclick="window.yassirExportSynthGlobalExcel()" disabled class="inline-flex items-center gap-2 px-4 py-2.5 rounded-full text-xs font-extrabold bg-[#00BFA5] hover:bg-teal-500 disabled:bg-slate-200 disabled:text-slate-400 text-[#1A1A2E] shadow-sm transition cursor-pointer disabled:cursor-not-allowed">
                 <i class="fa-solid fa-file-excel"></i>
-                <span>Télécharger Synthèse Globale (.xlsx)</span>
+                <span>Télécharger Synthèse Food (.xlsx)</span>
               </button>
               <button id="btnExportSynthGlobalCsv" type="button" onclick="window.yassirExportSynthGlobalCsv()" disabled class="inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-full text-xs font-bold bg-white hover:bg-[#F3EBFF] disabled:bg-slate-100 disabled:text-slate-400 text-[#6C2BD9] border border-purple-200 transition cursor-pointer disabled:cursor-not-allowed">
                 <i class="fa-solid fa-download"></i>
@@ -1899,9 +1899,35 @@
       /* ========================================================================
          E2. MODULE SYNTHÈSE GLOBALE (17 KPIs ARRAYFORMULA + TABLEAU LUNDI-DIMANCHE)
          ======================================================================== */
+      function getStrictlyFoodRecords() {
+        var idxServices = TARGET_HEADERS.indexOf('services');
+        var idxResto = TARGET_HEADERS.indexOf('restaurant name');
+
+        // Filtrer strictement les commandes Food VF (exclure Market et tout autre service)
+        return state.foodRows.filter(function (rec) {
+          var srv = String(rec.cells[idxServices] || '').trim().toLowerCase();
+          var rName = String(rec.cells[idxResto] || '').trim().toLowerCase();
+          if (srv.includes('market') || rName.includes('mg market') || rName.includes('market')) {
+            return false;
+          }
+          if (srv.includes('express') || srv.includes('coursier') || srv.includes('courier') || srv.includes('last mile') || srv.includes('b2b')) {
+            return false;
+          }
+          return true;
+        });
+      }
+
       function calculerSyntheseGlobaleData() {
-        var allRecords = state.marketRows.concat(state.foodRows);
-        if (!allRecords || allRecords.length === 0) return null;
+        var allRecords = getStrictlyFoodRecords();
+        if (!allRecords || allRecords.length === 0) {
+          return {
+            empty: true,
+            foodCount: 0,
+            kpiRows: [],
+            dayStats: [],
+            totals: { req: 0, del: 0, gmv: 0 }
+          };
+        }
 
         var idxW_OrderId = TARGET_HEADERS.indexOf('order id');
         var idxAI_Resto = TARGET_HEADERS.indexOf('restaurant name');
@@ -2014,6 +2040,8 @@
         var totalDayGmv = dayStats.reduce(function (s, d) { return s + d.gmv; }, 0);
 
         return {
+          empty: false,
+          foodCount: allRecords.length,
           kpiRows: kpiRows,
           dayStats: dayStats,
           totals: { req: totalDayReq, del: totalDayDel, gmv: Number(totalDayGmv.toFixed(2)) }
@@ -2029,7 +2057,10 @@
         var daysBody = document.getElementById('synthGlobalDaysBody');
 
         var synth = calculerSyntheseGlobaleData();
-        if (!synth) {
+        var countBadge = document.getElementById('synthFoodOnlyCountBadge');
+        if (countBadge) countBadge.textContent = synth ? synth.foodCount : 0;
+
+        if (!synth || synth.empty) {
           if (emptyEl) emptyEl.classList.remove('hidden');
           if (gridEl) gridEl.classList.add('hidden');
           if (btnXlsx) btnXlsx.disabled = true;
@@ -2072,15 +2103,14 @@
         }
       }
 
-      window.yassirExportSynthGlobalExcel = function () {
-        if (!canSeeGlobalSynth() || getEffectiveAmFilter() !== 'ALL') return;
-        var synth = calculerSyntheseGlobaleData();
-        if (!synth) return;
-
-        var wb = XLSX.utils.book_new();
-
-        // Feuille 1 : Tableau combiné côte à côte (KPIs à gauche + Lundi-Dimanche à droite, identique aux captures)
+      function buildSynthSheetFromData(synth) {
         var combinedAoa = [];
+        if (!synth || synth.empty) {
+          combinedAoa.push(['Aucune commande dans cette catégorie', 0]);
+          var wsEmpty = XLSX.utils.aoa_to_sheet(combinedAoa);
+          wsEmpty['!cols'] = [{ wch: 36 }, { wch: 14 }];
+          return wsEmpty;
+        }
         var maxRows = Math.max(synth.kpiRows.length, synth.dayStats.length + 2);
         for (var i = 0; i < maxRows; i++) {
           var rowArr = ['', '', '', '', '', '', ''];
@@ -2107,20 +2137,28 @@
           }
           combinedAoa.push(rowArr);
         }
+        var ws = XLSX.utils.aoa_to_sheet(combinedAoa);
+        ws['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 4 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 16 }];
+        return ws;
+      }
 
-        var wsCombined = XLSX.utils.aoa_to_sheet(combinedAoa);
-        wsCombined['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 4 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 16 }];
-        XLSX.utils.book_append_sheet(wb, wsCombined, 'Synthèse Globale');
+      window.yassirExportSynthGlobalExcel = function () {
+        if (!canSeeGlobalSynth() || getEffectiveAmFilter() !== 'ALL') return;
+        var synthFood = calculerSyntheseGlobaleData();
+        if (!synthFood || synthFood.empty) return;
+
+        var wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, buildSynthSheetFromData(synthFood), 'Synthèse Food');
 
         var dateStr = new Date().toISOString().slice(0, 10);
-        XLSX.writeFile(wb, 'YASSIR_Synthese_Globale_' + dateStr + '.xlsx');
-        showToast('Fichier <strong>YASSIR_Synthese_Globale_' + dateStr + '.xlsx</strong> téléchargé.', 'success');
+        XLSX.writeFile(wb, 'YASSIR_Synthese_Food_' + dateStr + '.xlsx');
+        showToast('Fichier <strong>YASSIR_Synthese_Food_' + dateStr + '.xlsx</strong> téléchargé (commandes Food uniquement).', 'success');
       };
 
       window.yassirExportSynthGlobalCsv = function () {
         if (!canSeeGlobalSynth() || getEffectiveAmFilter() !== 'ALL') return;
         var synth = calculerSyntheseGlobaleData();
-        if (!synth) return;
+        if (!synth || synth.empty) return;
 
         var aoa = [['Indicateur', 'Valeur']];
         synth.kpiRows.forEach(function (r) { aoa.push([r.label, r.value]); });
@@ -3883,7 +3921,7 @@
         XLSX.utils.book_append_sheet(wb, construireFeuilleStat(filtrerParAmSelectionne(state.statRows)), 'Stat');
         if (activeFilter === 'ALL' && canSeeGlobalSynth()) {
           var synthData = calculerSyntheseGlobaleData();
-          if (synthData) {
+          if (synthData && !synthData.empty) {
             var sAoa = [['Indicateur', 'Valeur', '', 'Day', 'Req', 'Del', 'GMV']];
             var maxR = Math.max(synthData.kpiRows.length, synthData.dayStats.length + 1);
             for (var si = 0; si < maxR; si++) {
@@ -3907,7 +3945,7 @@
             }
             var wsSynth = XLSX.utils.aoa_to_sheet(sAoa);
             wsSynth['!cols'] = [{ wch: 28 }, { wch: 16 }, { wch: 4 }, { wch: 16 }, { wch: 12 }, { wch: 12 }, { wch: 16 }];
-            XLSX.utils.book_append_sheet(wb, wsSynth, 'Synthèse Globale');
+            XLSX.utils.book_append_sheet(wb, wsSynth, 'Synthèse Food');
           }
         }
         XLSX.utils.book_append_sheet(wb, construireFeuilleSyntheseAm(), 'Synthèse Portefeuilles AM');
