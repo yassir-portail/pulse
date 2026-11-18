@@ -394,7 +394,11 @@
                   Base de données (<code class="text-[11px] font-bold bg-[#F3EBFF] text-[#6C2BD9] px-2 py-0.5 rounded-md">Data exp</code>)
                 </h2>
               </div>
-              <div class="flex items-center gap-1.5">
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button id="btnSyncHistoricalSheets" type="button" onclick="window.yassirSyncHistoricalSheets(true)" class="inline-flex items-center gap-1 text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] hover:bg-teal-200 text-[#00897B] transition cursor-pointer" title="Charger et fusionner automatiquement les 5 mois (Mai, Juin, Juillet, Août, Septembre, Octobre) depuis Google Sheets">
+                  <i id="iconSyncHistSheets" class="fa-solid fa-cloud-arrow-down"></i>
+                  <span id="labelSyncHistSheets">Sync Mai–Oct</span>
+                </button>
                 <span id="badgeIndexedDbSaved" class="hidden text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#F3EBFF] text-[#6C2BD9]" title="Sauvegardé automatiquement dans le stockage IndexedDB du navigateur">
                   <i class="fa-solid fa-database mr-1 text-[#00BFA5]"></i>Enregistré
                 </span>
@@ -4919,7 +4923,15 @@
         ],
         COMMISSIONS_SHEET_ID: '1XTn0zJ6oMGE3oFTxvMglVoL5hWub9lMizlHRoBnhx3Q',
         COMMISSIONS_TAB: 'Restaurant par facture',
-        COMMISSIONS_GID: '1643627186'
+        COMMISSIONS_GID: '1643627186',
+        HISTORICAL_MONTHS: [
+          { label: 'Mai (Google Sheets)', sheetId: '1pycvV8SMxpOrQsRfz969KYDTiXOGlY5XORv6efx0JXg', gid: '0', tab: 'Data exp' },
+          { label: 'Juin (Google Sheets)', sheetId: '1waCVgZNvHstpuee87_jBelN-LiUfl9wU1QS0JxJpAo4', gid: '0', tab: 'Data exp' },
+          { label: 'Juillet (Google Sheets)', sheetId: '1r0bxY1DI5rxnw2KGzpN-jmjckv_ZkWfRl9H2Fsz1WWo', gid: '0', tab: 'Data exp' },
+          { label: 'Août (Google Sheets)', sheetId: '1Q1O7zPHjGOi8uPQMQhe2RkVRHXwDSF_bOL-ljgdtxpA', gid: '0', tab: 'Data exp' },
+          { label: 'Septembre (Google Sheets)', sheetId: '1JbYUhX2Sq2Wx5YARhc40Ps7X_6C8VaIdJj7SuZbobqI', gid: '579637184', tab: 'Data exp' },
+          { label: 'Octobre (Google Sheets)', sheetId: '1-xENUB2sIzTGXRhszXur_Z5PVb5Hldh8FSivYZmkzqs', gid: '0', tab: 'Data exp' }
+        ]
       };
 
       function parseCsvLineSimple(line, sep) {
@@ -5094,6 +5106,133 @@
         }
         return count;
       }
+
+
+      function fetchGoogleSheetByGidSmart(sheetId, gid, fallbackTab) {
+        var csvUrl = 'https://docs.google.com/spreadsheets/d/' + encodeURIComponent(sheetId) +
+                     '/gviz/tq?tqx=out:csv&gid=' + encodeURIComponent(gid) + '&_t=' + Date.now();
+
+        return fetch(csvUrl, { cache: 'no-store' })
+          .then(function (resp) {
+            if (!resp.ok) throw new Error('HTTP ' + resp.status);
+            return resp.text();
+          })
+          .then(function (txt) {
+            if (txt.trim().toLowerCase().startsWith('<!doctype html') || txt.trim().toLowerCase().startsWith('<html')) {
+              throw new Error('HTML login page');
+            }
+            var rows = parseCsvTextToRows(txt);
+            if (!rows || rows.length < 2) throw new Error('Empty CSV');
+            return rows;
+          })
+          .catch(function () {
+            return fetchGoogleSheetJsonp(sheetId, gid, true);
+          })
+          .catch(function () {
+            if (fallbackTab) {
+              return fetchGoogleSheetJsonp(sheetId, fallbackTab, false);
+            }
+            throw new Error('All gid fallbacks failed');
+          });
+      }
+
+      window.yassirSyncHistoricalSheets = function (manualTrigger) {
+        var icon = document.getElementById('iconSyncHistSheets');
+        var label = document.getElementById('labelSyncHistSheets');
+        if (icon) {
+          icon.className = 'fa-solid fa-arrows-rotate fa-spin';
+        }
+        if (label) label.textContent = 'Chargement Mai–Oct...';
+
+        if (manualTrigger) {
+          showToast('Synchronisation des 6 mois historiques (<strong>Mai, Juin, Juillet, Août, Septembre</strong>) depuis Google Sheets...', 'info');
+        }
+
+        var promises = LIVE_SHEETS_CONFIG.HISTORICAL_MONTHS.map(function (mCfg) {
+          return fetchGoogleSheetByGidSmart(mCfg.sheetId, mCfg.gid, mCfg.tab)
+            .then(function (rows) {
+              return { label: mCfg.label, rows: rows, ok: true };
+            })
+            .catch(function (err) {
+              return { label: mCfg.label, rows: [], ok: false, error: err && err.message ? err.message : 'Erreur' };
+            });
+        });
+
+        Promise.all(promises).then(function (results) {
+          var loadedMonths = [];
+          var failedMonths = [];
+          var totalAddedRows = 0;
+
+          results.forEach(function (res) {
+            if (res.ok && res.rows && res.rows.length > 1) {
+              // Si ce mois est déjà présent dans storedFilesMeta, on le met à jour proprement
+              var existingIdx = state.storedFilesMeta.findIndex(function (m) { return m.name === res.label; });
+              if (existingIdx !== -1 && state.rawSourceRows && state.rawSourceRows.length > 1) {
+                var cleanedRows = [state.rawSourceRows[0]];
+                for (var r = 1; r < state.rawSourceRows.length; r++) {
+                  var row = state.rawSourceRows[r];
+                  if (row.__fileSourceIdx === existingIdx) continue;
+                  if (typeof row.__fileSourceIdx === 'number' && row.__fileSourceIdx > existingIdx) {
+                    row.__fileSourceIdx = row.__fileSourceIdx - 1;
+                  }
+                  cleanedRows.push(row);
+                }
+                state.rawSourceRows = cleanedRows;
+                state.storedFilesMeta.splice(existingIdx, 1);
+              }
+
+              var added = fusionnerNouveauFichierDansArchive(res.label, res.rows);
+              totalAddedRows += added;
+              loadedMonths.push(res.label.replace(' (Google Sheets)', '') + ' (' + (res.rows.length - 1) + ')');
+            } else {
+              failedMonths.push(res.label.replace(' (Google Sheets)', ''));
+            }
+          });
+
+          if (icon) {
+            icon.className = 'fa-solid fa-cloud-arrow-down';
+          }
+
+          if (loadedMonths.length > 0) {
+            detecterBornesDatesSource(state.rawSourceRows);
+            updateDatePresetButtonsUI(state.dateStart || state.dateEnd ? '' : 'ALL');
+
+            var totalRowsInBase = Math.max(0, state.rawSourceRows.length - 1);
+            var nbFiles = state.storedFilesMeta.length;
+            document.getElementById('mainFileName').textContent = nbFiles + ' source(s) • ' + totalRowsInBase.toLocaleString('fr-FR') + ' commandes';
+            document.getElementById('mainFileName').title = state.storedFilesMeta.map(function (m) { return m.name; }).join(', ');
+            document.getElementById('mainFileSub').textContent = state.minAvailableDate && state.maxAvailableDate
+              ? ('Période globale : ' + state.minAvailableDate + ' → ' + state.maxAvailableDate)
+              : 'Base cloud synchronisée';
+            document.getElementById('badgeSourceStatus').textContent = nbFiles + ' source(s)';
+            document.getElementById('badgeSourceStatus').className = 'text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#E0F7F4] text-[#00897B]';
+            document.getElementById('btnResetAll').classList.remove('hidden');
+
+            if (label) label.textContent = 'Mai–Oct OK (' + loadedMonths.length + '/6)';
+
+            saveArchiveToIndexedDb();
+            executerTraitementMetier();
+
+            if (manualTrigger || totalAddedRows > 0) {
+              var msg = '<strong>Historique Google Sheets synchronisé !</strong><br/>' +
+                        '• Mois chargés : <strong>' + escapeHtml(loadedMonths.join(', ')) + '</strong>.<br/>' +
+                        '• Base totale : <strong>' + totalRowsInBase.toLocaleString('fr-FR') + '</strong> commandes.';
+              if (failedMonths.length > 0) {
+                msg += '<br/><span class="text-[#FF2A6D]">Non accessibles (vérifier partage « Lecteur ») : ' + escapeHtml(failedMonths.join(', ')) + '</span>';
+              }
+              showToast(msg, 'success');
+            }
+          } else {
+            if (label) label.textContent = 'Sync Mai–Oct';
+            if (manualTrigger) {
+              showToast(
+                'Impossible de lire les 6 feuilles Google Sheets. Vérifiez que chaque feuille (Mai, Juin, Juillet, Août, Septembre, Octobre) est partagée en <strong>« Tous les utilisateurs disposant du lien : Lecteur »</strong>.',
+                'error'
+              );
+            }
+          }
+        });
+      };
 
       window.yassirSyncAllFromGoogleSheets = function (manualTrigger) {
         if (manualTrigger && !isOwnerAdmin()) return;
@@ -5799,8 +5938,9 @@
           }
         });
 
-        // Synchronisation automatique en direct avec Google Sheets au démarrage
+        // Synchronisation automatique en direct avec Google Sheets (Portefeuilles, Commissions & Historique Mai–Septembre)
         window.yassirSyncAllFromGoogleSheets(false);
+        window.yassirSyncHistoricalSheets(false);
       }
 
       if (document.readyState === 'loading') {
