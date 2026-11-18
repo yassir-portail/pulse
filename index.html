@@ -696,6 +696,65 @@
                 <label for="filterDateEnd" class="text-[11px] font-bold text-slate-500">Au</label>
                 <input id="filterDateEnd" type="date" onchange="window.yassirOnDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
               </div>
+              <div class="flex items-center gap-1.5 bg-[#F3EBFF] px-3 py-1 rounded-full border border-purple-300">
+                <i class="fa-solid fa-calendar-week text-[#6C2BD9] text-[11px]"></i>
+                <select id="filterWeekSelect" onchange="window.yassirOnWeekSelectChange(this.value)" aria-label="Filtrer par semaine" class="text-xs font-extrabold text-[#6C2BD9] bg-transparent focus:outline-none cursor-pointer">
+                  <option value="">Toutes les semaines</option>
+                  <option value="2025-12-29|2026-01-04|Semaine 01">Semaine 01 (29 déc. 2025 → 4 janv. 2026)</option>
+                  <option value="2026-01-05|2026-01-11|Semaine 02">Semaine 02 (5 janv. 2026 → 11 janv. 2026)</option>
+                  <option value="2026-01-12|2026-01-18|Semaine 03">Semaine 03 (12 janv. 2026 → 18 janv. 2026)</option>
+                  <option value="2026-01-19|2026-01-25|Semaine 04">Semaine 04 (19 janv. 2026 → 25 janv. 2026)</option>
+                  <option value="2026-01-26|2026-02-01|Semaine 05">Semaine 05 (26 janv. 2026 → 1 févr. 2026)</option>
+                  <option value="2026-02-02|2026-02-08|Semaine 06">Semaine 06 (2 févr. 2026 → 8 févr. 2026)</option>
+                  <option value="2026-02-09|2026-02-15|Semaine 07">Semaine 07 (9 févr. 2026 → 15 févr. 2026)</option>
+                  <option value="2026-02-16|2026-02-22|Semaine 08">Semaine 08 (16 févr. 2026 → 22 févr. 2026)</option>
+                  <option value="2026-02-23|2026-03-01|Semaine 09">Semaine 09 (23 févr. 2026 → 1 mars 2026)</option>
+                  <option value="2026-03-02|2026-03-08|Semaine 10">Semaine 10 (2 mars 2026 → 8 mars 2026)</option>
+                  <option value="2026-03-09|2026-03-15|Semaine 11">Semaine 11 (9 mars 2026 → 15 mars 2026)</option>
+                  <option value="2026-03-16|2026-03-22|Semaine 12">Semaine 12 (16 mars 2026 → 22 mars 2026)</option>
+                  <option value="2026-03-23|2026-03-29|Semaine 13">Semaine 13 (23 mars 2026 → 29 mars 2026)</option>
+                  <option value="2026-03-30|2026-04-05|Semaine 14">Semaine 14 (30 mars 2026 → 5 avr. 2026)</option>
+                  <option value="2026-04-06|2026-04-12|Semaine 15">Semaine 15 (6 avr. 2026 → 12 avr. 2026)</option>
+                  <option value="2026-04-13|2026-04-19|Semaine 16">Semaine 16 (13 avr. 2026 → 19 avr. 2026)</option>
+                  <option value="2026-04-20|2026-04-26|Semaine 17">Semaine 17 (20 avr. 2026 → 26 avr. 2026)</option>
+                  <option value="2026-04-27|2026-05-03|Semaine 18">Semaine 18 (27 avr. 2026 → 3 mai 2026)</option>
+                  <option value="2026-05-04|2026-05-10|Semaine 19">Semaine 19 (4 mai 2026 → 10 mai 2026)</option>
+                  <option value="2026-05-11|2026-05-17|Semaine 20">Semaine 20 (11 mai 2026 → 17 mai 2026)</option>
+                  <option value="2026-05-18|2026-05-24|Semaine 21">Semaine 21 (18 mai 2026 → 24 mai 2026)</option>
+                  <option value="2026-05-25|2026-05-31|Semaine 22">Semaine 22 (25 mai 2026 → 31 mai 2026)</option>
+                  <option value="2026-06-01|2026-06-07|Semaine 23">Semaine 23 (1 juin 2026 → 7 juin 2026)</option>
+                  <option value="2026-06-08|2026-06-14|Semaine 24">Semaine 24 (8 juin 2026 → 14 juin 2026)</option>
+                  <option value="2026-06-15|2026-06-21|Semaine 25">Semaine 25 (15 juin 2026 → 21 juin 2026)</option>
+                  <option value="2026-06-22|2026-06-28|Semaine 26">Semaine 26 (22 juin 2026 → 28 juin 2026)</option>
+                  <option value="2026-06-29|2026-07-05|Semaine 27">Semaine 27 (29 juin 2026 → 5 juil. 2026)</option>
+                  <option value="2026-07-06|2026-07-12|Semaine 28">Semaine 28 (6 juil. 2026 → 12 juil. 2026)</option>
+                  <option value="2026-07-13|2026-07-19|Semaine 29">Semaine 29 (13 juil. 2026 → 19 juil. 2026)</option>
+                  <option value="2026-07-20|2026-07-26|Semaine 30">Semaine 30 (20 juil. 2026 → 26 juil. 2026)</option>
+                  <option value="2026-07-27|2026-08-02|Semaine 31">Semaine 31 (27 juil. 2026 → 2 août 2026)</option>
+                  <option value="2026-08-03|2026-08-09|Semaine 32">Semaine 32 (3 août 2026 → 9 août 2026)</option>
+                  <option value="2026-08-10|2026-08-16|Semaine 33">Semaine 33 (10 août 2026 → 16 août 2026)</option>
+                  <option value="2026-08-17|2026-08-23|Semaine 34">Semaine 34 (17 août 2026 → 23 août 2026)</option>
+                  <option value="2026-08-24|2026-08-30|Semaine 35">Semaine 35 (24 août 2026 → 30 août 2026)</option>
+                  <option value="2026-08-31|2026-09-06|Semaine 36">Semaine 36 (31 août 2026 → 6 sept. 2026)</option>
+                  <option value="2026-09-07|2026-09-13|Semaine 37">Semaine 37 (7 sept. 2026 → 13 sept. 2026)</option>
+                  <option value="2026-09-14|2026-09-20|Semaine 38">Semaine 38 (14 sept. 2026 → 20 sept. 2026)</option>
+                  <option value="2026-09-21|2026-09-27|Semaine 39">Semaine 39 (21 sept. 2026 → 27 sept. 2026)</option>
+                  <option value="2026-09-28|2026-10-04|Semaine 40">Semaine 40 (28 sept. 2026 → 4 oct. 2026)</option>
+                  <option value="2026-10-05|2026-10-11|Semaine 41">Semaine 41 (5 oct. 2026 → 11 oct. 2026)</option>
+                  <option value="2026-10-12|2026-10-18|Semaine 42">Semaine 42 (12 oct. 2026 → 18 oct. 2026)</option>
+                  <option value="2026-10-19|2026-10-25|Semaine 43">Semaine 43 (19 oct. 2026 → 25 oct. 2026)</option>
+                  <option value="2026-10-26|2026-11-01|Semaine 44">Semaine 44 (26 oct. 2026 → 1 nov. 2026)</option>
+                  <option value="2026-11-02|2026-11-08|Semaine 45">Semaine 45 (2 nov. 2026 → 8 nov. 2026)</option>
+                  <option value="2026-11-09|2026-11-15|Semaine 46">Semaine 46 (9 nov. 2026 → 15 nov. 2026)</option>
+                  <option value="2026-11-16|2026-11-22|Semaine 47">Semaine 47 (16 nov. 2026 → 22 nov. 2026)</option>
+                  <option value="2026-11-23|2026-11-29|Semaine 48">Semaine 48 (23 nov. 2026 → 29 nov. 2026)</option>
+                  <option value="2026-11-30|2026-12-06|Semaine 49">Semaine 49 (30 nov. 2026 → 6 déc. 2026)</option>
+                  <option value="2026-12-07|2026-12-13|Semaine 50">Semaine 50 (7 déc. 2026 → 13 déc. 2026)</option>
+                  <option value="2026-12-14|2026-12-20|Semaine 51">Semaine 51 (14 déc. 2026 → 20 déc. 2026)</option>
+                  <option value="2026-12-21|2026-12-27|Semaine 52">Semaine 52 (21 déc. 2026 → 27 déc. 2026)</option>
+                  <option value="2026-12-28|2027-01-03|Semaine 53">Semaine 53 (28 déc. 2026 → 3 janv. 2027)</option>
+                </select>
+              </div>
               <span id="dateRangeBoundsHint" class="text-[11px] text-slate-400 font-medium"></span>
             </div>
 
@@ -732,6 +791,65 @@
               <div class="flex items-center gap-1.5 bg-white px-3 py-1 rounded-full border border-pink-200">
                 <label for="filterPrevDateEnd" class="text-[11px] font-bold text-slate-500">Au</label>
                 <input id="filterPrevDateEnd" type="date" onchange="window.yassirOnPrevDateRangeChange()" class="text-xs font-bold text-[#1A1A2E] bg-transparent focus:outline-none cursor-pointer" />
+              </div>
+              <div class="flex items-center gap-1.5 bg-white px-3 py-1 rounded-full border border-pink-300">
+                <i class="fa-solid fa-calendar-week text-[#FF2A6D] text-[11px]"></i>
+                <select id="filterPrevWeekSelect" onchange="window.yassirOnPrevWeekSelectChange(this.value)" aria-label="Filtrer Data préc par semaine" class="text-xs font-extrabold text-[#FF2A6D] bg-transparent focus:outline-none cursor-pointer">
+                  <option value="">Semaine précédente...</option>
+                  <option value="2025-12-29|2026-01-04|Semaine 01">Semaine 01 (29 déc. 2025 → 4 janv. 2026)</option>
+                  <option value="2026-01-05|2026-01-11|Semaine 02">Semaine 02 (5 janv. 2026 → 11 janv. 2026)</option>
+                  <option value="2026-01-12|2026-01-18|Semaine 03">Semaine 03 (12 janv. 2026 → 18 janv. 2026)</option>
+                  <option value="2026-01-19|2026-01-25|Semaine 04">Semaine 04 (19 janv. 2026 → 25 janv. 2026)</option>
+                  <option value="2026-01-26|2026-02-01|Semaine 05">Semaine 05 (26 janv. 2026 → 1 févr. 2026)</option>
+                  <option value="2026-02-02|2026-02-08|Semaine 06">Semaine 06 (2 févr. 2026 → 8 févr. 2026)</option>
+                  <option value="2026-02-09|2026-02-15|Semaine 07">Semaine 07 (9 févr. 2026 → 15 févr. 2026)</option>
+                  <option value="2026-02-16|2026-02-22|Semaine 08">Semaine 08 (16 févr. 2026 → 22 févr. 2026)</option>
+                  <option value="2026-02-23|2026-03-01|Semaine 09">Semaine 09 (23 févr. 2026 → 1 mars 2026)</option>
+                  <option value="2026-03-02|2026-03-08|Semaine 10">Semaine 10 (2 mars 2026 → 8 mars 2026)</option>
+                  <option value="2026-03-09|2026-03-15|Semaine 11">Semaine 11 (9 mars 2026 → 15 mars 2026)</option>
+                  <option value="2026-03-16|2026-03-22|Semaine 12">Semaine 12 (16 mars 2026 → 22 mars 2026)</option>
+                  <option value="2026-03-23|2026-03-29|Semaine 13">Semaine 13 (23 mars 2026 → 29 mars 2026)</option>
+                  <option value="2026-03-30|2026-04-05|Semaine 14">Semaine 14 (30 mars 2026 → 5 avr. 2026)</option>
+                  <option value="2026-04-06|2026-04-12|Semaine 15">Semaine 15 (6 avr. 2026 → 12 avr. 2026)</option>
+                  <option value="2026-04-13|2026-04-19|Semaine 16">Semaine 16 (13 avr. 2026 → 19 avr. 2026)</option>
+                  <option value="2026-04-20|2026-04-26|Semaine 17">Semaine 17 (20 avr. 2026 → 26 avr. 2026)</option>
+                  <option value="2026-04-27|2026-05-03|Semaine 18">Semaine 18 (27 avr. 2026 → 3 mai 2026)</option>
+                  <option value="2026-05-04|2026-05-10|Semaine 19">Semaine 19 (4 mai 2026 → 10 mai 2026)</option>
+                  <option value="2026-05-11|2026-05-17|Semaine 20">Semaine 20 (11 mai 2026 → 17 mai 2026)</option>
+                  <option value="2026-05-18|2026-05-24|Semaine 21">Semaine 21 (18 mai 2026 → 24 mai 2026)</option>
+                  <option value="2026-05-25|2026-05-31|Semaine 22">Semaine 22 (25 mai 2026 → 31 mai 2026)</option>
+                  <option value="2026-06-01|2026-06-07|Semaine 23">Semaine 23 (1 juin 2026 → 7 juin 2026)</option>
+                  <option value="2026-06-08|2026-06-14|Semaine 24">Semaine 24 (8 juin 2026 → 14 juin 2026)</option>
+                  <option value="2026-06-15|2026-06-21|Semaine 25">Semaine 25 (15 juin 2026 → 21 juin 2026)</option>
+                  <option value="2026-06-22|2026-06-28|Semaine 26">Semaine 26 (22 juin 2026 → 28 juin 2026)</option>
+                  <option value="2026-06-29|2026-07-05|Semaine 27">Semaine 27 (29 juin 2026 → 5 juil. 2026)</option>
+                  <option value="2026-07-06|2026-07-12|Semaine 28">Semaine 28 (6 juil. 2026 → 12 juil. 2026)</option>
+                  <option value="2026-07-13|2026-07-19|Semaine 29">Semaine 29 (13 juil. 2026 → 19 juil. 2026)</option>
+                  <option value="2026-07-20|2026-07-26|Semaine 30">Semaine 30 (20 juil. 2026 → 26 juil. 2026)</option>
+                  <option value="2026-07-27|2026-08-02|Semaine 31">Semaine 31 (27 juil. 2026 → 2 août 2026)</option>
+                  <option value="2026-08-03|2026-08-09|Semaine 32">Semaine 32 (3 août 2026 → 9 août 2026)</option>
+                  <option value="2026-08-10|2026-08-16|Semaine 33">Semaine 33 (10 août 2026 → 16 août 2026)</option>
+                  <option value="2026-08-17|2026-08-23|Semaine 34">Semaine 34 (17 août 2026 → 23 août 2026)</option>
+                  <option value="2026-08-24|2026-08-30|Semaine 35">Semaine 35 (24 août 2026 → 30 août 2026)</option>
+                  <option value="2026-08-31|2026-09-06|Semaine 36">Semaine 36 (31 août 2026 → 6 sept. 2026)</option>
+                  <option value="2026-09-07|2026-09-13|Semaine 37">Semaine 37 (7 sept. 2026 → 13 sept. 2026)</option>
+                  <option value="2026-09-14|2026-09-20|Semaine 38">Semaine 38 (14 sept. 2026 → 20 sept. 2026)</option>
+                  <option value="2026-09-21|2026-09-27|Semaine 39">Semaine 39 (21 sept. 2026 → 27 sept. 2026)</option>
+                  <option value="2026-09-28|2026-10-04|Semaine 40">Semaine 40 (28 sept. 2026 → 4 oct. 2026)</option>
+                  <option value="2026-10-05|2026-10-11|Semaine 41">Semaine 41 (5 oct. 2026 → 11 oct. 2026)</option>
+                  <option value="2026-10-12|2026-10-18|Semaine 42">Semaine 42 (12 oct. 2026 → 18 oct. 2026)</option>
+                  <option value="2026-10-19|2026-10-25|Semaine 43">Semaine 43 (19 oct. 2026 → 25 oct. 2026)</option>
+                  <option value="2026-10-26|2026-11-01|Semaine 44">Semaine 44 (26 oct. 2026 → 1 nov. 2026)</option>
+                  <option value="2026-11-02|2026-11-08|Semaine 45">Semaine 45 (2 nov. 2026 → 8 nov. 2026)</option>
+                  <option value="2026-11-09|2026-11-15|Semaine 46">Semaine 46 (9 nov. 2026 → 15 nov. 2026)</option>
+                  <option value="2026-11-16|2026-11-22|Semaine 47">Semaine 47 (16 nov. 2026 → 22 nov. 2026)</option>
+                  <option value="2026-11-23|2026-11-29|Semaine 48">Semaine 48 (23 nov. 2026 → 29 nov. 2026)</option>
+                  <option value="2026-11-30|2026-12-06|Semaine 49">Semaine 49 (30 nov. 2026 → 6 déc. 2026)</option>
+                  <option value="2026-12-07|2026-12-13|Semaine 50">Semaine 50 (7 déc. 2026 → 13 déc. 2026)</option>
+                  <option value="2026-12-14|2026-12-20|Semaine 51">Semaine 51 (14 déc. 2026 → 20 déc. 2026)</option>
+                  <option value="2026-12-21|2026-12-27|Semaine 52">Semaine 52 (21 déc. 2026 → 27 déc. 2026)</option>
+                  <option value="2026-12-28|2027-01-03|Semaine 53">Semaine 53 (28 déc. 2026 → 3 janv. 2027)</option>
+                </select>
               </div>
               <span id="prevDateBoundsHint" class="text-[11px] text-slate-500 font-medium"></span>
             </div>
@@ -3361,9 +3479,56 @@
         }
       }
 
+      window.yassirOnWeekSelectChange = function (val) {
+        var inpStart = document.getElementById('filterDateStart');
+        var inpEnd = document.getElementById('filterDateEnd');
+        if (!val) {
+          state.dateStart = '';
+          state.dateEnd = '';
+          if (inpStart) inpStart.value = state.minAvailableDate || '';
+          if (inpEnd) inpEnd.value = state.maxAvailableDate || '';
+          updateDatePresetButtonsUI('ALL');
+          executerTraitementMetier();
+          return;
+        }
+        var parts = val.split('|');
+        var wStart = parts[0] || '';
+        var wEnd = parts[1] || '';
+        var wLabel = parts[2] || '';
+        state.dateStart = wStart;
+        state.dateEnd = wEnd;
+        if (inpStart) inpStart.value = wStart;
+        if (inpEnd) inpEnd.value = wEnd;
+        updateDatePresetButtonsUI('');
+        executerTraitementMetier();
+        var filteredCount = Math.max(0, (obtenirSourceAoaFiltreeParDate() || []).length - 1);
+        showToast('<strong>' + escapeHtml(wLabel) + '</strong> (' + wStart + ' → ' + wEnd + ') : <strong>' + filteredCount.toLocaleString('fr-FR') + '</strong> commande(s) trouvée(s).', filteredCount > 0 ? 'success' : 'info');
+      };
+
+      window.yassirOnPrevWeekSelectChange = function (val) {
+        var inpS = document.getElementById('filterPrevDateStart');
+        var inpE = document.getElementById('filterPrevDateEnd');
+        if (!val) {
+          window.yassirResetPrevDateFilter();
+          return;
+        }
+        var parts = val.split('|');
+        state.prevDateStart = parts[0] || '';
+        state.prevDateEnd = parts[1] || '';
+        if (inpS) inpS.value = state.prevDateStart;
+        if (inpE) inpE.value = state.prevDateEnd;
+        if (state.activeTab === 'synth_global') {
+          renderSynthGlobalPanel();
+        } else if (canSeeGlobalSynth() && getEffectiveAmFilter() === 'ALL') {
+          window.yassirSwitchTab('synth_global');
+        }
+      };
+
       window.yassirOnPrevDateRangeChange = function () {
         var inpS = document.getElementById('filterPrevDateStart');
         var inpE = document.getElementById('filterPrevDateEnd');
+        var selPW = document.getElementById('filterPrevWeekSelect');
+        if (selPW) selPW.value = '';
         state.prevDateStart = inpS ? inpS.value : '';
         state.prevDateEnd = inpE ? inpE.value : '';
         if (state.activeTab === 'synth_global') {
@@ -3378,15 +3543,19 @@
         state.prevDateEnd = '';
         var inpS = document.getElementById('filterPrevDateStart');
         var inpE = document.getElementById('filterPrevDateEnd');
+        var selPW = document.getElementById('filterPrevWeekSelect');
         var hasDedicatedPrev = state.prevSourceRows && state.prevSourceRows.length > 1;
         if (inpS) inpS.value = hasDedicatedPrev ? (state.minPrevDate || '') : '';
         if (inpE) inpE.value = hasDedicatedPrev ? (state.maxPrevDate || '') : '';
+        if (selPW) selPW.value = '';
         if (state.activeTab === 'synth_global') renderSynthGlobalPanel();
       };
 
       window.yassirOnDateRangeChange = function () {
         var inpStart = document.getElementById('filterDateStart');
         var inpEnd = document.getElementById('filterDateEnd');
+        var selW = document.getElementById('filterWeekSelect');
+        if (selW) selW.value = '';
         state.dateStart = inpStart ? inpStart.value : '';
         state.dateEnd = inpEnd ? inpEnd.value : '';
         updateDatePresetButtonsUI('');
@@ -3414,6 +3583,8 @@
         if (!state.maxAvailableDate || !state.minAvailableDate) return;
         var inpStart = document.getElementById('filterDateStart');
         var inpEnd = document.getElementById('filterDateEnd');
+        var selW = document.getElementById('filterWeekSelect');
+        if (selW) selW.value = '';
 
         if (preset === 'ALL') {
           state.dateStart = '';
