@@ -4069,7 +4069,7 @@
                 ? '<span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-[#E0F7F4] text-[#00897B]">' + item.deliveredCount + '</span>'
                 : '<span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-rose-50 text-[#FF2A6D]">0</span>';
 
-              return '<tr onclick="window.yassirOnSelectRestoAnalytics('' + escapeHtml(item.key).replace(/'/g, "\'") + '')" class="cursor-pointer transition-colors ' +
+              return '<tr data-resto-key="' + escapeHtml(item.key) + '" onclick="window.yassirOnSelectRestoAnalytics(this.getAttribute(\'data-resto-key\'))" class="cursor-pointer transition-colors ' +
                 (isSelected ? 'bg-[#F3EBFF] font-bold' : 'hover:bg-[#F8F9FC]') + '">' +
                 '<td class="px-3.5 py-2 font-bold text-[#1A1A2E]">' + escapeHtml(item.name) + '</td>' +
                 '<td class="px-3.5 py-2"><span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#F3EBFF] text-[#6C2BD9]">' + escapeHtml(item.am) + '</span></td>' +
