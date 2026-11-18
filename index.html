@@ -33,6 +33,22 @@
       background: linear-gradient(135deg, #6C2BD9 0%, #5521B5 100%);
     }
 
+    .yassir-lmd-sidebar {
+      background: linear-gradient(180deg, #5B21B6 0%, #4C1D95 55%, #3B1378 100%);
+    }
+
+    .yassir-lmd-group-open {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      border-radius: 1rem;
+    }
+
+    .yassir-lmd-item-active {
+      background: rgba(255, 255, 255, 0.14);
+      color: #FFFFFF !important;
+      font-weight: 700;
+    }
+
     .yassir-login-bg {
       background: radial-gradient(circle at top right, #6C2BD9 0%, #1E0B36 62%, #130624 100%);
     }
@@ -306,14 +322,20 @@
   <!-- ==========================================================================
        4. APPLICATION PRINCIPALE (MASQUÉE TANT QUE NON CONNECTÉ)
        ========================================================================== -->
-  <div id="appWrapper" class="hidden flex-1 flex flex-col">
+  <div id="appWrapper" class="hidden flex-1 flex flex-col lg:flex-row min-h-screen w-full bg-[#F8F9FC]">
 
-    <!-- En-tête officiel Yassir -->
-    <header class="yassir-header-gradient text-white sticky top-0 z-30 shadow-lg shadow-[#6C2BD9]/20">
-      <div class="w-full px-3 sm:px-6 lg:px-8 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-        <div class="flex items-center gap-3.5">
-          <div class="shrink-0 flex items-center">
-            <svg class="h-9 w-auto" viewBox="0 0 250 74" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Yassir">
+    <!-- Backdrop mobile pour le menu latéral -->
+    <div id="lmdMobileBackdrop" onclick="window.yassirToggleMobileSidebar(false)" class="hidden fixed inset-0 z-40 bg-[#1E0B36]/60 backdrop-blur-xs lg:hidden"></div>
+
+    <!-- ======================================================================
+         MENU LATÉRAL GAUCHE YASSIR LMD MANAGEMENT SYSTEM (MODÈLE OFFICIEL)
+         ====================================================================== -->
+    <aside id="lmdSidebar" class="fixed inset-y-0 left-0 z-40 lg:sticky lg:top-0 lg:h-screen w-[275px] shrink-0 yassir-lmd-sidebar text-white flex flex-col justify-between transition-all duration-300 -translate-x-full lg:translate-x-0 shadow-2xl">
+      <div class="p-4 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+        <!-- Logo Yassir + Sous-titre + Bouton rétractable `<` -->
+        <div class="flex items-start justify-between gap-2 pt-1">
+          <div>
+            <svg class="h-8 w-auto" viewBox="0 0 250 74" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Yassir">
               <defs>
                 <linearGradient id="yassirRibbonShadowHeader" x1="22" y1="36" x2="36" y2="54" gradientUnits="userSpaceOnUse">
                   <stop offset="0%" stop-color="#9D174D" stop-opacity="0.55" />
@@ -331,55 +353,198 @@
               <rect x="189" y="25" width="13" height="39" rx="6.5" fill="#FFFFFF" />
               <path d="M222 32.5V25H209.5V64H222.5V45.5C222.5 39.2 226.4 36 232.5 36H237V24.2C230.5 24.2 225.2 27.1 222 32.5Z" fill="#FFFFFF" />
             </svg>
+            <p class="text-[11px] font-medium text-purple-200 mt-1 tracking-wide">VF Data & Offres System</p>
+          </div>
+          <button type="button" onclick="window.yassirToggleSidebarCollapse()" class="w-7 h-7 rounded-lg bg-white/10 hover:bg-white/20 text-white/90 flex items-center justify-center text-xs transition cursor-pointer shrink-0" title="Réduire / Agrandir le menu">
+            <i id="lmdSidebarCollapseIcon" class="fa-solid fa-chevron-left"></i>
+          </button>
+        </div>
+
+        <!-- Barre de recherche dans le menu (identique au modèle) -->
+        <div id="lmdSidebarSearchBox" class="relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-purple-200/75 text-xs"></i>
+          <input id="lmdSidebarSearchInput" type="text" oninput="window.yassirFilterSidebarMenu(this.value)" placeholder="Search..." class="w-full pl-9 pr-3 py-2 text-xs bg-white/10 border border-white/20 rounded-xl text-white placeholder-purple-200/70 focus:outline-none focus:ring-2 focus:ring-white/40 transition" />
+        </div>
+
+        <!-- Navigation en sections accordéon avec indicateurs radio (modèle Yassir LMD) -->
+        <nav id="lmdSidebarNav" class="space-y-1.5 text-xs select-none">
+
+          <!-- Section 1 : Order Management (Market VF, Food VF, Offres) -->
+          <div class="lmd-nav-group yassir-lmd-group-open p-1.5 transition-all" data-group="orders">
+            <button type="button" onclick="window.yassirToggleNavGroup('orders')" class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-white font-bold hover:bg-white/10 transition cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <i class="fa-solid fa-cart-shopping text-sm w-4 text-center text-purple-200"></i>
+                <span class="lmd-nav-label">Order Management</span>
+              </span>
+              <i class="lmd-group-chevron fa-solid fa-chevron-up text-[10px] text-purple-200 transition-transform"></i>
+            </button>
+            <div class="lmd-group-items mt-1 space-y-1 pl-1">
+              <button type="button" data-tab="market" onclick="window.yassirSwitchTab('market')" class="tab-btn active w-full flex items-center justify-between px-3 py-2 rounded-xl text-white/85 hover:bg-white/10 transition cursor-pointer yassir-lmd-item-active">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="fa-solid fa-basket-shopping text-xs w-4 text-center"></i>
+                  <span class="lmd-nav-label truncate">Market VF (<span id="tabCountMarket">0</span>)</span>
+                </span>
+                <span class="lmd-radio-dot w-4 h-4 rounded-full border-2 border-white flex items-center justify-center shrink-0">
+                  <span class="w-2 h-2 rounded-full bg-white"></span>
+                </span>
+              </button>
+
+              <button type="button" data-tab="food" onclick="window.yassirSwitchTab('food')" class="tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 transition cursor-pointer">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="fa-solid fa-utensils text-xs w-4 text-center"></i>
+                  <span class="lmd-nav-label truncate">Food VF (<span id="tabCountFood">0</span>)</span>
+                </span>
+                <span class="lmd-radio-dot w-4 h-4 rounded-full border border-white/45 flex items-center justify-center shrink-0"></span>
+              </button>
+
+              <button type="button" data-tab="offres" onclick="window.yassirSwitchTab('offres')" class="tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 transition cursor-pointer">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="fa-solid fa-tags text-xs w-4 text-center"></i>
+                  <span class="lmd-nav-label truncate">Offres (<span id="tabCountOffres">0</span>)</span>
+                </span>
+                <span class="lmd-radio-dot w-4 h-4 rounded-full border border-white/45 flex items-center justify-center shrink-0"></span>
+              </button>
+            </div>
           </div>
 
-          <div class="h-8 w-px bg-white/20 hidden sm:block"></div>
-
-          <div>
-            <div class="flex flex-wrap items-center gap-2">
-              <h1 class="text-sm sm:text-base font-extrabold tracking-tight text-white">Générateur VF Data & Offres</h1>
-              <span class="inline-flex items-center gap-1.5 px-3 py-0.5 rounded-full text-[11px] font-bold bg-white/15 text-white border border-white/25">
-                <i class="fa-solid fa-circle-user text-[#00BFA5]"></i>
-                <span id="headerUserBadge">proprio</span>
-                <span id="headerRoleBadge" class="ml-1 px-2 py-0.2 rounded-full text-[10px] bg-[#FF2A6D] text-white font-extrabold">Propriétaire</span>
+          <!-- Section 2 : Operation & Analytics (Stat Restaurants, Synthèse Food, Analyse Restaurant) -->
+          <div class="lmd-nav-group yassir-lmd-group-open p-1.5 transition-all" data-group="analytics">
+            <button type="button" onclick="window.yassirToggleNavGroup('analytics')" class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-white font-bold hover:bg-white/10 transition cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <i class="fa-solid fa-wave-square text-sm w-4 text-center text-purple-200"></i>
+                <span class="lmd-nav-label">Operation & Analytics</span>
               </span>
+              <i class="lmd-group-chevron fa-solid fa-chevron-up text-[10px] text-purple-200 transition-transform"></i>
+            </button>
+            <div class="lmd-group-items mt-1 space-y-1 pl-1">
+              <button type="button" data-tab="stat" onclick="window.yassirSwitchTab('stat')" class="tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 transition cursor-pointer">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="fa-solid fa-chart-column text-xs w-4 text-center"></i>
+                  <span class="lmd-nav-label truncate">Stat Restaurants (<span id="tabCountStat">0</span>)</span>
+                </span>
+                <span class="lmd-radio-dot w-4 h-4 rounded-full border border-white/45 flex items-center justify-center shrink-0"></span>
+              </button>
+
+              <button id="tabBtnSynthGlobal" type="button" data-tab="synth_global" onclick="window.yassirSwitchTab('synth_global')" class="hidden tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 transition cursor-pointer">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="fa-solid fa-table-cells text-xs w-4 text-center"></i>
+                  <span class="lmd-nav-label truncate">Synthèse Food & Var.</span>
+                </span>
+                <span class="lmd-radio-dot w-4 h-4 rounded-full border border-white/45 flex items-center justify-center shrink-0"></span>
+              </button>
+
+              <button type="button" data-tab="resto_analytics" onclick="window.yassirSwitchTab('resto_analytics')" class="tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 transition cursor-pointer">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="fa-solid fa-store text-xs w-4 text-center"></i>
+                  <span class="lmd-nav-label truncate">Analyse Restaurant</span>
+                </span>
+                <span class="lmd-radio-dot w-4 h-4 rounded-full border border-white/45 flex items-center justify-center shrink-0"></span>
+              </button>
             </div>
-            <p id="headerScopeSubtitle" class="text-[11px] text-purple-100/90 mt-0.5">Vue Propriétaire • Accès complet aux 7 Portefeuilles AM & Vue Globale</p>
+          </div>
+
+          <!-- Section 3 : Store & Finance Management (Portefeuilles AM, Commissions) -->
+          <div class="lmd-nav-group yassir-lmd-group-open p-1.5 transition-all" data-group="finance">
+            <button type="button" onclick="window.yassirToggleNavGroup('finance')" class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-white font-bold hover:bg-white/10 transition cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <i class="fa-solid fa-wallet text-sm w-4 text-center text-purple-200"></i>
+                <span class="lmd-nav-label">Finance & Portefeuilles</span>
+              </span>
+              <i class="lmd-group-chevron fa-solid fa-chevron-up text-[10px] text-purple-200 transition-transform"></i>
+            </button>
+            <div class="lmd-group-items mt-1 space-y-1 pl-1">
+              <button type="button" data-tab="portefeuilles" onclick="window.yassirSwitchTab('portefeuilles')" class="tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 transition cursor-pointer">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="fa-solid fa-briefcase text-xs w-4 text-center"></i>
+                  <span class="lmd-nav-label truncate"><span id="tabLabelPortefeuilles">Portefeuilles AM</span> (<span id="tabCountAm">546</span>)</span>
+                </span>
+                <span class="lmd-radio-dot w-4 h-4 rounded-full border border-white/45 flex items-center justify-center shrink-0"></span>
+              </button>
+
+              <button id="tabBtnCommissions" type="button" data-tab="commissions" onclick="window.yassirSwitchTab('commissions')" class="hidden tab-btn w-full flex items-center justify-between px-3 py-2 rounded-xl text-white/80 hover:bg-white/10 transition cursor-pointer">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="fa-solid fa-percent text-xs w-4 text-center"></i>
+                  <span class="lmd-nav-label truncate">Commissions (<span id="tabCountComm">213</span>)</span>
+                </span>
+                <span class="lmd-radio-dot w-4 h-4 rounded-full border border-white/45 flex items-center justify-center shrink-0"></span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Section 4 : System & Admin Settings (Gestion des accès, Sync Sheets) -->
+          <div id="lmdAdminSettingsGroup" class="lmd-nav-group p-1.5 transition-all" data-group="settings">
+            <button type="button" onclick="window.yassirToggleNavGroup('settings')" class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-white/90 font-bold hover:bg-white/10 transition cursor-pointer">
+              <span class="flex items-center gap-2.5">
+                <i class="fa-solid fa-gear text-sm w-4 text-center text-purple-200"></i>
+                <span class="lmd-nav-label">System Settings</span>
+              </span>
+              <i class="lmd-group-chevron fa-solid fa-chevron-down text-[10px] text-purple-200 transition-transform"></i>
+            </button>
+            <div class="lmd-group-items hidden mt-1 space-y-1 pl-1">
+              <button id="btnOpenAccessManager" type="button" onclick="window.yassirOpenAccessModal()" class="hidden w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-white/85 hover:bg-white/10 transition cursor-pointer">
+                <i class="fa-solid fa-user-shield text-xs w-4 text-center text-[#00BFA5]"></i>
+                <span class="lmd-nav-label truncate">Gestion des accès & AM</span>
+              </button>
+              <button id="btnSyncSheetsNow" type="button" onclick="window.yassirSyncAllFromGoogleSheets(true)" class="hidden w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-white/85 hover:bg-white/10 transition cursor-pointer">
+                <i id="iconSyncSheets" class="fa-solid fa-arrows-rotate text-xs w-4 text-center text-[#00BFA5]"></i>
+                <span id="labelSyncSheets" class="lmd-nav-label truncate">Sync Sheets Live</span>
+              </button>
+              <button type="button" onclick="window.yassirToggleFullscreen()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-white/85 hover:bg-white/10 transition cursor-pointer">
+                <i id="iconFullscreen" class="fa-solid fa-expand text-xs w-4 text-center text-[#00BFA5]"></i>
+                <span id="labelFullscreen" class="lmd-nav-label truncate">Plein écran</span>
+              </button>
+            </div>
+          </div>
+
+        </nav>
+      </div>
+
+      <!-- Pied du menu latéral : Profil connecté & Déconnexion -->
+      <div class="p-3.5 border-t border-white/15 bg-[#3B1378]/60 space-y-2.5">
+        <div class="flex items-center gap-2.5 min-w-0">
+          <div class="w-8 h-8 rounded-full bg-white/15 flex items-center justify-center text-[#00BFA5] shrink-0">
+            <i class="fa-solid fa-circle-user text-base"></i>
+          </div>
+          <div class="min-w-0 flex-1 lmd-nav-label">
+            <p id="headerUserBadge" class="text-xs font-extrabold text-white truncate">proprio</p>
+            <span id="headerRoleBadge" class="inline-block px-2 py-0.2 rounded-full text-[10px] bg-[#FF2A6D] text-white font-extrabold">Propriétaire</span>
+          </div>
+        </div>
+        <button id="btnLogout" type="button" onclick="window.yassirLogout()" class="w-full py-2 px-3 rounded-xl text-xs font-bold bg-[#FF2A6D] hover:bg-rose-600 text-white shadow-sm transition flex items-center justify-center gap-2 cursor-pointer">
+          <i class="fa-solid fa-right-from-bracket"></i>
+          <span class="lmd-nav-label">Déconnexion</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ======================================================================
+         ZONE DE CONTENU PRINCIPALE À DROITE DU MENU LATÉRAL
+         ====================================================================== -->
+    <div class="flex-1 flex flex-col min-w-0">
+
+      <!-- Barre supérieure compacte (Titre de vue + Bouton menu mobile + Actions rapides) -->
+      <header class="bg-white border-b border-purple-100 sticky top-0 z-20 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 shadow-xs">
+        <div class="flex items-center gap-3 min-w-0">
+          <button type="button" onclick="window.yassirToggleMobileSidebar(true)" class="lg:hidden w-9 h-9 rounded-xl bg-[#F3EBFF] text-[#6C2BD9] flex items-center justify-center cursor-pointer">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+          <div class="min-w-0">
+            <h1 class="text-sm sm:text-base font-extrabold text-[#1A1A2E] truncate">Générateur VF Data & Offres</h1>
+            <p id="headerScopeSubtitle" class="text-[11px] text-slate-500 truncate">Vue Propriétaire • Accès complet aux 7 Portefeuilles AM & Vue Globale</p>
           </div>
         </div>
 
         <div class="flex flex-wrap items-center gap-2">
-          <button id="btnToggleFullscreen" type="button" onclick="window.yassirToggleFullscreen()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-white/15 text-white hover:bg-white/25 border border-white/25 transition cursor-pointer" title="Afficher en plein écran">
-            <i id="iconFullscreen" class="fa-solid fa-expand text-[#00BFA5]"></i>
-            <span id="labelFullscreen">Plein écran</span>
-          </button>
-
-          <button id="btnSyncSheetsNow" type="button" onclick="window.yassirSyncAllFromGoogleSheets(true)" class="hidden inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-white/15 text-white hover:bg-white/25 border border-white/25 transition cursor-pointer" title="Synchroniser en direct avec Google Sheets (Portefeuilles AM & Commissions)">
-            <i id="iconSyncSheets" class="fa-solid fa-arrows-rotate text-[#00BFA5]"></i>
-            <span id="labelSyncSheets">Sync Sheets Live</span>
-          </button>
-
-          <button id="btnResetAll" type="button" onclick="window.yassirResetAll()" class="hidden inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-white/15 text-white hover:bg-white/25 border border-white/25 transition cursor-pointer">
+          <button id="btnResetAll" type="button" onclick="window.yassirResetAll()" style="display:none" class="hidden inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold bg-rose-50 text-[#FF2A6D] hover:bg-rose-100 border border-pink-200 transition cursor-pointer">
             <i class="fa-solid fa-rotate-left"></i>
             <span>Réinitialiser</span>
           </button>
-
-          <button id="btnOpenAccessManager" type="button" onclick="window.yassirOpenAccessModal()" class="hidden inline-flex items-center gap-1.5 px-4 py-2 rounded-full text-xs font-bold bg-[#00BFA5] hover:bg-teal-400 text-[#1A1A2E] shadow-sm transition cursor-pointer">
-            <i class="fa-solid fa-user-shield"></i>
-            <span>Gestion des accès & AM</span>
-          </button>
-
-          <button id="btnLogout" type="button" onclick="window.yassirLogout()" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full text-xs font-bold bg-[#FF2A6D] hover:bg-rose-600 text-white shadow-sm transition cursor-pointer">
-            <i class="fa-solid fa-right-from-bracket"></i>
-            <span>Déconnexion</span>
-          </button>
         </div>
-      </div>
-    </header>
+      </header>
 
-    <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4 sm:px-0"></div>
+      <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 max-w-md w-full pointer-events-none px-4 sm:px-0"></div>
 
-    <main class="flex-1 w-full px-3 sm:px-6 lg:px-8 py-6 space-y-6">
+      <main class="flex-1 w-full px-3 sm:px-6 lg:px-8 py-6 space-y-6">
 
       <!-- ========================================================================
            ZONES D'IMPORTATION (1 : DATA EXP | 2 : COMMISSIONS RESTAURANT PAR FACTURE)
@@ -636,55 +801,14 @@
            ======================================================================== -->
       <section class="bg-white rounded-3xl border border-purple-100 shadow-sm overflow-hidden">
         <div class="p-4 sm:p-5 border-b border-purple-100 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 bg-[#F8F9FC]">
-          <!-- 6 Onglets -->
-          <div class="flex flex-wrap items-center gap-2">
-            <button type="button" data-tab="market" onclick="window.yassirSwitchTab('market')" class="tab-btn active px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-[#6C2BD9] text-white shadow-sm shadow-[#6C2BD9]/25 cursor-pointer">
-              <i class="fa-solid fa-basket-shopping"></i>
-              <span>Market VF</span>
-              <span id="tabCountMarket" class="px-1.5 py-0.5 text-[11px] rounded-full bg-white/20 text-white">0</span>
-            </button>
-
-            <button type="button" data-tab="food" onclick="window.yassirSwitchTab('food')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
-              <i class="fa-solid fa-utensils text-[#FF2A6D]"></i>
-              <span>Food VF</span>
-              <span id="tabCountFood" class="px-1.5 py-0.5 text-[11px] rounded-full bg-[#F3EBFF] text-[#6C2BD9]">0</span>
-            </button>
-
-            <button type="button" data-tab="offres" onclick="window.yassirSwitchTab('offres')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
-              <i class="fa-solid fa-tags text-[#FF2A6D]"></i>
-              <span>Offres</span>
-              <span id="tabCountOffres" class="px-1.5 py-0.5 text-[11px] rounded-full bg-pink-100 text-[#FF2A6D]">0</span>
-            </button>
-
-            <button type="button" data-tab="stat" onclick="window.yassirSwitchTab('stat')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
-              <i class="fa-solid fa-chart-column text-[#00897B]"></i>
-              <span>Stat Restaurants</span>
-              <span id="tabCountStat" class="px-1.5 py-0.5 text-[11px] rounded-full bg-[#E0F7F4] text-[#00897B]">0</span>
-            </button>
-
-            <button id="tabBtnSynthGlobal" type="button" data-tab="synth_global" onclick="window.yassirSwitchTab('synth_global')" class="hidden tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
-              <i class="fa-solid fa-table-cells text-[#6C2BD9]"></i>
-              <span>Synthèse Food (KPIs & Jours)</span>
-              <span class="px-1.5 py-0.5 text-[10px] rounded-full bg-[#F3EBFF] text-[#6C2BD9] font-extrabold">Food Global</span>
-            </button>
-
-            <button type="button" data-tab="resto_analytics" onclick="window.yassirSwitchTab('resto_analytics')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
-              <i class="fa-solid fa-store text-[#FF2A6D]"></i>
-              <span>Analyse Restaurant</span>
-              <span id="tabBadgeRestoAnalytics" class="px-1.5 py-0.5 text-[11px] rounded-full bg-pink-100 text-[#FF2A6D]">Top Items & Courbe</span>
-            </button>
-
-            <button type="button" data-tab="portefeuilles" onclick="window.yassirSwitchTab('portefeuilles')" class="tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
-              <i class="fa-solid fa-briefcase text-[#6C2BD9]"></i>
-              <span id="tabLabelPortefeuilles">Portefeuilles AM</span>
-              <span id="tabCountAm" class="px-1.5 py-0.5 text-[11px] rounded-full bg-[#F3EBFF] text-[#6C2BD9]">546</span>
-            </button>
-
-            <button id="tabBtnCommissions" type="button" data-tab="commissions" onclick="window.yassirSwitchTab('commissions')" class="hidden tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer">
-              <i class="fa-solid fa-percent text-[#00897B]"></i>
-              <span>Commissions</span>
-              <span id="tabCountComm" class="px-1.5 py-0.5 text-[11px] rounded-full bg-[#E0F7F4] text-[#00897B]">213</span>
-            </button>
+          <div class="flex items-center gap-2.5">
+            <span class="w-8 h-8 rounded-xl bg-[#6C2BD9] text-white flex items-center justify-center text-xs shadow-sm">
+              <i id="activeSectionIcon" class="fa-solid fa-basket-shopping"></i>
+            </span>
+            <div>
+              <h2 id="activeSectionTitle" class="text-sm sm:text-base font-extrabold text-[#1A1A2E]">Market VF (109 colonnes)</h2>
+              <p id="activeSectionSubtitle" class="text-[11px] text-slate-500">Sélectionnez une vue dans le menu latéral Yassir ou exportez vos données</p>
+            </div>
           </div>
 
           <!-- 4 Boutons d'Exportation (incluant Export Stat) -->
@@ -1274,9 +1398,10 @@
       </section>
     </main>
 
-    <footer class="bg-white border-t border-purple-100 py-4 text-center text-xs text-slate-500">
-      <span class="font-extrabold text-[#6C2BD9]">Yassir</span> • Générateur VF Data & Offres — 109 colonnes, Export Stat, Commissions synchronisées & 7 Portefeuilles AM.
-    </footer>
+      <footer class="bg-white border-t border-purple-100 py-4 text-center text-xs text-slate-500 mt-auto">
+        <span class="font-extrabold text-[#6C2BD9]">Yassir</span> • LMD & VF Data Management System — 109 colonnes, Export Stat, Commissions synchronisées & 7 Portefeuilles AM.
+      </footer>
+    </div>
   </div>
 
   <!-- ==========================================================================
@@ -1674,6 +1799,7 @@
         if (btnReset) {
           if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) { btnReset.classList.remove('hidden'); btnReset.style.display = 'inline-flex'; } else { btnReset.classList.add('hidden'); btnReset.style.display = 'none'; }
         }
+        syncLmdSidebarActiveState(state.activeTab);
         mettreAJourInterface();
       }
 
@@ -3595,6 +3721,7 @@
         if (btnReset) {
           if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) { btnReset.classList.remove('hidden'); btnReset.style.display = 'inline-flex'; } else { btnReset.classList.add('hidden'); btnReset.style.display = 'none'; }
         }
+        syncLmdSidebarActiveState(state.activeTab);
         mettreAJourInterface();
       }
 
@@ -3703,6 +3830,7 @@
         if (btnReset) {
           if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) { btnReset.classList.remove('hidden'); btnReset.style.display = 'inline-flex'; } else { btnReset.classList.add('hidden'); btnReset.style.display = 'none'; }
         }
+        syncLmdSidebarActiveState(state.activeTab);
         mettreAJourInterface();
       };
 
@@ -3759,12 +3887,7 @@
             tabBtnSynth.classList.add('hidden');
             if (state.activeTab === 'synth_global') {
               state.activeTab = 'market';
-              document.querySelectorAll('.tab-btn').forEach(function (btn) {
-                var isM = btn.getAttribute('data-tab') === 'market';
-                btn.className = isM
-                  ? 'tab-btn active px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-[#6C2BD9] text-white shadow-sm shadow-[#6C2BD9]/25 cursor-pointer'
-                  : 'tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer';
-              });
+              syncLmdSidebarActiveState('market');
             }
           }
         }
@@ -4731,18 +4854,140 @@
       /* ========================================================================
          M. NAVIGATION ONGLETS, FILTRES & PAGINATION
          ======================================================================== */
+      function syncLmdSidebarActiveState(tabName) {
+        var metaMap = {
+          market: { title: 'Market VF (109 colonnes)', sub: 'Commandes Market filtrées et recalculées automatiquement', icon: 'fa-solid fa-basket-shopping' },
+          food: { title: 'Food VF (109 colonnes)', sub: 'Commandes Food filtrées avec calcul des temps, commissions et CA', icon: 'fa-solid fa-utensils' },
+          offres: { title: 'Export Offres (Commandes Livrées)', sub: 'Récapitulatif par restaurant des remises articles, promos Admin et promos Restaurant', icon: 'fa-solid fa-tags' },
+          stat: { title: 'Stat Restaurants (VSTACK / QUERY)', sub: 'Performance détaillée par restaurant : Requested, Delivered, Success Rate, GMV, AOV, CA', icon: 'fa-solid fa-chart-column' },
+          synth_global: { title: 'Synthèse Food & Variation entre Périodes', sub: '17 KPIs ARRAYFORMULA, répartition Lundi–Dimanche et comparatif avec Data préc', icon: 'fa-solid fa-table-cells' },
+          resto_analytics: { title: 'Analyse Restaurant (Top Items & Courbe Lundi–Dimanche)', sub: 'Classement des articles vendus et évolution journalière par restaurant', icon: 'fa-solid fa-store' },
+          portefeuilles: { title: 'Portefeuilles AM & Contribution au Global', sub: 'Suivi des 7 portefeuilles Account Managers et liste des restaurants attribués', icon: 'fa-solid fa-briefcase' },
+          commissions: { title: 'Grille des Commissions (Restaurant par facture)', sub: 'Taux TTC personnalisés synchronisés avec Google Sheets', icon: 'fa-solid fa-percent' }
+        };
+
+        var info = metaMap[tabName] || metaMap.market;
+        var titleEl = document.getElementById('activeSectionTitle');
+        var subEl = document.getElementById('activeSectionSubtitle');
+        var iconEl = document.getElementById('activeSectionIcon');
+        if (titleEl) titleEl.textContent = info.title;
+        if (subEl) subEl.textContent = info.sub;
+        if (iconEl) iconEl.className = info.icon;
+
+        document.querySelectorAll('#lmdSidebarNav .tab-btn').forEach(function (btn) {
+          var isSelected = btn.getAttribute('data-tab') === tabName;
+          var dot = btn.querySelector('.lmd-radio-dot');
+          if (isSelected) {
+            btn.classList.add('active', 'yassir-lmd-item-active');
+            btn.classList.remove('text-white/80');
+            btn.classList.add('text-white');
+            if (dot) {
+              dot.className = 'lmd-radio-dot w-4 h-4 rounded-full border-2 border-white flex items-center justify-center shrink-0';
+              dot.innerHTML = '<span class="w-2 h-2 rounded-full bg-white"></span>';
+            }
+            var parentGroup = btn.closest('.lmd-nav-group');
+            if (parentGroup) {
+              parentGroup.classList.add('yassir-lmd-group-open');
+              var itemsDiv = parentGroup.querySelector('.lmd-group-items');
+              var chev = parentGroup.querySelector('.lmd-group-chevron');
+              if (itemsDiv) itemsDiv.classList.remove('hidden');
+              if (chev) chev.className = 'lmd-group-chevron fa-solid fa-chevron-up text-[10px] text-purple-200 transition-transform';
+            }
+          } else {
+            btn.classList.remove('active', 'yassir-lmd-item-active', 'text-white');
+            btn.classList.add('text-white/80');
+            if (dot) {
+              dot.className = 'lmd-radio-dot w-4 h-4 rounded-full border border-white/45 flex items-center justify-center shrink-0';
+              dot.innerHTML = '';
+            }
+          }
+        });
+      }
+
+      window.yassirToggleNavGroup = function (groupKey) {
+        var groupEl = document.querySelector('.lmd-nav-group[data-group="' + groupKey + '"]');
+        if (!groupEl) return;
+        var itemsDiv = groupEl.querySelector('.lmd-group-items');
+        var chev = groupEl.querySelector('.lmd-group-chevron');
+        if (!itemsDiv) return;
+        var isHidden = itemsDiv.classList.contains('hidden');
+        if (isHidden) {
+          itemsDiv.classList.remove('hidden');
+          groupEl.classList.add('yassir-lmd-group-open');
+          if (chev) chev.className = 'lmd-group-chevron fa-solid fa-chevron-up text-[10px] text-purple-200 transition-transform';
+        } else {
+          itemsDiv.classList.add('hidden');
+          groupEl.classList.remove('yassir-lmd-group-open');
+          if (chev) chev.className = 'lmd-group-chevron fa-solid fa-chevron-down text-[10px] text-purple-200 transition-transform';
+        }
+      };
+
+      var lmdSidebarCollapsed = false;
+      window.yassirToggleSidebarCollapse = function () {
+        var sb = document.getElementById('lmdSidebar');
+        var icon = document.getElementById('lmdSidebarCollapseIcon');
+        var searchBox = document.getElementById('lmdSidebarSearchBox');
+        if (!sb) return;
+        lmdSidebarCollapsed = !lmdSidebarCollapsed;
+        if (lmdSidebarCollapsed) {
+          sb.classList.remove('w-[275px]');
+          sb.classList.add('w-[76px]');
+          if (icon) icon.className = 'fa-solid fa-chevron-right';
+          if (searchBox) searchBox.classList.add('hidden');
+          sb.querySelectorAll('.lmd-nav-label, .lmd-radio-dot').forEach(function (el) { el.classList.add('hidden'); });
+        } else {
+          sb.classList.remove('w-[76px]');
+          sb.classList.add('w-[275px]');
+          if (icon) icon.className = 'fa-solid fa-chevron-left';
+          if (searchBox) searchBox.classList.remove('hidden');
+          sb.querySelectorAll('.lmd-nav-label, .lmd-radio-dot').forEach(function (el) { el.classList.remove('hidden'); });
+        }
+      };
+
+      window.yassirToggleMobileSidebar = function (open) {
+        var sb = document.getElementById('lmdSidebar');
+        var bd = document.getElementById('lmdMobileBackdrop');
+        if (!sb || !bd) return;
+        if (open) {
+          sb.classList.remove('-translate-x-full');
+          bd.classList.remove('hidden');
+        } else {
+          sb.classList.add('-translate-x-full');
+          bd.classList.add('hidden');
+        }
+      };
+
+      window.yassirFilterSidebarMenu = function (q) {
+        var query = String(q || '').trim().toLowerCase();
+        document.querySelectorAll('#lmdSidebarNav .lmd-nav-group').forEach(function (grp) {
+          var items = grp.querySelectorAll('.lmd-group-items > button');
+          var anyVisible = false;
+          items.forEach(function (btn) {
+            if (btn.id === 'tabBtnSynthGlobal' && (!canSeeGlobalSynth() || getEffectiveAmFilter() !== 'ALL')) return;
+            if (btn.id === 'tabBtnCommissions' && !isOwnerAdmin()) return;
+            if ((btn.id === 'btnOpenAccessManager' || btn.id === 'btnSyncSheetsNow') && !isOwnerAdmin()) return;
+            var txt = btn.textContent.toLowerCase();
+            if (!query || txt.includes(query)) {
+              btn.style.display = '';
+              anyVisible = true;
+            } else {
+              btn.style.display = 'none';
+            }
+          });
+          if (query && anyVisible) {
+            var itemsDiv = grp.querySelector('.lmd-group-items');
+            if (itemsDiv) itemsDiv.classList.remove('hidden');
+          }
+        });
+      };
+
       window.yassirSwitchTab = function (tabName) {
         if (tabName === 'commissions' && !isOwnerAdmin()) return;
         if (tabName === 'synth_global' && (!canSeeGlobalSynth() || getEffectiveAmFilter() !== 'ALL')) return;
         state.activeTab = tabName;
         state.currentPage = 1;
-
-        document.querySelectorAll('.tab-btn').forEach(function (btn) {
-          var isSelected = btn.getAttribute('data-tab') === tabName;
-          btn.className = isSelected
-            ? 'tab-btn active px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-[#6C2BD9] text-white shadow-sm shadow-[#6C2BD9]/25 cursor-pointer'
-            : 'tab-btn px-3.5 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 bg-white text-[#1A1A2E] border border-purple-200 hover:bg-[#F3EBFF] cursor-pointer';
-        });
+        syncLmdSidebarActiveState(tabName);
+        window.yassirToggleMobileSidebar(false);
 
         var prevBar = document.getElementById('prevDataImportBar');
         if (prevBar) {
@@ -4757,6 +5002,7 @@
         if (btnReset) {
           if (isOwnerAdmin() && state.rawSourceRows && state.rawSourceRows.length > 1) { btnReset.classList.remove('hidden'); btnReset.style.display = 'inline-flex'; } else { btnReset.classList.add('hidden'); btnReset.style.display = 'none'; }
         }
+        syncLmdSidebarActiveState(state.activeTab);
         mettreAJourInterface();
       };
 
