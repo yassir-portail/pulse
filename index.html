@@ -3461,16 +3461,20 @@
         var idxResto = headers.indexOf('restaurant name') !== -1 ? headers.indexOf('restaurant name') : 24;
         var idxStatus = headers.indexOf('status') !== -1 ? headers.indexOf('status') : 30;
         var idxServices = headers.indexOf('services');
-        // Colonne "Discount Type" (remise restaurant/admin, dernière occurrence si "discount type" coupon existe avant)
-        var idxDiscType = headers.lastIndexOf('discount type') !== -1 ? headers.lastIndexOf('discount type') : 78;
+        var idxDiscTypeFirst = headers.indexOf('discount type');
+        var idxDiscTypeLast = headers.lastIndexOf('discount type');
+        var idxDiscAmount = headers.indexOf('discount amount');
+        var idxCouponDisc = headers.indexOf('coupon discount');
+        var idxCouponAdmin = headers.indexOf('coupon admin');
+        var idxCouponResto = headers.indexOf('coupon restaurant');
         var idxFoodCat = headers.indexOf('food category');
         var idxTags = headers.indexOf('tags');
         var idxProvider = headers.indexOf('discount type provider') !== -1 ? headers.indexOf('discount type provider') : 90;
         var idxCommercial = headers.indexOf('commercial');
         var idxOrderIdOff = headers.indexOf('order id');
 
-        var regexBowlsSuperPromo = /(Bowls Be-Crousty|super promo)/i;
-        var regexPercentage = /percentage/i;
+        var regexArticlePromo = /(Bowls Be-Crousty|super promo|promo|offre|bogo|1\s*\+\s*1|acheté.*offert)/i;
+        var regexNoDiscount = /^(none|no discount|no_discount|n\/a|null|undefined|0|false|-)$/i;
         var regexDelivered = /delivered/i;
         var regexAdmin = /admin/i;
         var regexRestaurant = /restaurant/i;
@@ -3509,21 +3513,34 @@
           var combinedCatTags = '';
           if (idxFoodCat !== -1 && idxFoodCat < row.length && row[idxFoodCat]) combinedCatTags += ' ' + String(row[idxFoodCat]);
           if (idxTags !== -1 && idxTags < row.length && row[idxTags]) combinedCatTags += ' ' + String(row[idxTags]);
+          var isArticlePromo = regexArticlePromo.test(combinedCatTags) ? 1 : 0;
 
-          var isArticlePromo = regexBowlsSuperPromo.test(combinedCatTags) ? 1 : 0;
-
-          var valDiscType = (idxDiscType < row.length && row[idxDiscType] !== null && row[idxDiscType] !== undefined)
-            ? String(row[idxDiscType])
+          var valDiscFirst = (idxDiscTypeFirst !== -1 && idxDiscTypeFirst < row.length && row[idxDiscTypeFirst] !== null)
+            ? String(row[idxDiscTypeFirst]).trim()
             : '';
-          var isPercentage = regexPercentage.test(valDiscType);
+          var valDiscLast = (idxDiscTypeLast !== -1 && idxDiscTypeLast < row.length && row[idxDiscTypeLast] !== null)
+            ? String(row[idxDiscTypeLast]).trim()
+            : '';
+          var hasValidDiscType = (valDiscFirst !== '' && !regexNoDiscount.test(valDiscFirst)) ||
+                                 (valDiscLast !== '' && !regexNoDiscount.test(valDiscLast));
+
+          var discAmtVal = (idxDiscAmount !== -1 && idxDiscAmount < row.length) ? purgerNombre(row[idxDiscAmount]) : 0;
+          var couponDiscVal = (idxCouponDisc !== -1 && idxCouponDisc < row.length) ? purgerNombre(row[idxCouponDisc]) : 0;
+          var couponAdminVal = (idxCouponAdmin !== -1 && idxCouponAdmin < row.length) ? purgerNombre(row[idxCouponAdmin]) : 0;
+          var couponRestoVal = (idxCouponResto !== -1 && idxCouponResto < row.length) ? purgerNombre(row[idxCouponResto]) : 0;
 
           var valProvider = (idxProvider < row.length && row[idxProvider] !== null && row[idxProvider] !== undefined)
-            ? String(row[idxProvider])
+            ? String(row[idxProvider]).trim()
             : '';
-          var isPromoAdmin = (isPercentage && regexAdmin.test(valProvider)) ? 1 : 0;
-          var isPromoRestaurant = (isPercentage && regexRestaurant.test(valProvider)) ? 1 : 0;
+          var hasProvAdmin = regexAdmin.test(valProvider) || couponAdminVal > 0;
+          var hasProvResto = regexRestaurant.test(valProvider) || couponRestoVal > 0;
 
-          if (isArticlePromo !== 1 && isPromoAdmin !== 1 && isPromoRestaurant !== 1) continue;
+          var hasAnyDiscount = hasValidDiscType || discAmtVal > 0 || couponDiscVal > 0 || hasProvAdmin || hasProvResto;
+
+          if (isArticlePromo !== 1 && !hasAnyDiscount) continue;
+
+          var isPromoAdmin = hasProvAdmin ? 1 : 0;
+          var isPromoRestaurant = (hasProvResto || (hasAnyDiscount && !hasProvAdmin && isArticlePromo !== 1)) ? 1 : 0;
 
           var rawComm = (idxCommercial !== -1 && idxCommercial < row.length && row[idxCommercial] !== null)
             ? String(row[idxCommercial])
@@ -4310,6 +4327,7 @@
         var idxStatus = TARGET_HEADERS.indexOf('status');
         var idxCA = TARGET_HEADERS.indexOf('CA');
         var idxLrLg = TARGET_HEADERS.indexOf('à payer réduits');
+        var idxDelivAmt = TARGET_HEADERS.indexOf('delivery amount');
 
         var mList = amFilter === 'ALL' ? state.marketRows : state.marketRows.filter(function (r) { return r.am === amFilter; });
         var fList = amFilter === 'ALL' ? state.foodRows : state.foodRows.filter(function (r) { return r.am === amFilter; });
@@ -4328,6 +4346,8 @@
 
         var lrLgTnd = mDel.reduce(function (acc, r) { return acc + purgerNombre(r.cells[idxLrLg]); }, 0) +
                       fDel.reduce(function (acc, r) { return acc + purgerNombre(r.cells[idxLrLg]); }, 0);
+        var livraisonGratuiteCount = mDel.filter(function (r) { return purgerNombre(r.cells[idxDelivAmt]) === 0; }).length +
+                                     fDel.filter(function (r) { return purgerNombre(r.cells[idxDelivAmt]) === 0; }).length;
         var budgetTnd = amFilter === 'ALL'
           ? Number(state.budgetGlobal || 0)
           : Number(state.budgetByAm[amFilter] || 0);
@@ -4371,6 +4391,7 @@
           caLivrees: caLivrees,
           caRecues: caRecues,
           lrLgTnd: lrLgTnd,
+          livraisonGratuiteCount: livraisonGratuiteCount,
           budgetTnd: budgetTnd,
           assignedRestosCount: assignedRestosCount,
           zeroOrdersRestosCount: zeroOrdersRestosCount
@@ -4483,9 +4504,9 @@
 
         document.getElementById('kpiTitleTotal').textContent = activeFilter === 'ALL' ? 'Total Reçues (Global)' : 'Reçues (' + activeFilter + ')';
         document.getElementById('kpiTotalOrders').textContent = currentStats.totalRecues.toLocaleString('fr-FR');
-        document.getElementById('kpiDeliveryRateBadge').textContent = deliveryPct + '% livrées';
+        document.getElementById('kpiDeliveryRateBadge').textContent = shareDeliveredGlobalPct + '% du global livré';
         document.getElementById('kpiDeliveredSplit').textContent = 'Livrées : ' + currentStats.totalLivrees.toLocaleString('fr-FR') + ' | Autres : ' + totalAutres.toLocaleString('fr-FR');
-        document.getElementById('kpiShareDeliveredGlobal').textContent = 'Livrées / Global : ' + shareDeliveredGlobalPct + '% (' + currentStats.totalLivrees + '/' + globalStats.totalLivrees + ')';
+        document.getElementById('kpiShareDeliveredGlobal').textContent = 'Livrées / Global Livrées : ' + shareDeliveredGlobalPct + '% (' + currentStats.totalLivrees + '/' + globalStats.totalLivrees + ')';
 
         document.getElementById('kpiMarketOrders').textContent = currentStats.marketRecues.toLocaleString('fr-FR');
         document.getElementById('kpiMarketShare').textContent = 'Livrées : ' + currentStats.marketLivrees.toLocaleString('fr-FR') + ' | Reçues : ' + currentStats.marketRecues.toLocaleString('fr-FR');
@@ -4836,6 +4857,187 @@
         if (lblExport) {
           lblExport.textContent = mode === 'zero' ? 'Télécharger 0 commande (.xlsx)' : 'Télécharger liste (.xlsx)';
         }
+        window.yassirRenderAmTable();
+      };
+
+      window.yassirFilterAmZeroByCard = function (event, amName) {
+        if (event && event.stopPropagation) event.stopPropagation();
+        if (!canSeeZeroOrdersStats()) return;
+        state.selectedAm = amName;
+        amTableZeroOrderFilter = 'zero';
+        mettreAJourInterface();
+        var bAll = document.getElementById('btnAmFilterAllRestos');
+        var bAct = document.getElementById('btnAmFilterActiveRestos');
+        var bZero = document.getElementById('btnAmFilterZeroRestos');
+        var lblExport = document.getElementById('btnExportAmFilteredLabel');
+        if (bAll) bAll.className = 'px-3 py-1 rounded-full text-slate-600 hover:text-[#6C2BD9] transition cursor-pointer';
+        if (bAct) bAct.className = 'px-3 py-1 rounded-full text-slate-600 hover:text-[#00897B] transition cursor-pointer';
+        if (bZero) bZero.className = 'px-3 py-1 rounded-full bg-[#FF2A6D] text-white transition cursor-pointer';
+        if (lblExport) lblExport.textContent = 'Télécharger 0 commande (.xlsx)';
+      };
+
+      function getFilteredAmPortfolioEntries() {
+        var searchInput = document.getElementById('searchAmRestoInput');
+        var q = searchInput ? searchInput.value.trim().toLowerCase() : '';
+        var activeFilter = getEffectiveAmFilter();
+        var allowedAms = getAllowedAmListForCurrentUser();
+        var showZeroStats = canSeeZeroOrdersStats();
+
+        var idxResto = TARGET_HEADERS.indexOf('restaurant name');
+        var idxStatus = TARGET_HEADERS.indexOf('status');
+        var orderCountsMap = new Map();
+        state.marketRows.concat(state.foodRows).forEach(function (rec) {
+          var rKey = String(rec.cells[idxResto] || '').trim().toLowerCase();
+          if (!rKey) return;
+          if (!orderCountsMap.has(rKey)) orderCountsMap.set(rKey, { req: 0, deliv: 0 });
+          var item = orderCountsMap.get(rKey);
+          item.req++;
+          if (estCommandeLivree(rec.cells[idxStatus])) item.deliv++;
+        });
+
+        var zeroCountForScope = 0;
+        var list = [];
+
+        Object.entries(state.amPortfolios).forEach(function (pair) {
+          var key = pair[0];
+          var info = pair[1];
+          if (!canViewAllPortfolios() && allowedAms.indexOf(info.am) === -1) return;
+          if (activeFilter !== 'ALL' && info.am !== activeFilter) return;
+
+          var counts = orderCountsMap.get(key) || { req: 0, deliv: 0 };
+          if (counts.req === 0) zeroCountForScope++;
+
+          if (showZeroStats) {
+            if (amTableZeroOrderFilter === 'zero' && counts.req > 0) return;
+            if (amTableZeroOrderFilter === 'active' && counts.req === 0) return;
+          }
+
+          if (q) {
+            var matchQ = info.displayName.toLowerCase().includes(q) ||
+                         info.am.toLowerCase().includes(q) ||
+                         (info.ville && info.ville.toLowerCase().includes(q)) ||
+                         (info.segment && info.segment.toLowerCase().includes(q));
+            if (!matchQ) return;
+          }
+
+          list.push({
+            key: key,
+            info: info,
+            req: counts.req,
+            deliv: counts.deliv
+          });
+        });
+
+        list.sort(function (a, b) {
+          return a.info.am.localeCompare(b.info.am, 'fr') || a.info.displayName.localeCompare(b.info.displayName, 'fr');
+        });
+
+        return { entries: list, zeroCountForScope: zeroCountForScope };
+      }
+
+      window.yassirExportAmPortfoliosExcel = function () {
+        var res = getFilteredAmPortfolioEntries();
+        if (!res.entries || res.entries.length === 0) {
+          showToast('Aucun restaurant à exporter pour ce filtre.', 'info');
+          return;
+        }
+        var activeFilter = getEffectiveAmFilter();
+        var suffix = activeFilter === 'ALL' ? 'Global' : activeFilter.replace(/\s+/g, '_');
+        var modeSuffix = (canSeeZeroOrdersStats() && amTableZeroOrderFilter === 'zero') ? '_0_Commande' : '';
+
+        var aoa = [['Restaurant Name', 'Portefeuille AM', 'Ville / Zone', 'Segment', 'Commandes Reçues', 'Commandes Livrées']];
+        res.entries.forEach(function (item) {
+          aoa.push([
+            item.info.displayName,
+            item.info.am,
+            item.info.ville || '',
+            item.info.segment || '',
+            item.req,
+            item.deliv
+          ]);
+        });
+
+        var wb = XLSX.utils.book_new();
+        var ws = XLSX.utils.aoa_to_sheet(aoa);
+        ws['!cols'] = [{ wch: 32 }, { wch: 22 }, { wch: 22 }, { wch: 18 }, { wch: 18 }, { wch: 18 }];
+        XLSX.utils.book_append_sheet(wb, ws, modeSuffix ? 'Restos 0 Commande' : 'Portefeuilles AM');
+        var dateStr = new Date().toISOString().slice(0, 10);
+        XLSX.writeFile(wb, 'YASSIR_Portefeuilles_' + suffix + modeSuffix + '_' + dateStr + '.xlsx');
+        showToast('Fichier Excel téléchargé (<strong>' + res.entries.length + ' restaurant(s)</strong>).', 'success');
+      };
+
+      function renderPortefeuillesPanel() {
+        var grid = document.getElementById('amSummaryCardsGrid');
+        if (!grid) return;
+
+        var globalStats = calculerStatsPourAm('ALL');
+        var activeFilter = getEffectiveAmFilter();
+        var allowedAms = getAllowedAmListForCurrentUser();
+        var showZeroStats = canSeeZeroOrdersStats();
+        var btnSyncBCard = document.getElementById('btnSyncBudgetPortfolioCard');
+        var ownerBudgetSec = document.getElementById('ownerBudgetEditorSection');
+        if (btnSyncBCard) {
+          if (isOwnerAdmin()) btnSyncBCard.classList.remove('hidden');
+          else btnSyncBCard.classList.add('hidden');
+        }
+        if (ownerBudgetSec) {
+          if (isOwnerAdmin()) {
+            ownerBudgetSec.classList.remove('hidden');
+            AM_AGENTS.forEach(function (am) {
+              var inp = document.getElementById('budgetInput_' + am.replace(/\s+/g, '_'));
+              if (inp) inp.value = state.budgetByAm[am] ? state.budgetByAm[am] : '';
+            });
+          } else {
+            ownerBudgetSec.classList.add('hidden');
+          }
+        }
+
+        grid.innerHTML = allowedAms.map(function (am) {
+          var st = calculerStatsPourAm(am);
+          var isSelected = activeFilter === am;
+          var pctLivreesGlobal = globalStats.totalLivrees > 0
+            ? ((st.totalLivrees / globalStats.totalLivrees) * 100).toFixed(1)
+            : '0.0';
+          var pctOffresGlobal = globalStats.totalOffres > 0
+            ? ((st.totalOffres / globalStats.totalOffres) * 100).toFixed(1)
+            : '0.0';
+          var pctLgGlobal = globalStats.livraisonGratuiteCount > 0
+            ? ((st.livraisonGratuiteCount / globalStats.livraisonGratuiteCount) * 100).toFixed(1)
+            : '0.0';
+          var pctLrLgVsBudgetAm = st.budgetTnd > 0
+            ? ((st.lrLgTnd / st.budgetTnd) * 100).toFixed(1)
+            : '0.0';
+
+          var zeroOrdersBlock = showZeroStats
+            ? '<div class="col-span-2 mt-1 pt-1.5 border-t border-dashed border-rose-200 flex items-center justify-between">' +
+                '<span class="text-slate-500 font-semibold"><i class="fa-solid fa-circle-exclamation text-[#FF2A6D] mr-1"></i>Restos 0 commande</span>' +
+                '<button type="button" onclick="window.yassirFilterAmZeroByCard(event, \'' + escapeHtml(am) + '\')" class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-rose-50 hover:bg-[#FF2A6D] text-[#FF2A6D] hover:text-white transition cursor-pointer" title="Cliquer pour filtrer et télécharger les restaurants 0 commande de ' + escapeHtml(am) + '">' +
+                  st.zeroOrdersRestosCount + ' / ' + st.assignedRestosCount +
+                '</button>' +
+              '</div>'
+            : '';
+
+          return '<div onclick="window.yassirSelectAmFilter(\'' + escapeHtml(am) + '\')" class="rounded-2xl p-4 border transition cursor-pointer ' +
+            (isSelected ? 'bg-[#F3EBFF] border-[#6C2BD9] ring-2 ring-[#6C2BD9]/30 shadow-md' : 'bg-white border-purple-100 hover:border-[#6C2BD9]/50 shadow-sm') + '">' +
+            '<div class="flex items-center justify-between mb-2">' +
+              '<span class="text-xs font-extrabold text-[#1A1A2E] truncate">' + escapeHtml(am) + '</span>' +
+              '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#6C2BD9]/10 text-[#6C2BD9]">' + st.assignedRestosCount + ' restos</span>' +
+            '</div>' +
+            '<div class="grid grid-cols-2 gap-2 text-[11px] pt-1 border-t border-purple-100/80">' +
+              '<div><span class="text-slate-400 block">Reçues / Livrées</span><strong class="text-[#1A1A2E]">' + st.totalRecues + ' / ' + st.totalLivrees + '</strong></div>' +
+              '<div class="text-right"><span class="text-slate-400 block">% Livrées / Global Livrées</span><strong class="text-[#00897B] text-xs">' + pctLivreesGlobal + ' %</strong></div>' +
+              '<div><span class="text-slate-400 block">Offres Livrées</span><strong class="text-[#FF2A6D]">' + st.totalOffres + ' (' + st.restosOffreCount + ' r.)</strong></div>' +
+              '<div class="text-right"><span class="text-slate-400 block">% Offres / Global Livrées</span><strong class="text-[#FF2A6D] text-xs">' + pctOffresGlobal + ' %</strong></div>' +
+              '<div class="pt-1 border-t border-purple-100/70"><span class="text-slate-400 block">Livraison Gratuite (Livrées)</span><strong class="text-[#00897B] font-mono">' + st.livraisonGratuiteCount + ' cmd</strong></div>' +
+              '<div class="text-right pt-1 border-t border-purple-100/70"><span class="text-slate-400 block">% LG / Global Livrées</span><strong class="text-[#00897B] text-xs">' + pctLgGlobal + ' %</strong></div>' +
+              '<div class="pt-1 border-t border-purple-100/70"><span class="text-slate-400 block">LR & LG (TND)</span><strong class="text-[#6C2BD9] font-mono">' + st.lrLgTnd.toFixed(2) + ' TND</strong></div>' +
+              '<div class="text-right pt-1 border-t border-purple-100/70"><span class="text-slate-400 block">Budget AM (TND)</span><strong class="text-[#1A1A2E] font-mono">' + st.budgetTnd.toFixed(2) + ' TND</strong></div>' +
+              '<div class="col-span-2 flex items-center justify-between bg-[#F3EBFF]/60 px-2.5 py-1 rounded-xl"><span class="text-slate-600 font-semibold">% LR & LG / Budget AM</span><strong class="text-[#FF2A6D] text-xs font-extrabold">' + pctLrLgVsBudgetAm + ' %</strong></div>' +
+              zeroOrdersBlock +
+            '</div>' +
+          '</div>';
+        }).join('');
+
         window.yassirRenderAmTable();
       };
 
@@ -5758,6 +5960,8 @@
           'Offres (Livrées)',
           '% Offres Livrées / Global',
           'Restos avec Offre',
+          'Livraison Gratuite (Livrées)',
+          '% LG / Global Livrées',
           'CA Livrées (TND)',
           'LR & LG (TND)',
           'Budget AM (TND)',
@@ -5768,6 +5972,7 @@
           var st = calculerStatsPourAm(am);
           var pctLivGlobal = globalStats.totalLivrees > 0 ? Number(((st.totalLivrees / globalStats.totalLivrees) * 100).toFixed(2)) : 0;
           var pctOffGlobal = globalStats.totalOffres > 0 ? Number(((st.totalOffres / globalStats.totalOffres) * 100).toFixed(2)) : 0;
+          var pctLgGlobal = globalStats.livraisonGratuiteCount > 0 ? Number(((st.livraisonGratuiteCount / globalStats.livraisonGratuiteCount) * 100).toFixed(2)) : 0;
           var pctLrBudAm = st.budgetTnd > 0 ? Number(((st.lrLgTnd / st.budgetTnd) * 100).toFixed(2)) : 0;
           aoa.push([
             am,
@@ -5780,6 +5985,8 @@
             st.totalOffres,
             pctOffGlobal,
             st.restosOffreCount,
+            st.livraisonGratuiteCount,
+            pctLgGlobal,
             Number(st.caLivrees.toFixed(2)),
             Number(st.lrLgTnd.toFixed(2)),
             Number(st.budgetTnd.toFixed(2)),
